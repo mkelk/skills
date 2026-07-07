@@ -20,11 +20,16 @@ of three doors in `references/`.
 
 ## Dependency: the ticks engine
 
-dmtix is the *method*; it runs on the synthesized *ticks* skill (the *engine*). Install that
-too — it must resolve at user level (`~/.claude/skills/ticks/`) or be vendored into the
-project (`.claude/skills/ticks/`). `/dmtix bootstrap` checks for it and tells you if it's
-missing. (Stock upstream ticks lives at `github.com/pengelbrecht/ticks`; the synthesized
-engine dmtix targets is developed on a fork.)
+dmtix is the *method*; it runs on the synthesized *ticks* skill (the *engine*). Install it too:
+
+```bash
+npx skills add mkelk/ticks-melk -g -a claude-code --copy
+```
+
+It must resolve at user level (`~/.claude/skills/ticks/`) or be vendored into the project
+(`.claude/skills/ticks/`); `/dmtix bootstrap` checks for it and tells you if it's missing.
+(`mkelk/ticks-melk` is a fork of the stock tracker at `github.com/pengelbrecht/ticks`; its
+default branch carries the synthesized P3–P8 engine.)
 
 ## Where things live (the method's separation of concerns)
 
