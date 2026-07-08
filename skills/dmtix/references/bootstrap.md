@@ -43,7 +43,8 @@ The devmeta adaptation is PRESENT when all four hold:
 
 ### 4. Config (create whole, or inject missing sections only)
 - If `.tick/config.md` is missing: write the full template below.
-- If it exists: grep for the two lifecycle headings. Append ONLY the missing section(s) at
+- If it exists: grep for the template's lifecycle headings (`## At run start`,
+  `## At epic close-out`, `## At project checkpoint`). Append ONLY the missing section(s) at
   the end of the file, verbatim from the template. Never edit or reorder existing content.
 - If a section exists but visibly differs from the template's intent (e.g. a hand-rolled
   `At epic close-out` writing elsewhere): do NOT touch it — show the user the diff against
@@ -57,6 +58,12 @@ The devmeta adaptation is PRESENT when all four hold:
 ## For implementers
 - Your tick description names the source-of-truth spec. Do not add scope beyond it.
 - Follow CLAUDE.md / AGENTS.md and existing code patterns.
+
+## At run start
+- Branch guard (verify, don't ask): `git rev-parse --abbrev-ref HEAD` must not be
+  `main`/`master` — devmeta runs only on an increment base branch. On main/master, stop
+  and tell the human (or switch to the active increment's branch per
+  `.devmeta/current-increment.md` → its `_overview.md` "How to run").
 
 ## At epic close-out
 Resolve the ACTIVE increment from `.devmeta/current-increment.md`: its directory
@@ -73,11 +80,14 @@ is <DIR>, its id is <ID>. Then:
 Same resolution as above. Then:
 1. Write the increment completion report to `<DIR>/completion.md`
    (features, gates status, outstanding human items, postmortems).
-2. STOP for human review.
+2. Integration stops at the increment's base branch: never merge it to `main`/`master` —
+   shipping the increment is the human's decision at this checkpoint.
+3. STOP for human review.
 ```
 
-*(Deliberately no `Testing` / `At run start` sections — the engine's execution profile
-infers those. Add them only for facts the repo cannot reveal.)*
+*(Deliberately no `Testing` section — the engine's execution profile infers test facts
+from the repo. `At run start` carries only the branch guard: method policy is exactly the
+kind of fact the repo cannot reveal, which is what these sections are for.)*
 
 ### 5. Records scaffold (create-if-missing)
 - `.devmeta/increments/` (directory)

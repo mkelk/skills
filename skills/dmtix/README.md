@@ -1,8 +1,9 @@
 # dmtix — devmeta-on-ticks
 
 A delivery method (the "devmeta" increment discipline) running on the synthesized **ticks**
-engine: P3 lifecycle config + P6 execution readiness + P7 dispatch economics + P8
-partitioning doctrine. It gives you a predictable *scope → run → records* rhythm — interactive
+engine: lifecycle-addressed config, execution readiness (profile + provisioned worktrees),
+dispatch economics (warm-chains), and constraint-surface partitioning. It gives you a
+predictable *scope → run → records* rhythm — interactive
 increment scoping, a walk-away autonomous run, and durable per-increment narrative records —
 on top of ticks' parallel-agent execution.
 
@@ -16,7 +17,7 @@ of three doors in `references/`.
 |---|---|---|
 | `bootstrap` | once per project | installs the method into a ticks project: verifies the ticks skill resolves, `tk init`, injects `.tick/config.md` lifecycle sections (additive — never overwrites), scaffolds `.devmeta/`. Idempotent. |
 | `start` | once per increment | interactive scoping — engine-drafted / human-ratified epic partition, goal-compatible definitions of done — then writes the records tree and the tk roadmap. Setup only; never executes. |
-| `go` | per session | starts **or resumes** the active increment's run; thin wrapper over the ticks skill; stops at the project checkpoint. |
+| `go` | per session | starts **or resumes** the active increment's run; thin wrapper over the ticks skill; stops at the project checkpoint. Integration ends at the increment's base branch — merging to `main` is the human's act. |
 
 ## Dependency: the ticks engine
 
@@ -29,7 +30,7 @@ npx skills add mkelk/ticks-melk -g -a claude-code --copy
 It must resolve at user level (`~/.claude/skills/ticks/`) or be vendored into the project
 (`.claude/skills/ticks/`); `/dmtix bootstrap` checks for it and tells you if it's missing.
 (`mkelk/ticks-melk` is a fork of the stock tracker at `github.com/pengelbrecht/ticks`; its
-default branch carries the synthesized P3–P8 engine.)
+default branch carries the synthesized engine upgrades.)
 
 ## Where things live (the method's separation of concerns)
 

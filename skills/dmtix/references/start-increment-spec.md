@@ -136,7 +136,8 @@ Rules:
 
 Ask the user (the one legitimate question): use the current branch, or create
 `YYYY-MM-DD-<slug>` from it? Never main/master. Record the choice in `_overview.md` →
-"How to run".
+"How to run", and stamp it on the roadmap so the engine never assumes main:
+`tk update <id> --base-branch <branch>` for the project tick and each epic.
 
 ## Step 7 — Commit and stop
 
