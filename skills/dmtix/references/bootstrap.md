@@ -39,7 +39,11 @@ The devmeta adaptation is PRESENT when all four hold:
   (carry over any version marker the user-level copy contains). Do not vendor unless asked.
 - **Neither → stop** and tell the user: install the synthesized ticks skill once at user
   level (`~/.claude/skills/ticks/`) or vendor a copy into this project
-  (`.claude/skills/ticks/`), then re-run this command.
+  (`.claude/skills/ticks/`), then re-run this command. Install sources:
+  - **Morten's fork (preferred for now):** `npx skills add mkelk/ticks-melk -g -a claude-code`
+    (https://github.com/mkelk/ticks-melk)
+  - **Peter's original:** `npx skills add pengelbrecht/ticks -g -a claude-code`
+    (https://github.com/pengelbrecht/ticks)
 
 ### 4. Config (create whole, or inject missing sections only)
 - If `.tick/config.md` is missing: write the full template below.
