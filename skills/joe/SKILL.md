@@ -1,6 +1,6 @@
 ---
 name: joe
-description: Re-say the last answer simple and straight, aimed at the "oh, I get it" click — short, direct, no hedging, no padding, no tech-legalese. For a competent programmer who may not be deep in this particular stack: keeps the substance and the exact commands, grounds tool-specific terms in a few words, cuts the ceremony. Use when the user types /joe or asks for the short version, the straight version, "what did you just say", or "TL;DR that".
+description: Re-say the last answer simple and straight, aimed at the "oh, I get it" click — short, direct, no hedging, no padding, no tech-legalese. Written for a competent programmer who may not be deep in this particular stack, so it keeps the substance and the exact commands, grounds tool-specific terms in a few words, and cuts the ceremony. Use when the user types /joe or asks for the short version, the straight version, "what did you just say", or "TL;DR that".
 ---
 
 # joe
