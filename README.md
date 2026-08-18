@@ -10,6 +10,10 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   **ticks** parallel-agent engine. Invoked with an argument: `/dmtix bootstrap | start | go`.
   Requires the ticks engine skill (see the skill's README).
 
+- **[joe](skills/joe/)** — type `/joe` after a long agent answer and get the same thing back
+  short and in plain English: bottom line first, no hedging, no jargon, no tech-legalese.
+  Rewrite only — it does no new work.
+
 ## Install
 
 ```bash
