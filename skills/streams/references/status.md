@@ -22,6 +22,7 @@ For every row, gather — all read-only, all from the machine, none from a messa
 | implementer worktrees | `git worktree list` from the row's worktree, rows under `.ticks-worktrees/` whose branch is `tick/<one of its epics>/*`; for each, uncommitted lines (`git status --short | wc -l`) and commits ahead of the stream branch. |
 | last movement | age of the stream branch's tip commit; age of the newest commit on any of its tick branches. |
 | playwright | `pgrep -f "playwright tes[t]"` — if any, which worktree path it runs in. |
+| progress | From the tick files, not `tk graph` (which counts only open tasks): for each of the increment's epics in roadmap order, its children (`parent == epic id`) and how many are closed. The increment's position is **the first epic not closed, out of the epic count** ("E1 of 3"); that epic's `closed/total` is the bar. Epics after it usually have zero children — the method plans just-in-time — so they show as "unplanned", never as 0%. **Never print an increment-wide percentage**: three epics are not equal-sized, and "29% done" for a stream a third through its first epic is a number that gets trusted and is wrong. |
 
 ## Step 3 — Classify
 
@@ -53,8 +54,16 @@ STREAM      INCREMENT                  SESSION            STATE      WORK IN FLI
 <name>      <id + title>               <session or "Morten's own">   <working|idle|blocked|—>   <n implementers, m lines uncommitted | clean | docs only>   <age of newest commit>   <block>   <host or —>
 …
 
+PROGRESS
+<stream>    E<n> of <N> · <closed>/<total> ticks   <bar of 14 cells for the current epic>   <one clause: e.g. "E1 review running; E2, E3 unplanned">
+…
+
 PLAYWRIGHT  free | held by <worktree>
 ```
+
+PROGRESS shows where each stream is, honestly: the epic it is in, out of how many, and that
+epic's ticks closed over total as a bar. The clause after says what is happening in that epic
+(a wave running, a review, a close-out) and that later epics are unplanned, which is normal.
 
 Rules for the table: the mainline first, then side streams in port order, then any docs-only
 branch. STATE comes from herdr (working / idle / blocked) or `ListAgents`; `—` for a
