@@ -35,8 +35,22 @@ step. Each hand landing corrects this file where it was wrong. Then it becomes t
    `streams.md` (`landing: tier running`), tell every session, run the full UI tier on the
    defaults ungrouped under the memory guard, regenerate any shared-page baseline that moved,
    read the failures — a timing failure on one project that passes alone is not a regression.
+0. **Land a finished stream as soon as it can be landed.** A stream at its checkpoint with a
+   green gate is not "done later" — it is holding a worktree, a port block, a session, and
+   usually something another stream is waiting on. The landing waits only for a quiet mainline
+   and a free machine, never for the end of an evening. Check every wake-up: is anything
+   finished and unlanded?
 7. **Close:** commit the merge (message names the seams and the `## At landing` items), push,
    close the stream's project tick with `--from human` and the human's words, remove its
    worktree and branch (local; delete the remote branch if pushed), release Playwright in
    `streams.md`, and print the message to send the mainline's session (the SHA, what changed
    under it, that the machine is free).
+8. **Then tell the human to close that stream's session.** Integrate, delete, and *say so* —
+   name the session so they close the right pane (Morten, 2026-09-20). A session left open on
+   a deleted worktree is a pane that looks like work, costs context, and will answer a status
+   check with a tree that no longer exists.
+9. **The human's close does not come back to the seat.** They close the project tick in the
+   stream's own tree, so the tracker learns it **on that branch only** — if the stream landed
+   before they closed it, that close needs its own small merge or the mainline's tracker still
+   reads the gate as open. Cheapest order when the human is available: **ask for the close at
+   the checkpoint, land after it**, and the whole thing is one merge.
