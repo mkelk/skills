@@ -11,8 +11,9 @@ current tree; `--from master` when the stream must not carry the mainline's unfi
 ## Step 1 — Read the table, claim a block
 
 From `.devmeta/streams.md`: the mainline's branch and host, and every port block in use. The
-new block is the lowest `39k0–39k9` (k ≥ 2) no row holds. Refuse if none is free — say which
-rows hold what.
+new block is the **lowest** `39k0–39k9` (k ≥ 2) no *live* row holds — a landed stream's block
+is free again (08s1 landed and 3920 was free while 3960 looked next; the first cut nearly took
+3960). Refuse if none is free — say which rows hold what.
 
 ## Step 2 — Branch and worktree
 
@@ -39,8 +40,11 @@ and the mainline owns the deploy host. Install deps (`pnpm install --frozen-lock
   `todo/todo.md` into a new `.devmeta/increments/increment-<id>/_overview.md` under a
   `## Taken from the todo` heading, write the overview's skeleton (Goal, Produces, Not
   included, Roadmap, Definitions of done, Exit criteria, How to run) from it, and create the
-  tk project and one epic with `tk create`, stamping `--base-branch` on the epic. Otherwise
-  leave scoping to `/dmtix start` in the worktree and say so.
+  tk project and one epic with `tk create`, stamping `--base-branch` on the epic. Otherwise, if
+  the seat already knows the scope well (it was designed in conversation and nothing is in the
+  todo), write the overview directly — complete, with definitions of done — and create the tk
+  project and epic; that is what the first cut did for the streams CLI. Only leave scoping to
+  `/dmtix start` when the scope is genuinely open.
 - **The Streams row.** On **master**, via a scratch worktree and `git update-ref`: add the row
   (session `—` until the human names it, status `cut`), commit, push. Then `git merge master`
   into the new branch so it carries its own row.
@@ -75,3 +79,12 @@ Once you know the session's name, tell me and I will put it in the table.
 ```
 
 The door does not message the new session: it does not exist yet, and the human names it.
+
+## Corrections from real runs
+
+- 2026-09-20, first cut (08s4-pvp, the streams CLI): the port rule said "next free" and the seat
+  read it as "after the highest" — the lowest free block was 3920, a landed stream's. Reworded.
+  No todo entry existed for a scope designed in conversation; the door now says to write the
+  overview directly in that case. Step 3's "merge master into the new branch" conflicts on the
+  Active line (keep the stream's) and the todo (keep both) when master has moved since the cut
+  point — expected, not a defect.
