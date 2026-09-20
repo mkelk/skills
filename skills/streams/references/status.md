@@ -16,7 +16,7 @@ For every row, gather — all read-only, all from the machine, none from a messa
 
 | what | how |
 |---|---|
-| its session | Two sources, and the second is the better one. (1) `ListAgents`: match the row's session name; gives busy / idle / waiting. (2) **`herdr api snapshot`** (when herdr runs — `~/.config/herdr/herdr.sock` exists): every agent with its `cwd` and `agent_status` (working / idle / **blocked**). Match by cwd = the row's worktree; this catches sessions that never registered with Claude's list (a resumed session, a pane opened by the human) and gives `blocked` as a first-class state, which `ListAgents` only shows as "waiting". **Two agents with the same cwd is a finding in itself** — report it; one checkout, one orchestrator. Needs `tk` ≥ 0.31 for `tk herd`, but the snapshot is `herdr`'s own CLI and needs nothing. |
+| its session | Two sources, and the second is the better one. (1) `ListAgents`: match the row's session name; gives busy / idle / waiting. (2) **`herdr api snapshot`** (when herdr runs — `~/.config/herdr/herdr.sock` exists): every agent with its `cwd` and `agent_status` (working / idle / **blocked**). Match by cwd = the row's worktree; this catches sessions that never registered with Claude's list (a resumed session, a pane opened by the human) and gives `blocked` as a first-class state, which `ListAgents` only shows as "waiting". **Two agents with the same cwd is a finding in itself** — report it; one checkout, one orchestrator. **Except the seat's own pane:** the orchestrating session is often started in the main checkout and is one of the two; identify it first (`herdr pane read <id>` shows its own prompt) and exclude it. Better still, start the seat in a directory of its own. Needs `tk` ≥ 0.31 for `tk herd`, but the snapshot is `herdr`'s own CLI and needs nothing. |
 | its ticks | in the row's worktree: `tk list --status open`. **The tracker is shared across every worktree of one repo, so filter by the stream's own epics** — a tick belongs to the stream if `tk show <id>` names one of its epics as parent. Count in-progress (●) and awaiting-human (◐) that way. **Ready is not `tk ready`** (it has no per-epic scope and counts the whole tracker): derive it from `tk graph <epic> --json` as open tasks whose blockers are all closed. Ignore ◐ ticks from earlier increments that were never closed (they show in every worktree). |
 | at checkpoint | **the stream's own** `.devmeta/increments/increment-<its id>/completion.md` exists — never a glob over `increments/*/`, which matches every finished increment in the tree and says yes for everyone. |
 | implementer worktrees | `git worktree list` from the row's worktree, rows under `.ticks-worktrees/` whose branch is `tick/<one of its epics>/*`; for each, uncommitted lines (`git status --short | wc -l`) and commits ahead of the stream branch. |
@@ -61,6 +61,10 @@ measured; do not re-run the sweep.
 
 ## Corrections from real runs
 
+- 2026-09-20, fourth run: the "two agents in the main checkout" finding was the seat itself,
+  reported three times before `herdr pane read` identified it. Excluded above. Also: count
+  implementer worktrees as *live* (touched within 30 min), not as existing — stale tick
+  branches from earlier waves overstate the number.
 - 2026-09-20, second run: `ListAgents` does not see herdr panes at all (a resumed session, a
   pane the human opened). `herdr api snapshot` does, by cwd, with a real `blocked` state — it
   found the mainline's orchestrator blocked on a prompt and a second agent in the same
