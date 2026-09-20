@@ -50,27 +50,25 @@ NEEDS YOU
 STALLED / UNKNOWN DRIVER
   <stream>   <which rule fired, with the number>            (or "  —")
 
-STREAM      INCREMENT                  SESSION            STATE      WORK IN FLIGHT              LAST    PORTS       HOST
-<name>      <id + title>               <session or "Morten's own">   <working|idle|blocked|—>   <n implementers, m lines uncommitted | clean | docs only>   <age of newest commit>   <block>   <host or —>
-…
-
-PROGRESS
-<stream>    <one glyph per epic>   E<n> of <N> · <closed>/<total> ticks   <one clause: "E1 done; E2 wave 1 running">
+STREAM     SESSION         STATE     EPICS   AT               IN FLIGHT                LAST   WHAT NOW                     PORTS
+<name>     <session or "Morten's own">   <working|idle|blocked|—>   <one glyph per epic>   E<n> of <N> · <closed>/<total>   <n implementers, m lines | clean | —>   <age>   <one clause>   <block> · <host if any>
 …
 
 PLAYWRIGHT  free | held by <worktree>
 ```
 
-PROGRESS shows the whole increment's shape and the current epic's depth in one line, without
-pretending unequal epics are equal. **One glyph per epic, in roadmap order:** `●` closed;
+**One table, one row per stream** — the session and the progress on the same line, so a
+glance answers "who is on it and how far are they" together. EPICS and AT show the whole
+increment's shape and the current epic's depth without pretending unequal epics are equal. **One glyph per epic, in roadmap order:** `●` closed;
 the current epic by its tick fraction — `○` none closed, `◔` under a quarter, `◑` under
 half, `◕` under all, `●` when its last tick closes; `○` for every epic after it (unplanned
-is normal: the method plans just-in-time). Then "E*n* of *N* · closed/total ticks" for the
-numbers, then one clause on what is happening now. Never a single increment-wide
+is normal: the method plans just-in-time). AT is "E*n* of *N* · closed/total"; WHAT NOW is one clause on what is happening in that
+epic — a wave running, scouts out, a review, "idle *n*m, *k* ticks left — watch". Never a single increment-wide
 percentage: three epics are not equal-sized, and "ticks closed over ticks that exist" reads
 100% the moment E1 closes with two epics still to come.
 
-Rules for the table: the mainline first, then side streams in port order, then any docs-only
+The increment's title is not a column: the stream name says which is which, and the title
+was the widest column for the least information. Rules for the table: the mainline first, then side streams in port order, then any docs-only
 branch. STATE comes from herdr (working / idle / blocked) or `ListAgents`; `—` for a
 hand-driven stream. WORK IN FLIGHT counts *live* implementer worktrees (touched within
 30 min) and the lines uncommitted across them; "clean" when live worktrees exist with
