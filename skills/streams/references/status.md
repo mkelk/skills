@@ -69,10 +69,8 @@ share; an unplanned epic counts zero. So `●◑○` with the middle epic at 3/6
 running epic's total can still grow, so this is a reading, not a measurement. It is printed
 because a rough number at a glance is worth having; the glyphs beside it are the honest shape.
 AT is "E*n* of *N* · closed/total"; WHAT NOW is one clause on what is happening in that
-epic — a wave running, scouts out, a review, "idle *n*m, *k* ticks left — watch". Never a single increment-wide
-percentage: three epics are not equal-sized, and "ticks closed over ticks that exist" reads
-100% the moment E1 closes with two epics still to come.
-
+epic — a wave running, scouts out, a review, "idle *n*m, *k* ticks left — watch". Never ticks-over-ticks: the `~%` column is the only increment-wide number, and it is by
+the formula above.
 The increment's title is not a column: the stream name says which is which, and the title
 was the widest column for the least information. Rules for the table: the mainline first, then side streams in port order, then any docs-only
 branch. STATE comes from herdr (working / idle / blocked) or `ListAgents`; `—` for a
