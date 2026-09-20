@@ -44,7 +44,7 @@ only when something needs saying beyond what the table shows.
 STREAMS · <date> <time>
 
 NEEDS YOU
-  <tick>   <stream>   <what, one line>                      (or "  —")
+  <tick>   <stream>   <what to do, where, and what closes it>   (or "  —")
 
 STALLED / UNKNOWN DRIVER
   <stream>   <which rule fired, with the number>            (or "  —")
@@ -62,7 +62,22 @@ hand-driven stream. WORK IN FLIGHT counts *live* implementer worktrees (touched 
 30 min) and the lines uncommitted across them; "clean" when live worktrees exist with
 nothing uncommitted; "docs only" for a branch with no ticks. LAST is the age of the newest
 commit on the stream branch or any of its tick branches, whichever is newer. NEEDS YOU
-leads with the tick id so the human can act on it without reading further.
+leads with the tick id so the human can act on it without reading further — and the rest of
+the line is **an instruction, not the tick's title**. Build it from `tk show <id>`: the
+description says where to look (a route, a file, a screenshot) and the acceptance says what
+closes it (his approval quoted in the close reason; a decision written into an overview; a
+value put on a host). Three parts, in this order, in plain words:
+
+    <tick>   <stream>   DO <the act> · WHERE <session or path> · CLOSES WHEN <the acceptance>
+
+    txj   inspiration   DO read the seed card's five parts and approve or reword them
+                        · WHERE the inspiration session, or the PNGs under
+                          apps/web/tests/ui/__screenshots__/inspiration-seed.spec.ts/
+                        · CLOSES WHEN your words are in the close reason (--from human)
+
+Wrap to three indented lines if it does not fit one. If the tick's description does not
+say where or what closes it, say so — "(tick gives no location)" — rather than guessing;
+that is a defect in the tick, and naming it gets it fixed.
 
 ## What this door never does
 
