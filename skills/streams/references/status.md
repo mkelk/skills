@@ -22,7 +22,7 @@ For every row, gather — all read-only, all from the machine, none from a messa
 | implementer worktrees | `git worktree list` from the row's worktree, rows under `.ticks-worktrees/` whose branch is `tick/<one of its epics>/*`; for each, uncommitted lines (`git status --short | wc -l`) and commits ahead of the stream branch. |
 | last movement | age of the stream branch's tip commit; age of the newest commit on any of its tick branches. |
 | playwright | `pgrep -f "playwright tes[t]"` — if any, which worktree path it runs in. |
-| progress | From the tick files, not `tk graph` (which counts only open tasks): for each of the increment's epics in roadmap order, its children (`parent == epic id`) and how many are closed. The increment's position is **the first epic not closed, out of the epic count** ("E1 of 3"); that epic's `closed/total` is the bar. Epics after it usually have zero children — the method plans just-in-time — so they show as "unplanned", never as 0%. **Never print an increment-wide percentage**: three epics are not equal-sized, and "29% done" for a stream a third through its first epic is a number that gets trusted and is wrong. |
+| progress | From the tick files, not `tk graph` (which counts only open tasks): for each of the increment's epics in roadmap order, its children (`parent == epic id`) and how many are closed. The increment's position is **the first epic not closed, out of the epic count** ("E1 of 3"); that epic's `closed/total` is the bar. Epics after it usually have zero children — the method plans just-in-time — so they show as "unplanned", never as 0%. The `~%` column is the one increment-wide number, by Morten's formula (see Step 4); it is labelled rough and sits beside the glyphs that show the true shape. |
 
 ## Step 3 — Classify
 
@@ -50,8 +50,8 @@ NEEDS YOU
 STALLED / UNKNOWN DRIVER
   <stream>   <which rule fired, with the number>            (or "  —")
 
-STREAM     SESSION         STATE     EPICS   AT               IN FLIGHT                LAST   WHAT NOW                     PORTS
-<name>     <session or "Morten's own">   <working|idle|blocked|—>   <one glyph per epic>   E<n> of <N> · <closed>/<total>   <n implementers, m lines | clean | —>   <age>   <one clause>   <block> · <host if any>
+STREAM     SESSION         STATE     EPICS   ~%    AT               IN FLIGHT                LAST   WHAT NOW                     PORTS
+<name>     <session or "Morten's own">   <working|idle|blocked|—>   <one glyph per epic>   <rough %>   E<n> of <N> · <closed>/<total>   <n implementers, m lines | clean | —>   <age>   <one clause>   <block> · <host if any>
 …
 
 PLAYWRIGHT  free | held by <worktree>
@@ -62,7 +62,13 @@ glance answers "who is on it and how far are they" together. EPICS and AT show t
 increment's shape and the current epic's depth without pretending unequal epics are equal. **One glyph per epic, in roadmap order:** `●` closed;
 the current epic by its tick fraction — `○` none closed, `◔` under a quarter, `◑` under
 half, `◕` under all, `●` when its last tick closes; `○` for every epic after it (unplanned
-is normal: the method plans just-in-time). AT is "E*n* of *N* · closed/total"; WHAT NOW is one clause on what is happening in that
+is normal: the method plans just-in-time). **`~%` is a rough increment-wide estimate, by Morten's definition (2026-09-20):** every epic is
+worth `100 / N`; a closed epic counts in full; the running epic counts `closed / total` of its
+share; an unplanned epic counts zero. So `●◑○` with the middle epic at 3/6 is 33 + 17 + 0 =
+50%. The tilde is part of the column name on purpose: epics are not equal-sized and the
+running epic's total can still grow, so this is a reading, not a measurement. It is printed
+because a rough number at a glance is worth having; the glyphs beside it are the honest shape.
+AT is "E*n* of *N* · closed/total"; WHAT NOW is one clause on what is happening in that
 epic — a wave running, scouts out, a review, "idle *n*m, *k* ticks left — watch". Never a single increment-wide
 percentage: three epics are not equal-sized, and "ticks closed over ticks that exist" reads
 100% the moment E1 closes with two epics still to come.
