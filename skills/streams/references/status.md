@@ -36,21 +36,33 @@ Per stream, one word, by these rules in order:
 
 ## Step 4 — Print
 
-Exactly this shape, nothing narrated around it:
+Exactly this shape. Column headers always; columns aligned; a `—` where a column does not
+apply; nothing narrated between the header and the table. Prose, if any, goes **after**, and
+only when something needs saying beyond what the table shows.
 
 ```
-NEEDS MORTEN:
-  <stream>: <what, in one line, with the tick id>          (or "nothing")
-STALLED / UNKNOWN DRIVER:
-  <stream>: <which rule fired, with the number>            (or "nothing")
+STREAMS · <date> <time>
 
-<stream>   <increment>   <session/state>   <ticks: n running, n ready, n human>   <last commit Xm ago>   <ports>
+NEEDS YOU
+  <tick>   <stream>   <what, one line>                      (or "  —")
+
+STALLED / UNKNOWN DRIVER
+  <stream>   <which rule fired, with the number>            (or "  —")
+
+STREAM      INCREMENT                  SESSION            STATE      WORK IN FLIGHT              LAST    PORTS       HOST
+<name>      <id + title>               <session or "Morten's own">   <working|idle|blocked|—>   <n implementers, m lines uncommitted | clean | docs only>   <age of newest commit>   <block>   <host or —>
 …
-playwright: free | held by <worktree>
+
+PLAYWRIGHT  free | held by <worktree>
 ```
 
-Then stop. If the human asks a follow-up ("why is X stalled"), answer from what was
-measured; do not re-run the sweep.
+Rules for the table: the mainline first, then side streams in port order, then any docs-only
+branch. STATE comes from herdr (working / idle / blocked) or `ListAgents`; `—` for a
+hand-driven stream. WORK IN FLIGHT counts *live* implementer worktrees (touched within
+30 min) and the lines uncommitted across them; "clean" when live worktrees exist with
+nothing uncommitted; "docs only" for a branch with no ticks. LAST is the age of the newest
+commit on the stream branch or any of its tick branches, whichever is newer. NEEDS YOU
+leads with the tick id so the human can act on it without reading further.
 
 ## What this door never does
 
