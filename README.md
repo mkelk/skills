@@ -10,6 +10,12 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   **ticks** parallel-agent engine. Invoked with an argument: `/dmtix bootstrap | start | go`.
   Requires the ticks engine skill (see the skill's README).
 
+- **[streams](skills/streams/)** — the seat that sees every stream. For the one session that
+  coordinates several dmtix increments running side by side: `/streams status` (what is
+  running, what waits on the human, what has stalled — from files), `/streams cut <slug>`
+  (a new side stream: branch, worktree, ports, records, a brief). Landing is a checklist
+  until two hand landings confirm it.
+
 - **[joe](skills/joe/)** — type `/joe` after a long agent answer and get the same thing back
   short and in plain English: bottom line first, no hedging, no jargon, no tech-legalese.
   Rewrite only — it does no new work.
