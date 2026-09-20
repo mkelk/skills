@@ -126,11 +126,29 @@ A one-word sonnet probe answered immediately — the limit had already lifted, a
 and an opus dispatch had been running through the whole window. Report the probe's result, not
 the 429's prose.
 
+## Step 5 — Restart what is stalled, before you print
+
+**A stall is not a line in a report. It is work that has stopped, and the seat's job is to
+start it again** (Morten, 2026-09-20). So after Step 3 and before Step 4's screen: for every
+stream classified **stalled**, message its session — say which rule fired, with the number, and
+ask for one line back if it is mid-something. Then print, naming each stream you nudged.
+
+The one exception: **a stream waiting on the human is not stalled and is never nudged.** Its
+work has not stopped, it has been handed over. That is a NEEDS YOU item, and the human is the
+only one who can clear it.
+
+Two further exceptions keep their existing force: a row the human drives is the human's to
+nudge, and the caller's own row is skipped.
+
+Prefer asking to instructing. "`8ab` has been ready 21 minutes with nothing dispatched; one
+line is enough if you are mid-something" gets a truthful answer, where "dispatch `8ab`" gets
+compliance and sometimes a wrong dispatch. And when a stall has a shape that has been seen
+before, name it — a session that recognises *the report reads like the end of the work* fixes
+the cause, not the instance.
+
 ## What this door never does
 
-- Message a session, except the one-word probe above when a stream is silent and the answer
-  changes what the human is told. A stall is reported to the human; nudging is the seat's
-  judgement.
+- Edit a stream's tree, dispatch its ticks, or decide anything the human should.
 - Edit `streams.md`. If the table is wrong (a row for a landed stream, a missing row), say so
   and let the seat fix it with the update-ref procedure.
 - Nudge, land or message a stream whose row says it is the human's own.
