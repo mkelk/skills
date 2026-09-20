@@ -55,15 +55,20 @@ STREAM      INCREMENT                  SESSION            STATE      WORK IN FLI
 …
 
 PROGRESS
-<stream>    E<n> of <N> · <closed>/<total> ticks   <bar of 14 cells for the current epic>   <one clause: e.g. "E1 review running; E2, E3 unplanned">
+<stream>    <one glyph per epic>   E<n> of <N> · <closed>/<total> ticks   <one clause: "E1 done; E2 wave 1 running">
 …
 
 PLAYWRIGHT  free | held by <worktree>
 ```
 
-PROGRESS shows where each stream is, honestly: the epic it is in, out of how many, and that
-epic's ticks closed over total as a bar. The clause after says what is happening in that epic
-(a wave running, a review, a close-out) and that later epics are unplanned, which is normal.
+PROGRESS shows the whole increment's shape and the current epic's depth in one line, without
+pretending unequal epics are equal. **One glyph per epic, in roadmap order:** `●` closed;
+the current epic by its tick fraction — `○` none closed, `◔` under a quarter, `◑` under
+half, `◕` under all, `●` when its last tick closes; `○` for every epic after it (unplanned
+is normal: the method plans just-in-time). Then "E*n* of *N* · closed/total ticks" for the
+numbers, then one clause on what is happening now. Never a single increment-wide
+percentage: three epics are not equal-sized, and "ticks closed over ticks that exist" reads
+100% the moment E1 closes with two epics still to come.
 
 Rules for the table: the mainline first, then side streams in port order, then any docs-only
 branch. STATE comes from herdr (working / idle / blocked) or `ListAgents`; `—` for a
