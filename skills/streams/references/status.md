@@ -227,6 +227,21 @@ that is a defect in the tick, and naming it gets it fixed.
   rendered surface, **read the render or reason from the component, and record the
   attribution on the tick**: the next regeneration will surface it, and without a note it is
   charged to whoever ran that regeneration.
+  **A third state exists and is worse than both, because a regeneration does not fix it
+  either: a baseline that was never compared at all.** When one test shoots more than one
+  picture, a failed assertion before the second aborts the test, and that second baseline is
+  not passing, not stale-but-green — it is **unexamined**, and the run reports nothing about
+  it in either direction. Measured 2026-09-21: `admin.spec.ts` shoots a card at `:498` and
+  the full page at `:526` inside one test; a caption change blew the card shot at all four
+  projects, so the full-page shot was never reached. **And a forced `--update-snapshots=all`
+  pass will not write it either**, because the test still dies at the first assertion — so a
+  regeneration reports success, rewrites everything it touched, and leaves one picture of a
+  pair silently unwritten, with a fresh timestamp on its sibling making the set look freshly
+  verified. `.tick/config.md` already says a test that fails never reaches its screenshot;
+  what it does not say is that **two pictures in one test make this reachable with nothing
+  red at the end** — fix the first, and the second was never in the run. The rule is cheap:
+  **when one test shoots more than one baseline, force the earlier one first and confirm the
+  test runs to completion before reading the later one.**
 
 - 2026-09-21: **"the machine is free" and "the window is open" are different sentences, and the
   seat said the first.** Having established that a stream's stuck wait-loops were not a running
