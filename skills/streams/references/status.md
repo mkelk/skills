@@ -236,6 +236,19 @@ that is a defect in the tick, and naming it gets it fixed.
   small or sits under an overlay. Related and worth keeping: `--update-snapshots=all` rewrites
   files whose comparison *passed*, so where it leaves a file alone the render was identical
   rather than merely close — that is the one guarantee a forced pass gives.
+  **But the rule has a boundary, measured the same evening, and it must be read first: the
+  blindness holds only for changes that do NOT reflow.** A nav link swaps pixels in place and
+  vanishes into the budget. **A paragraph inserted mid-page moves the rest of the document
+  down**, so the diff scales with what is *under* the change rather than with the change.
+  Measured: a three-sentence caption added **40 px at desktop and 100 px at phone**, and
+  `admin-routing.png` failed at **0.03–0.05** against a 0.01 cap in all four projects — 115,346
+  differing pixels at desktop-light, 81,475 at phone-light — because 3,600 px of page moved.
+  **A change that adds height is not small at any page length.** The same caption also blew its
+  card-scoped shot, for the *other* reason (it is large relative to a card), so one change
+  failed two denominators for two unrelated causes. The tick and the epic that planned it had
+  both predicted it would vanish into the budget: **they reasoned about the caption's area and
+  forgot its height.**
+
   **Demonstrated rather than argued, 2026-09-21.** A four-line change added one link to
   `AppBar`, whose two flex groups are joined by `justify-between`, so the right group widens
   and its left edge moves — a diff confined to a band the height of the bar. **Twenty-seven
