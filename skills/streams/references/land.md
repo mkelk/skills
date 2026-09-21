@@ -57,11 +57,16 @@ finished and unlanded?
      merge, then delete that spec's `__screenshots__` and re-run `test:ui:update` for the
      specs concerned.** The tempting move — resolve by choosing the newer-looking file —
      **produces a picture of a page that never existed**, because each file is a true picture
-     of a different tree. *(Unresolved, 2026-09-21: the delete-first step exists so a
-     within-tolerance stale baseline is not silently kept, but a separate measurement the
-     same day found `--update-snapshots=all` rewrites files whose comparison passed. Both
-     cannot be true of the same command. Measure before relying on either; delete-first is
-     the safe order regardless.)*
+     of a different tree. **The mode decides whether you must delete
+     first** (resolved 2026-09-21 by reading `playwright --help`; both earlier observations
+     were right and were about different modes). `fp test:ui:update` passes a **bare**
+     `--update-snapshots`, which presets to **`changed`** — it rewrites only snapshots that
+     did *not* match, so a within-tolerance stale baseline is left exactly where it is, and
+     the delete is load-bearing. **`=all`** rewrites every snapshot of every executed test,
+     matching ones included, so there the delete is harmless ceremony. And **no flag at all
+     defaults to `missing`**, which silently writes a baseline for any spec that has none —
+     so a new `@visual` test creates its own picture on an ordinary run unless the run is
+     `--grep-invert @visual`.
    - **The Active block in `current-increment.md`: always the mainline's, whether or not
      git conflicted** — a side branch cut after the mainline's line last changed merges the
      side's block clean, and a lander that checks only the Streams table misses it.

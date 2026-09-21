@@ -110,6 +110,18 @@ Principles, binding for every door:
   and a protocol that says *re-read before planning* is one of the few instructions worth
   obeying mechanically. When measurement and a written record disagree, the measurement wins
   and **the record gets the measurement folded into it**, not a second entry beside it.
+- **When two careful observations of one command disagree, read the command's own help
+  first.** Two streams measured `--update-snapshots` from the outside — one saw a stale
+  baseline survive, one saw 125 passing baselines rewritten — and the seat recorded it as an
+  open question between them. It was neither: a bare `--update-snapshots` presets to
+  `changed`, `=all` rewrites matching snapshots too, and no flag at all defaults to `missing`
+  and writes a baseline for any spec lacking one. **Three modes, three observations, no
+  contradiction.** The answer cost one `--help` and one `grep` of the wrapper — no browser, no
+  tier, no window — and it had sat unresolved because both parties measured a *behaviour* from
+  outside where the thing is a *preset* on the inside. So before arbitrating between two
+  observations, check whether the tool simply states the answer: **a disagreement about what a
+  command does is usually a question about its flags wearing the costume of a question about
+  its behaviour.**
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
