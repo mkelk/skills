@@ -123,7 +123,21 @@ finished and unlanded?
      not keep-both leaking — and *both* produce a bigger number. **The verdict is the direct
      test: entries present in the resolved file but in NEITHER side. That set must be empty.**
      Anything in it was resurrected by the merge and belongs to nobody. Run the count first
-     because it is free, then answer it with that check rather than with an explanation. The same question
+     because it is free, then answer it with that check rather than with an explanation.
+     **And say this out loud at the cut, because two streams misread it as a violation on one
+     day: while a stream is unlanded, its scoped entries legitimately exist in TWO places** —
+     deleted on its branch and present in its overview, still listed on master because master
+     has not received the delete yet. That is not the one-home rule breaking; it is branch
+     divergence, and it resolves itself at landing. **Nobody should delete the entry from
+     master by hand.** Doing so would make the trunk wrong if the stream never lands, and it
+     takes the delete out of the merge that is supposed to carry it.
+     **What actually needs guarding is the seat's own habit of adding entries to master all
+     day, beside entries streams have already moved.** An adjacent addition turns a clean
+     one-sided delete into a conflict, and the obvious resolution of that conflict restores
+     the moved entry. So at the cut, **write down which entries the stream scoped out, by
+     name**, where the lander will read it — and at the landing, check those names against the
+     resolved file rather than hoping the merge was clean. The entries at risk are known in
+     advance; nothing about this has to be discovered at merge time. The same question
      — *can this file shrink on purpose?* — is what tells you whether keep-both is safe for any
      file at all: `.tick/learnings.md` fails it too, because one side had compacted to its cap
      while the other widened entries in place, and keep-both breaks the cap the compaction
