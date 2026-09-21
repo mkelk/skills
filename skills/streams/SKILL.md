@@ -158,6 +158,26 @@ Principles, binding for every door:
   skipped it was right, and the rule generalises to any end-of-file record a wave writes
   in parallel** — one writer at the close, not N writers during. Tell a stream this before its
   first wide wave rather than after its first three-way conflict.
+- **The recurring defect has one shape: an absence of signal reads as a positive result.**
+  Named by 09s4-hos, 2026-09-21, after the third instrument in one day failed the same way —
+  and it is worth stating as a class, because each instance looks like a different bug and the
+  fix for each one is local while the fix for the class is a habit.
+  - A **planted mutation that does not fail** reads as *the guard works*. (It can mean the
+    assertion is blind.)
+  - A **gagged write that was rejected** reads as *it was recorded*. (`tk update --status
+    in-progress`, six ticks, a whole day.)
+  - An **idle pane with an open tick and nothing in flight** reads as *stalled*. (The work was
+    running on a remote host, invisible to every local instrument.)
+  - A **screenshot that passes under tolerance** reads as *nothing changed*. (Stale-and-green;
+    found twice in one increment.)
+  - A **spec that does not appear in a run** reads as *it passed in that run*.
+  In every case the instrument produced **nothing**, and nothing was read as **good**. The
+  common cure is not more instruments — it is to ask, of any green result, *what would this
+  look like if the instrument were simply not working?* **Where the answer is "the same", the
+  result is not evidence yet**, and one cheap check converts it: name the run the spec was in,
+  force the byte comparison, read the render rather than the pass, ask for the run id, take the
+  gag off stderr. **A result that cannot distinguish success from silence is a result you have
+  not taken.**
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
