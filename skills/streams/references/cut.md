@@ -76,7 +76,7 @@ and the mainline owns the deploy host. Install deps (`pnpm install --frozen-lock
   no index — whether or not it runs in the main checkout.
 - **If `--scope` names a todo entry:** move it whole (index line and details) from
   `todo/todo.md` into a new `.devmeta/increments/increment-<id>/_overview.md` under a
-  `## Taken from the todo` heading, write the overview's skeleton (Goal, Produces, Not
+  `## Taken from the todo` heading, **each entry head-noted with what has aged**, write the overview's skeleton (Goal, Produces, Not
   included, Roadmap, Definitions of done, Exit criteria, How to run) from it, and create the
   tk project and one epic with `tk create`, stamping `--base-branch` on the epic. Otherwise, if
   the seat already knows the scope well (it was designed in conversation and nothing is in the
@@ -145,6 +145,15 @@ two days. The seat had quoted a todo entry written 48 hours earlier and reported
 state now. Correcting the brief would have closed the incident and left the fault in place —
 **the same false sentence was in `docs/current/how/hosts.md`**, the living documentation, the
 copy that has to be true. A brief is dated exploration and may age; `docs/current/` may not.
+
+**An entry moved into an overview gets a head-note, as a matter of course.** A todo entry is
+written as if it were current — that is what makes it readable and what makes it dangerous a
+week later. One moved on 2026-09-21 carried three claims that had aged in two days, including
+a *prescribed fix Morten had just rejected*; the note saying so was put further down, where a
+reader meets the rejected plan first. So: when `--scope` moves an entry, put the note at the
+**head** of its section — what has been overruled, what was measured since, and the date — and
+do it for every entry moved, not only the ones already known to be stale. The entry's own
+prose cannot warn anyone; only the head-note can.
 
 **A todo entry is not the state of the code, and this is the mistake the seat keeps making.**
 On 2026-09-21 two briefs passed a stale entry to a stream as current fact: one said a host's
