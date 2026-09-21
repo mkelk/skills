@@ -117,6 +117,14 @@ Principles, binding for every door:
   sentence that certifies a blind guard is *"planted it, still passed, so it must be covered
   elsewhere."* (09s3-kbw, 2026-09-21, generalising its own `kni` finding past the fixtures it
   was found in.)
+  **And the other half, which completes the rule: a mutation that fails for the WRONG REASON
+  is not proof either.** 2026-09-21, a reviewer proving a negative assertion was live mutated
+  `DEAD_END_CAUSES`, the test failed — and it failed on a **sibling assertion that said nothing
+  about the string in question**. It threw its own proof out and built one that fails on the
+  right line. **So the mutation must fail, and fail where you claimed.** A red that arrives
+  from somewhere else in the same test is the same fault as a green: it tells you the file is
+  wired up, not that the assertion you are defending is doing anything. Quote the failing
+  message and check it names your line.
 - **A written rule whose evidence has expired is more dangerous than no rule, because it is
   followed without being read.** Three instances on 2026-09-21, and the seat was central to
   all three. *Two tiers do not fit on this machine* had been obsolete in `.tick/profile.md`'s

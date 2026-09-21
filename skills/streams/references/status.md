@@ -96,6 +96,22 @@ Per stream, one word, by these rules in order:
 - **unknown driver** — the branch or a tick branch moved **within the last 30 minutes** and **neither the row's named session nor any agent at the row's worktree is found** — the name is checked first and anywhere, since a session can drive a stream from another tree. Not a stall: someone is working and the seat cannot see who. **Never for a stream nobody has opened yet:** the cut writes the Active line and the brief and commits them, so a stream's branch always moved a minute ago and every stream is *born* matching this rule, for half an hour, before a session exists. Two tests, either exempting the row — its status still reads `cut, not started`, or every commit on its branch is the seat's own cut. The branch test is the measurable one; a status cell is a claim the starting session is meant to clear and sometimes does not. It matters because unknown drivers print *above* the table and are chased first: a signal that fires on every cut is one a seat learns to skim, and the night it means something is the night it gets skimmed. Report it first; the human usually knows (a session resumed from a transcript does not register with the others). If the row says the stream is the human's own, this is expected and is not reported.
 - **stalled** — no in-progress tick, no implementer process, AND either (a) open ready ticks exist with no dispatch for more than 20 minutes, or (b) the session is `waiting` (ListAgents) or **`blocked` (herdr)** and the newest commit is older than 30 minutes — `blocked` means it is sitting on a prompt and will not move until a human answers in that pane, or (c) an implementer worktree has uncommitted work and **the stream's own session is absent from both sources** — the session named in the row, not an agent in the tick worktree; implementers are not herdr panes and are never seen there, so reading (c) the other way makes every live wave look stalled. or **(d) a tick whose branch is already merged into the stream branch is still open, with nothing in progress** — merged-and-gated but not closed, which is the one that hides best: the tree is green, so nothing reads as ready, so rules (a) and (b) stay silent while the session has in fact stopped. Check it directly: for each open tick, is `tick/<epic>/<id>` an ancestor of the stream branch? Rule (c) is off for the caller's own row and for a row the human drives. Say which rule fired.
 
+**A containerised Playwright run cannot be matched to a worktree, and looks like nothing.**
+New 2026-09-21, the moment `fp test:container` became runnable locally. A UI tier running
+*inside* the image appears on the host process table as **`root`, from
+`/root/.cache/node/corepack`, with an unreadable `cwd`** — so `pgrep -f "playwright tes[t]"`
+finds it, and every rule this door has for attributing a browser to a stream fails at once:
+there is no worktree, and the one field the join key depends on comes back empty.
+**The trap is that an unattributable process reads as somebody else's, and somebody else's
+reads as harmless.** A seat that resolves "cwd empty, not one of my streams" to "not mine,
+therefore the machine is free" hands a window out on top of a live tier. **An unreadable
+instrument is not a permissive one: refuse to act on a process you cannot attribute.**
+To attribute it, ask Docker rather than `/proc`: `docker ps` names the container
+(`focusheron-test-run-…` on `fp-test:latest`) and its age. And note the machine arithmetic has
+changed — a container tier is a *second* Playwright run on this machine that no worktree
+claims, so the streams table cannot represent it and the PLAYWRIGHT line must say
+`held by <container>` as readily as `held by <worktree>`.
+
 **`idle` with undispatched work is the stall signature, and it is not the same as `working`.**
 A session that is `working` has a run continuing; a session that is `idle` has ended a turn.
 So `idle` + an unfinished epic + nothing dispatched means **the turn ended without starting
