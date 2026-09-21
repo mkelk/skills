@@ -130,6 +130,14 @@ Principles, binding for every door:
   observations, check whether the tool simply states the answer: **a disagreement about what a
   command does is usually a question about its flags wearing the costume of a question about
   its behaviour.**
+- **In a wide wave, the diary is the orchestrator's to write, not the implementer's.**
+  `docs/diary.md` is an end-of-file append, which is the known merge seam, so four sibling
+  ticks appending to it produce three conflicts and one lucky winner. On 2026-09-21 one tick
+  of four deliberately did **not** append, on exactly that reasoning, and its stream wrote the
+  entry at close instead; the other three appended and two conflicted. **The implementer that
+  skipped it was right, and the rule generalises to any end-of-file record a wave writes
+  in parallel** — one writer at the close, not N writers during. Tell a stream this before its
+  first wide wave rather than after its first three-way conflict.
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.

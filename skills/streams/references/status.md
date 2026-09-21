@@ -236,6 +236,17 @@ that is a defect in the tick, and naming it gets it fixed.
   small or sits under an overlay. Related and worth keeping: `--update-snapshots=all` rewrites
   files whose comparison *passed*, so where it leaves a file alone the render was identical
   rather than merely close — that is the one guarantee a forced pass gives.
+  **Demonstrated rather than argued, 2026-09-21.** A four-line change added one link to
+  `AppBar`, whose two flex groups are joined by `justify-between`, so the right group widens
+  and its left edge moves — a diff confined to a band the height of the bar. **Twenty-seven
+  `/app` captures took that identical change. Exactly two went red, and they are the two
+  shortest captures on the list** — 3381 px and 3601 px, both measuring 0.02 against the 0.01
+  cap. **About twenty-five changed for real and stayed green.** Same change, same band, and
+  whether a picture notices depends *only* on how long that page happens to be. The competing
+  explanation dies on the same evidence: had the bar wrapped to a new line, every phone
+  capture would have shifted down and failed far above 2%. It did not. **Control and treatment
+  in one run** — which is why this needs no second measurement to interpret, and why it is the
+  entry to cite rather than the arithmetic.
   **And the dangerous case is not a baseline that moves unexpectedly; it is one that stays
   green while the page moves underneath it.** A moved baseline announces itself. A stale one
   waits for somebody else's regeneration and then **looks like their fault**. Measured the
