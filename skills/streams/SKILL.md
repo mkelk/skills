@@ -42,7 +42,15 @@ Principles, binding for every door:
   worktree; and the streams table read from a **checkout's disk** instead of from `master`,
   which printed "nothing is running" over two live streams because `update-ref` moves a ref
   and touches no working tree. Reading the real thing is not enough if you read a stale copy
-  of it.
+  of it. **And a fifth face, the one aimed at the seat: a report can cite a run that did not
+  contain the thing it reports on.** On 2026-09-21 a tick reported two named baselines
+  "both passed unchanged in the union run" — and that spec **was not in the union**, not in
+  the list it was given and not in the one that ran. The conclusion happened to be right; a
+  later direct run confirmed it. **Had it been wrong, the report would have read exactly the
+  same.** So before accepting a per-spec result from any session, check the named spec
+  actually appears in the run it is attributed to — a grep over a log that already exists.
+  **A spec list inside a report is a claim like every other sentence in it**, and it is the
+  one nobody thinks to check, because it looks like provenance rather than assertion.
 - **Identity is what a session holds, not what it is called.** `ListAgents` names sessions,
   and a name says nothing about which branch one drives. Reading a naming convention as an
   absence made this seat call a working stream stalled and have a second pane opened on a
