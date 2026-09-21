@@ -89,6 +89,21 @@ and the mainline owns the deploy host. Install deps (`pnpm install --frozen-lock
   into a stream's branch the seat ever does**, and it is safe only because it happens at the
   cut, before any session holds the tree. Every later table change is announced to the
   stream, never merged in by the seat — see the SKILL's principle on whose branch it is.
+  **Never let a failed edit reach a commit.** Between editing and committing, assert that
+  something is actually staged and stop if not:
+  ```bash
+  test -n "$(git diff --cached --name-only)" || { echo "nothing staged"; exit 1; }
+  ```
+  On 2026-09-21 the seat pushed **two** hollow commits this way — `8759931` and `fa9ec93` —
+  each carrying a message describing a row it did not contain. A failed assertion in the edit
+  script aborted the write, and the commit-and-push chain after it ran anyway on an unchanged
+  tree. Both times a stream was live on disk with **no row**, which is the state this skill
+  names first: invisible, not merely miscounted. The push output says `master -> master` and
+  looks exactly like success. **Verify the row is on master by reading it back** — a push that
+  succeeded is not evidence that a change was made. Do not rewrite the bad commits afterwards:
+  with streams running and possibly fetched, a force-push to tidy a message is the worse trade,
+  and the history is more honest with the mistake and its correction both visible.
+
   **Then put the main checkout back in line, in the same breath:**
   ```bash
   git -C <main checkout> restore --source=HEAD --staged --worktree .devmeta/streams.md
