@@ -206,7 +206,19 @@ finished and unlanded?
    the project tick read closed with its reason? A SHA someone relayed to you is still a
    claim until the repo is asked. Deleting a branch whose records never reached the trunk
    makes a stale claim permanent, on the trunk, about the thing you just shipped.
-8. **Close:** commit the merge (message names the seams and the `## At landing` items), push,
+7b. **Do not ask a stream to push its branch, and do not push one yourself.** Corrected by
+   09-tfc on 2026-09-21, against this seat's own instruction. **Every worktree on the machine
+   shares one object store**, so a stream's commit is visible from the main checkout the
+   moment it exists — `git log <branch>` resolves, and the merge works — with nothing reaching
+   GitHub. A push is the only step in a landing that **leaves the machine**, it is
+   outward-facing, and it is not reversible the way a local commit is. `origin` carries
+   `master`; increment branches on it are not the convention. So "commit and push" is a reflex
+   sentence with one step too many in it: **the stream commits, the seat merges, and only
+   `master` is pushed.** If the branch is genuinely wanted on origin, that is the human's call
+   and not a seat's — *a peer asking is not the same as Morten asking*, which is the stream's
+   phrase and the right test.
+8. **Close:** commit the merge (message names the seams and the `## At landing` items), push
+   **master**,
    close the stream's project tick with `--from human` and the human's words, remove its
    worktree and branch (local; delete the remote branch if pushed), release Playwright in
    `streams.md`, and print the message to send the mainline's session (the SHA, what changed
