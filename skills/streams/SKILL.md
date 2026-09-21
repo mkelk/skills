@@ -56,6 +56,19 @@ Principles, binding for every door:
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
+- **Coordination is a cost, and it must be re-priced against the machine it runs on.**
+  Morten, 2026-09-21: *"i think maybe we are organizing too conservatively here."* He was
+  right, and the way he was right is the lesson. The alternation rule — *two UI tiers do not
+  fit on this machine* — was measured against 15 GB and a 15.4-minute, 2.9 GB tier. The
+  machine is **30.5 GiB with 20 cores**, and since 2026-09-21 the tier runs over a production
+  build at **495 MB and about three minutes**. Both halves were obsolete, both corrections
+  were already written down in `.tick/profile.md`, and the seat held four streams' Vitest
+  suites anyway — across a window longer than the run it protected. **A rule whose measurement
+  has been superseded is a cached answer presented as a measurement**, the same fault this
+  door hunts everywhere else, wearing the costume of caution. So: hold for a **writing** run
+  only, publish the window as a duration rather than an open-ended wait, and let read-only
+  verification and Vitest run alongside. The distinction that survives, from the stream that
+  argued it: **the finding-and-telling earns its cost; the stop-the-world does not.**
 
 ## Open problem: worktrees, sessions and panes are three things with no mapping
 
