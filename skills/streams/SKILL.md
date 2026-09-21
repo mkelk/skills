@@ -25,7 +25,21 @@ Principles, binding for every door:
   doors read state, set streams up, and print what to tell a session. They never dispatch a
   tick and never decide anything the human should.
 - **Verify on the thing.** A session's report is not its state. `status` reads `tk`, the
-  worktrees and the process list; it does not ask the sessions.
+  worktrees and the process list; it does not ask the sessions. Three faces of one fault,
+  each of which cost something real on 2026-09-21: a hold *file* read instead of `pgrep`;
+  a *tracker* read instead of the tree; a *roster* read instead of the worktree.
+- **Identity is what a session holds, not what it is called.** `ListAgents` names sessions,
+  and a name says nothing about which branch one drives. Reading a naming convention as an
+  absence made this seat call a working stream stalled and have a second pane opened on a
+  worktree that already had a driver — two sessions believing they held one tree, the most
+  dangerous state on the machine. Ask the worktree who has been committing, never the roster
+  who is present. One session may hold two streams, so the session cell repeats and no door
+  may treat one-row-per-session as an invariant.
+- **A stream missing from the table is invisible, not merely miscounted.** Every door reads
+  the table, so an unlisted stream gets the machine handed away over the top of it. Reconcile
+  `git worktree list` against the table before acting on the machine, and add the row before
+  the first command — a rule in the `cut` door cannot catch a stream that never went through
+  that door.
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
