@@ -117,6 +117,26 @@ the new session cannot see:
 5. Anything specific the seat knows: a decision already made, a trap already found, a file the
    mainline has also touched.
 
+**Every fact in a brief is a copy, and the seat must know which copy it took.** A brief is
+written fast, from the todo, the diary, a completion report and the seat's own memory — all
+of which were true when written and none of which is checked at the moment of copying. So
+**cite the source for anything a stream will act on**, and when a stream later measures one
+of them false, the brief is the *least* important copy to fix: find where the claim came from
+and check that too.
+
+On 2026-09-21 a brief told a production stream that the host's model runner was the inert
+default and one command remained. The stream measured the box: the runner had been live for
+two days. The seat had quoted a todo entry written 48 hours earlier and reported it as the
+state now. Correcting the brief would have closed the incident and left the fault in place —
+**the same false sentence was in `docs/current/how/hosts.md`**, the living documentation, the
+copy that has to be true. A brief is dated exploration and may age; `docs/current/` may not.
+
+The check that was missing, and that belongs in any brief touching a host: **a chosen value
+and a running value are different things.** `grep` the host's `.env` for what somebody set;
+`docker exec … printenv` for what the process actually has. A value can be live by derivation
+with nothing in the file at all, which is exactly how a runner ran for two days while three
+documents said it was inert.
+
 Commit as `side(<slug>): cut from <from-branch> at <sha>; brief`.
 
 ## Step 5 — Say what to open
