@@ -106,6 +106,33 @@ the probe was what restarted it, and its own diagnosis was the shape the runner 
 boundary is a waypoint, not a stopping point.** It wrote a good summary instead of starting
 the next thing. So do not read a well-written hand-over as completion: *the report reads like
 the end of the work* is the tell.
+**But the signature has a false positive that reads identically, and it fired the same day.**
+2026-09-21: a stream's pane read `idle`, its tick read `open`, `updated_at` was nine hours
+old, and nothing local was in flight — a textbook stall. The work **was running**, on
+`focusheron-prod`, dispatched at 16:20:40Z and still going. **Two independent instruments were
+blind at once**, and a door that treats their agreement as corroboration gets a confident
+wrong answer:
+- **Work on a remote host is invisible to every local instrument this door uses.** No process
+  appears in `ps`, no file changes in the worktree, no commit lands until it finishes. A
+  stream whose tick is *run the thing on production and measure it* looks exactly like a
+  stream that stopped. **Before calling a remote-flavoured tick stalled, ask for the run id**,
+  not for a status.
+- **A tick can read `open` while its work runs, because the write that would have said
+  otherwise was rejected and the rejection was swallowed.** `tk update --status in-progress`
+  is invalid — the value is **`in_progress`, with an underscore** — and six ticks in one
+  stream stayed `open` through their whole lives because every such call failed silently under
+  `2>/dev/null`. `tk close` takes a different path and applied, so **closes landed and
+  progress never did**: the tracker showed `open` → `closed` with no state between, which is
+  indistinguishable from work that was never started. Verified on disk 2026-09-21.
+So: **`open` is not evidence that nothing is running; it is evidence that nothing wrote.**
+When the stall signature fires, the probe is a question to the session, never a conclusion —
+which this door already says, and this is the case that shows why the wording matters. And the
+root cause is worth naming on its own, because it is the seat's own standing rule turned
+around: **`2>/dev/null` on a command that CHANGES state is the gag that produces a confident
+false report.** Suppressing stderr on a read gives you *no matches* and *I refused to look* as
+the same answer; suppressing it on a write gives you *it was recorded* and *it was rejected*
+as the same answer, and the second is worse, because the lie then outlives the command inside
+the tracker every other door reads.
 **And when the same signature appears twice, resolve is not the fix — change the order.** The
 stream that stalled twice diagnosed it the same way both times and then did something better
 than promising harder: **dispatch first, report second.** Its reasoning is the useful part —
