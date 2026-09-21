@@ -106,6 +106,14 @@ the probe was what restarted it, and its own diagnosis was the shape the runner 
 boundary is a waypoint, not a stopping point.** It wrote a good summary instead of starting
 the next thing. So do not read a well-written hand-over as completion: *the report reads like
 the end of the work* is the tell.
+**And when the same signature appears twice, resolve is not the fix — change the order.** The
+stream that stalled twice diagnosed it the same way both times and then did something better
+than promising harder: **dispatch first, report second.** Its reasoning is the useful part —
+*a wave closes, I write a good summary, and the summary feels like the completed action;
+writing it first is what lets the next thing not happen.* With the order reversed, having
+nothing dispatched means having nothing to summarise. **That is mechanical rather than a
+promise**, which is the only kind of fix that has held on anything else. A seat seeing the
+same stall twice in one session should ask for an order change, not a reassurance.
 
 **A failed gate is a branch in the loop where closes get orphaned.** The same probe found two
 ticks still `in_progress` that had been merged and gated: the wave gate went red, attention
@@ -243,7 +251,14 @@ that is a defect in the tick, and naming it gets it fixed.
   Measured: a three-sentence caption added **40 px at desktop and 100 px at phone**, and
   `admin-routing.png` failed at **0.03–0.05** against a 0.01 cap in all four projects — 115,346
   differing pixels at desktop-light, 81,475 at phone-light — because 3,600 px of page moved.
-  **A change that adds height is not small at any page length.** The same caption also blew its
+  **A change that adds height is not small at any page length.**
+  **And the useful inversion, which flips the default: a reflowing state whose baseline does
+  NOT move is a finding, not a pass.** If a waiting bubble appears in a thread, a stopped line
+  under a step, a refusal card on a page — each pushes what follows down, so its picture *can*
+  see it. A green baseline over a state that should have reflowed means the state did not
+  render, not that the tolerance ate it. So label each change **reflowing or in-place** before
+  the run and predict its baseline; a prediction that fails either way is information, and
+  without the prediction a green result is unreadable in both directions. The same caption also blew its
   card-scoped shot, for the *other* reason (it is large relative to a card), so one change
   failed two denominators for two unrelated causes. The tick and the epic that planned it had
   both predicted it would vanish into the budget: **they reasoned about the caption's area and
