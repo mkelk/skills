@@ -58,8 +58,14 @@ finished and unlanded?
      specs concerned.** The tempting move — resolve by choosing the newer-looking file —
      **produces a picture of a page that never existed**, because each file is a true picture
      of a different tree. **The mode decides whether you must delete
-     first** (resolved 2026-09-21 by reading `playwright --help`; both earlier observations
-     were right and were about different modes). `fp test:ui:update` passes a **bare**
+     first** (resolved 2026-09-21 by reading `playwright --help`, then sharpened by reading
+     `expect.js`: **`all` compares BYTES, not tolerance** — `~12556`,
+     `if (!compareBuffersOrStrings(received, expected)) return helper.handleMatching();` — so
+     under `all` **the delete is ceremony**, because a stale-under-tolerance file has different
+     bytes and is rewritten anyway. It is load-bearing under `changed`, which takes the
+     tolerance path and leaves a within-tolerance stale file in place. *The step was right for
+     the wrong mode.* That also dissolves the last of the earlier contradiction: both
+     observations were simply true of `all`). `fp test:ui:update` passes a **bare**
      `--update-snapshots`, which presets to **`changed`** — it rewrites only snapshots that
      did *not* match, so a within-tolerance stale baseline is left exactly where it is, and
      the delete is load-bearing. **`=all`** rewrites every snapshot of every executed test,

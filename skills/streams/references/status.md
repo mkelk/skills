@@ -252,11 +252,15 @@ that is a defect in the tick, and naming it gets it fixed.
   not passing, not stale-but-green — it is **unexamined**, and the run reports nothing about
   it in either direction. Measured 2026-09-21: `admin.spec.ts` shoots a card at `:498` and
   the full page at `:526` inside one test; a caption change blew the card shot at all four
-  projects, so the full-page shot was never reached. **And a forced `--update-snapshots=all`
-  pass will not write it either**, because the test still dies at the first assertion — so a
-  regeneration reports success, rewrites everything it touched, and leaves one picture of a
-  pair silently unwritten, with a fresh timestamp on its sibling making the set look freshly
-  verified. `.tick/config.md` already says a test that fails never reaches its screenshot;
+  projects, so the full-page shot was never reached. **Corrected 2026-09-21 by reading Playwright 1.63's source rather
+  than waiting to measure it: a forced `--update-snapshots=all` pass DOES write both shots.**
+  On a *missing* snapshot under `all`, `expect.js:12481-12484` writes the file and returns
+  `createMatcherResult(message, true, …)` — `pass` is the second argument — so the assertion
+  **passes and the test continues** to the second shot. The seat had written the opposite here
+  and told a stream so ten minutes before it ran. **So the fourth state is real on a reading
+  run**, where `toHaveScreenshot` throws and aborts — and a forced pass rescues it. The
+  ordered-pair discipline still earns its place, for the other reason: **it protects the
+  verification run, not the regeneration.** `.tick/config.md` already says a test that fails never reaches its screenshot;
   what it does not say is that **two pictures in one test make this reachable with nothing
   red at the end** — fix the first, and the second was never in the run. The rule is cheap:
   **when one test shoots more than one baseline, force the earlier one first and confirm the
