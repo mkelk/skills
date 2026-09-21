@@ -205,6 +205,19 @@ that is a defect in the tick, and naming it gets it fixed.
 
 ## Corrections from real runs
 
+- 2026-09-21: **an unchanged baseline has three meanings, not two, and the file list can never
+  say which.** (1) Nothing changed. (2) The change stayed under the tolerance — which is a
+  ratio over a **full-page** capture, so the longer the page the blinder it is to its own
+  chrome. (3) **The changed thing was not in frame.** The third was read, not inferred: two
+  chat specs moved asymmetrically, and cropping the top 150 px of the phone baseline showed
+  the inspiration chat opens there as a **drawer covering the masthead** — so a masthead change
+  genuinely did not alter that render, and Playwright correctly left the file untouched while
+  125 siblings were rewritten. The old symmetry heuristic reads all three as one. **Only
+  reading a render distinguishes them**, so budget for reading renders wherever a state is
+  small or sits under an overlay. Related and worth keeping: `--update-snapshots=all` rewrites
+  files whose comparison *passed*, so where it leaves a file alone the render was identical
+  rather than merely close — that is the one guarantee a forced pass gives.
+
 - 2026-09-21: **"the machine is free" and "the window is open" are different sentences, and the
   seat said the first.** Having established that a stream's stuck wait-loops were not a running
   tier, the seat told it the Playwright lock was free. It read that as a go and started a
