@@ -23,16 +23,20 @@ If neither exists, print exactly what to do and stop:
 **Never print the token, never pass it in argv** (it shows in `ps` and `docker top`) — pass it
 in a header from an environment variable. Verify it by prefix and length only.
 
-## Step 1 — The region. This will bite.
+## Step 1 — The region
 
-**The API host is `https://de.sentry.io/api/0/`, not `https://sentry.io/api/0/`.** This
-project's DSN is on `ingest.de.sentry.io` — the EU region — and Sentry's regions do not share
-an API host. A token made in the EU organisation returns `401` or an empty organisation list
-against the US host, which reads exactly like a bad token and sends people to regenerate a
-perfectly good one.
+Use **`https://de.sentry.io/api/0/`**. The DSN is on `ingest.de.sentry.io`, the EU region, and
+the regional host is the one to prefer.
 
-Confirm the region from the DSN rather than assuming: the DSN's host is the ground truth, and
-`.env.example` and `docs/current/how/errors.md` both name `ingest.de.sentry.io`.
+**Corrected 2026-09-21, first real run:** this door previously claimed a token made in the EU
+organisation returns `401` or an empty list against `sentry.io`, and that this "will bite."
+**It does not.** Measured with a real `sntryu_` token: `sentry.io` and `de.sentry.io` returned
+*identical* results for `/organizations/`, `/organizations/<org>/projects/` and the issues
+endpoint — same status, same bodies. The warning was written from expectation and never
+tested, in a door whose whole subject is that an untested claim gets believed. Use the
+regional host anyway (it is the documented one and avoids a redirect), but **do not diagnose a
+`401` as a region problem** — that was invented here, and chasing it would waste exactly the
+time the warning claimed to save.
 
 ## Step 2 — Discover the organisation and project. Do not hard-code them.
 
