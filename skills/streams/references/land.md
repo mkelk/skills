@@ -57,7 +57,17 @@ finished and unlanded?
      merge, then delete that spec's `__screenshots__` and re-run `test:ui:update` for the
      specs concerned.** The tempting move — resolve by choosing the newer-looking file —
      **produces a picture of a page that never existed**, because each file is a true picture
-     of a different tree. **The mode decides whether you must delete
+     of a different tree.
+     **And sometimes neither side is right, while each side's own gate says it is.** Measured
+     2026-09-21: `issues.png` and `chat.png` were **known-stale** on one branch — a
+     `mask`→`hide` change altered the render's shape and the baselines passed unregenerated
+     anyway — and on the other branch they were **correct-for-3900-pre-fix**, recorded before
+     that change existed and from a different port block. At the merge, *"take either side"*
+     is wrong in **both** directions, and no per-branch gate can see it: each one is green
+     against its own tree. **The only correct copy is one made on the merged tree**, which is
+     why the wave-end rule exists — run the tier, or at minimum every spec either side
+     touched, on the merged tree **before** committing the resolution. A stale-and-green that
+     survives both gates is the one class of baseline fault that only the merge can catch. **The mode decides whether you must delete
      first** (resolved 2026-09-21 by reading `playwright --help`, then sharpened by reading
      `expect.js`: **`all` compares BYTES, not tolerance** — `~12556`,
      `if (!compareBuffersOrStrings(received, expected)) return helper.handleMatching();` — so
