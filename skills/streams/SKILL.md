@@ -54,6 +54,19 @@ Principles, binding for every door:
   `git worktree list` against the table before acting on the machine, and add the row before
   the first command — a rule in the `cut` door cannot catch a stream that never went through
   that door.
+- **A merge silently restores what a stream moved out, and nobody is watching for it.** When
+  a stream scopes a todo entry into its overview, it deletes that entry on its branch. Master
+  never saw the delete — so when the seat adds new entries *adjacent* to it, the next sync
+  forward turns a clean delete into a conflict whose obvious resolution **puts the moved entry
+  back**. No second stream, no mistake by anyone. On 2026-09-21 a stream caught two entries
+  restored this way and only because it verified **both** directions: zero occurrences in
+  `todo/todo.md`, two in the overview. Checking only the file you edited finds nothing. **The
+  brief's usual warning does not cover this** — *tell the seat which entries you moved* guards
+  against a second stream taking one, not against master re-adding it underneath you. And the
+  seat manufactures the conflict: it adds entries to master all day, beside entries streams
+  have already moved. So **announce which entries were added and where**, so a stream resolving
+  a todo conflict can tell a new entry from a ghost; and after any sync that touched the todo,
+  verify in both directions.
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
