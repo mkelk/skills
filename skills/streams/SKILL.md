@@ -44,5 +44,37 @@ Principles, binding for every door:
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
 
+## Open problem: worktrees, sessions and panes are three things with no mapping
+
+**Morten, 2026-09-21: "we need much better alignment between worktrees, sessions, panes."**
+Not solved. Named here because every door currently guesses at it, and on one night of five
+parallel streams the guessing failed five distinct ways:
+
+- A session drove a stream under a name that said nothing about the branch it held, so the
+  seat read "no session for this stream" as a stall and had a **second pane opened on a
+  worktree that already had a driver**.
+- A stream was cut without a row, so it was **invisible to every door** and the machine was
+  handed away over the top of its running tier.
+- A session **renamed itself mid-life**; messages to the old name still worked, which hid it.
+- A session held **two branches**, which the one-row-per-session table cannot represent, so
+  the reconciliation kept dropping one and its row silently reverted.
+- Panes were **closed while their work was unfinished** (a mainline seat mid-deploy) and
+  **left open on deleted worktrees** — both invisible from the seat, in opposite directions.
+
+What a fix has to give, whatever its shape:
+- **Given a worktree, name its session; given a session, name its worktrees.** Both
+  directions, from the machine rather than from anyone's memory. Today only the first is
+  recoverable, by asking who has been committing or reading `/proc/<pid>/cwd`.
+- **One driver per worktree, provably.** Two seats on one tree is the most dangerous state
+  on the machine and tonight it was caught by luck — one of them said out loud what it
+  thought it owned.
+- **A pane's existence is not the question; what it holds is.** A closed pane whose stream is
+  unfinished and an open pane whose worktree is deleted are the same fault, and neither shows
+  up in a roster of names.
+- **The human should not be the index.** Asking "whose pane is this?" cost real time tonight
+  and only worked because three sessions answered honestly.
+
+Until it exists, every door treats the roster as a hint and the machine as the fact.
+
 Where it came from: `docs/thoughts/2026-09-20-orchestrator-pattern.md` in the project that
 first needed it. Source of truth: `github.com/mkelk/skills` → `skills/streams/`.
