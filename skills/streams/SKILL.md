@@ -68,6 +68,18 @@ Principles, binding for every door:
   have already moved. So **announce which entries were added and where**, so a stream resolving
   a todo conflict can tell a new entry from a ghost; and after any sync that touched the todo,
   verify in both directions.
+- **The seat is never a load-bearing part of operations.** Morten, 2026-09-21, rejecting a
+  default that named the orchestrator as executor: *"better that prod hits the ceiling and
+  sends Sentry issues than you being a 'shadow' part of ops."* A stream had registered a
+  decision correctly — recommendation, default, named executor — and the executor it named was
+  the seat: *pause the newsletter when spend nears the ceiling.* The seat accepted, twice
+  noting it had no alarm and would check when it happened to look. **That is not a control; it
+  is a wish with a name attached.** A seat is an interactive session that may be asleep,
+  elsewhere, or gone next week, and work that depends on one being awake has no owner at all.
+  So when a default needs an executor and the honest answer is "the seat, by remembering",
+  **the default is wrong and the right answer is a guard that trips.** And a guard is a claim
+  until someone has watched it fire: replacing a person who remembers with a mechanism that
+  is *assumed* to work replaces one wish with another.
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
