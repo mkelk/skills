@@ -205,6 +205,24 @@ that is a defect in the tick, and naming it gets it fixed.
 
 ## Corrections from real runs
 
+- 2026-09-21: **"the machine is free" and "the window is open" are different sentences, and the
+  seat said the first.** Having established that a stream's stuck wait-loops were not a running
+  tier, the seat told it the Playwright lock was free. It read that as a go and started a
+  340-baseline regeneration a minute before the hold request arrived — 17 baselines written,
+  killed and reverted, reported unprompted. A statement about the process list is not a grant.
+  Only the seat's explicit OPEN, after every stream has answered, is.
+- 2026-09-21: **the hold file enforces the pre-correction version of the rule it enforces.**
+  The prose was rewritten on 2026-09-20 from *no other browser* — which named the kind of
+  process instead of the machine's state — after two sessions walked through that gap in one
+  afternoon, one with a full Vitest suite and one with two production builds. **The file that
+  implements it was never rewritten.** Its contract still says "no browser may run", and then
+  says *do every other part of the tick and every other gate* — so an implementer whose gate
+  list ends in the full suite is told **by the hold file** to run the second item on the seat's
+  no-list. A "holding" from a stream with a live implementer is therefore not the same fact as
+  a "holding" from a stream sitting on an undispatched chain: the first is a running agent the
+  mechanism does not reach. **Ask which kind of holding it is.** And when a prose rule is
+  corrected, the thing that enforces it is a second edit nobody remembers to make.
+
 - 2026-09-21: **the door called two bash wait-loops a running Playwright tier.** The real run
   had exited; what `pgrep` still matched were the mainline's own watchers, each of which
   contained the literal string `playwright test` in its command line. Worse, those loops were
