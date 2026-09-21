@@ -217,6 +217,16 @@ that is a defect in the tick, and naming it gets it fixed.
   small or sits under an overlay. Related and worth keeping: `--update-snapshots=all` rewrites
   files whose comparison *passed*, so where it leaves a file alone the render was identical
   rather than merely close — that is the one guarantee a forced pass gives.
+  **And the dangerous case is not a baseline that moves unexpectedly; it is one that stays
+  green while the page moves underneath it.** A moved baseline announces itself. A stale one
+  waits for somebody else's regeneration and then **looks like their fault**. Measured the
+  same day: a seeded-routing change altered one `Select`'s rendered option on
+  `/admin/routing` — a dozen characters in one table cell — and the baseline stayed green
+  under the tolerance. The tick that made the change reported the page "passed unchanged",
+  which was true of the test and false of the page. So when a change *could* have touched a
+  rendered surface, **read the render or reason from the component, and record the
+  attribution on the tick**: the next regeneration will surface it, and without a note it is
+  charged to whoever ran that regeneration.
 
 - 2026-09-21: **"the machine is free" and "the window is open" are different sentences, and the
   seat said the first.** Having established that a stream's stuck wait-loops were not a running
