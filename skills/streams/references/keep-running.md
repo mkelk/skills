@@ -72,6 +72,17 @@ it stalls; PORTS is how they know which is which; PLAYWRIGHT is the one line tha
 the machine is spoken for. Dropping a column because it looked uninteresting this pass is how
 the pass where it mattered reads the same as the pass where it did not.
 
+**A NEEDS YOU item is only an item if the human can act on it now — and reachability is the
+test, not the flag.** A close-out or checkpoint tick is assigned to the human and flagged
+awaiting **from the moment the epic is planned**, so it prints as NEEDS YOU for the whole
+epic — hours, sometimes a day — before its preconditions exist. Measured 2026-09-21: a tick
+reading *"Close out E2, and the increment checkpoint … STOP for Morten"* surfaced while its
+epic sat at 0 of 8 with four implementers running. The flag was honest; the door's reading
+was not. **Apply the same parent-chain test as readiness:** a tick whose siblings are
+unfinished, or whose epic is unplanned or blocked, is not actionable however it is flagged.
+Print it only when the human could actually act, and until then it belongs in the stream's
+WHAT NOW, not in his list.
+
 **A NEEDS YOU item is only an item if the human can act on it now.** A registered decision
 whose default is already running and doing no harm is not urgent — say it once, then let the
 tick carry it, and do not re-raise it every half hour. **A recurring report that repeats the
