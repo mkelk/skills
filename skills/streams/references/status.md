@@ -8,14 +8,26 @@ worn this door long enough usually grows one (in `ai-newsletter`: `pnpm fp strea
 `--json` for the parts). It reads the same sources in about a second and costs the seat
 nothing, which is the whole point — the seat's context is the expensive thing on the machine.
 Read its output, print Step 4's shape, and fall back to the steps below only when it is absent
-or refuses a row. The steps stay here because they are the specification the command is
+or refuses a row.
+
+**Run the worktree reconciliation yourself even then.** `git worktree list` against the rows
+the command printed, every time — it is three seconds, and it is the one guard that catches
+both of this door's blind spots at once: a stream that never went through `cut` and so has no
+row, and a command that read a stale copy of the table and so printed no rows at all. On
+2026-09-21 a command answered "nothing is running" with two streams live and three worktrees
+on disk; the reconciliation would have caught it without the seat needing to already know.
+**A command's empty table is a claim; `git worktree list` is the measurement.** The steps stay here because they are the specification the command is
 measured against, and because the seat must be able to answer without it.
 
 ## Step 1 — Read the table
 
-`.devmeta/streams.md` in the current checkout (it is the same on every branch; if the checkout
-is behind master, read master's with `git show master:.devmeta/streams.md`). Each row gives a
-stream's increment, session name, branch, worktree, ports, host and epics. If the file is
+**`git show master:.devmeta/streams.md` — from the ref, never from a checkout's disk.** The
+file is the same on every branch, which is exactly what makes reading it from disk look safe;
+it is not. The seat writes the table on master with `update-ref`, and **`update-ref` moves the
+ref without touching any working tree**, so the bytes on disk stay at whatever they were
+before the last row was written. A door reading them answers about a machine that no longer
+exists. Read the ref and the whole class of fault is gone. Each row gives a stream's
+increment, session name, branch, worktree, ports, host and epics. If the file is
 missing, say so and stop — this door has nothing to stand on without it.
 
 **The increment id may be in either the `stream` cell or the `increment` cell** (`08s3-pci` is
@@ -48,7 +60,7 @@ For every row, gather — all read-only, all from the machine, none from a messa
 
 | what | how |
 |---|---|
-| its session | Two sources, and the second is the better one. (1) `ListAgents`: match the row's session name; gives busy / idle / waiting. (2) **`herdr api snapshot`** (when herdr runs — `~/.config/herdr/herdr.sock` exists): every agent with its `cwd` and `agent_status` (working / idle / **blocked**). **Match the row's session by name first, wherever it sits; match by cwd only when the row names no session.** A session can drive a stream it is not sitting in — it dispatches ticks into worktrees, and its own cwd may be another branch entirely — so cwd alone finds a driver only by luck. Match by cwd = the row's worktree; this catches sessions that never registered with Claude's list (a resumed session, a pane opened by the human) and gives `blocked` as a first-class state, which `ListAgents` only shows as "waiting". **Two agents with the same cwd is a finding in itself** — report it; one checkout, one orchestrator. **Except the seat's own pane:** the orchestrating session is often started in the main checkout and is one of the two; identify it first (`herdr pane read <id>` shows its own prompt) and exclude it. Better still, start the seat in a directory of its own. **The caller is never read as a row's session or state** — excluding it must not then turn the seat's own stream into an "unknown driver". If another agent shares that cwd, it supplies the session and state; if none does, the row prints `—` in both columns and the unknown-driver rule is skipped for that row alone. The seat knows it is sitting there; saying so tells the human nothing. Needs `tk` ≥ 0.31 for `tk herd`, but the snapshot is `herdr`'s own CLI and needs nothing. |
+| its session | Two sources, and the second is the better one. (1) `ListAgents`: match the row's session name; gives busy / idle / waiting. (2) **`herdr api snapshot`** (when herdr runs — `~/.config/herdr/herdr.sock` exists): every agent with its `cwd` and `agent_status` (working / idle / **blocked**). **Match the row's session by name first, wherever it sits; match by cwd only when the row names no session.** A session can drive a stream it is not sitting in — it dispatches ticks into worktrees, and its own cwd may be another branch entirely — so cwd alone finds a driver only by luck. Match by cwd = the row's worktree; this catches sessions that never registered with Claude's list (a resumed session, a pane opened by the human) and gives `blocked` as a first-class state, which `ListAgents` only shows as "waiting". **Two agents with the same cwd is a finding in itself** — report it; one checkout, one orchestrator. **Except the seat's own pane:** the orchestrating session is often started in the main checkout and is one of the two; identify it first (`herdr pane read <id>` shows its own prompt) and exclude it. Better still, start the seat in a directory of its own. **The caller is never read as a row's session or state** — excluding it must not then turn the seat's own stream into an "unknown driver". If another agent shares that cwd, it supplies the session and state; if none does, the row prints `—` in both columns and the unknown-driver rule is skipped for that row alone. **When the match is by cwd, print what the machine actually knows — the pane id and the terminal's title — rather than `—`.** herdr gives both, and a row that prints a state but no session is telling the human it found somebody and then refusing to say who. `—` in the session column means *nobody is there*; it must never mean *somebody is there and the table has not been told their name*. The seat knows it is sitting there; saying so tells the human nothing. Needs `tk` ≥ 0.31 for `tk herd`, but the snapshot is `herdr`'s own CLI and needs nothing. |
 | its ticks | **Read them in the stream's own worktree, never anywhere else** — the tracker is per branch, so the same command in the main checkout answers about the mainline's ticks and looks entirely plausible. `tk list --status open` there. **The tracker is shared across every worktree of one repo, so filter by the stream's own epics** — a tick belongs to the stream if `tk show <id>` names one of its epics as parent. Count in-progress (●) and awaiting-human (◐) that way. **An awaiting query counts only ticks whose status is not closed:** `tk close` does not clear the `awaiting` flag, so a closed tick keeps it forever and every hand-built sweep reports work the human answered days ago as still waiting on them. Filter on status first, `awaiting` second. **Ready is not `tk ready`** (it has no per-epic scope and counts the whole tracker): derive it from `tk graph <epic> --json` as open tasks whose blockers are all closed. Ignore ◐ ticks from earlier increments that were never closed (they show in every worktree). |
 | at checkpoint | **the stream's own** `.devmeta/increments/increment-<its id>/completion.md` exists — never a glob over `increments/*/`, which matches every finished increment in the tree and says yes for everyone. |
 | implementer worktrees | `git worktree list` from the row's worktree, rows under `.ticks-worktrees/` whose branch is `tick/<one of its epics>/*`; for each, uncommitted lines (`git status --short | wc -l`) and commits ahead of the stream branch. |
@@ -62,7 +74,7 @@ Per stream, one word, by these rules in order:
 
 - **checkpoint** — project tick open, `completion.md` present, no in-progress tick → waiting to be landed. **A stream at its checkpoint is a NEEDS YOU item, before and after the landing.** The method ends `/dmtix go` at the checkpoint and the close is the human's: they review, smoke-test, and give the close reason. Landing it does not discharge that — a landed stream whose project tick is still open is still waiting on them, and a status that prints `NEEDS YOU —` beside a row reading "at checkpoint" is contradicting itself. Say what they are being asked to look at and where. **It is the project tick at `awaiting: checkpoint` specifically, and it clears when that tick closes, not when the stream lands** — the fix must not make every stream permanently loud.
 - **needs Morten** — any tick awaiting human, or a human item in the overview not yet answered.
-- **unknown driver** — the branch or a tick branch moved **within the last 30 minutes** and **neither the row's named session nor any agent at the row's worktree is found** — the name is checked first and anywhere, since a session can drive a stream from another tree. Not a stall: someone is working and the seat cannot see who. Report it first; the human usually knows (a session resumed from a transcript does not register with the others). If the row says the stream is the human's own, this is expected and is not reported.
+- **unknown driver** — the branch or a tick branch moved **within the last 30 minutes** and **neither the row's named session nor any agent at the row's worktree is found** — the name is checked first and anywhere, since a session can drive a stream from another tree. Not a stall: someone is working and the seat cannot see who. **Never for a stream nobody has opened yet:** the cut writes the Active line and the brief and commits them, so a stream's branch always moved a minute ago and every stream is *born* matching this rule, for half an hour, before a session exists. Two tests, either exempting the row — its status still reads `cut, not started`, or every commit on its branch is the seat's own cut. The branch test is the measurable one; a status cell is a claim the starting session is meant to clear and sometimes does not. It matters because unknown drivers print *above* the table and are chased first: a signal that fires on every cut is one a seat learns to skim, and the night it means something is the night it gets skimmed. Report it first; the human usually knows (a session resumed from a transcript does not register with the others). If the row says the stream is the human's own, this is expected and is not reported.
 - **stalled** — no in-progress tick, no implementer process, AND either (a) open ready ticks exist with no dispatch for more than 20 minutes, or (b) the session is `waiting` (ListAgents) or **`blocked` (herdr)** and the newest commit is older than 30 minutes — `blocked` means it is sitting on a prompt and will not move until a human answers in that pane, or (c) an implementer worktree has uncommitted work and **the stream's own session is absent from both sources** — the session named in the row, not an agent in the tick worktree; implementers are not herdr panes and are never seen there, so reading (c) the other way makes every live wave look stalled. or **(d) a tick whose branch is already merged into the stream branch is still open, with nothing in progress** — merged-and-gated but not closed, which is the one that hides best: the tree is green, so nothing reads as ready, so rules (a) and (b) stay silent while the session has in fact stopped. Check it directly: for each open tick, is `tick/<epic>/<id>` an ancestor of the stream branch? Rule (c) is off for the caller's own row and for a row the human drives. Say which rule fired.
 
 **Point the silence check at whoever is furthest ahead.** That stream's silence costs the most and looks the most like concentration — twice on 2026-09-20 the furthest-ahead stream was the one nobody was watching.
@@ -173,6 +185,26 @@ the cause, not the instance.
 - Nudge, land or message a stream whose row says it is the human's own.
 
 ## Corrections from real runs
+
+- 2026-09-21, two streams cut onto an empty machine (`fh`). **The table was read from disk and
+  the disk was stale.** The seat wrote both rows on master with `update-ref`, pushed them, and
+  its own `streams:status` answered "nothing is running" — `--json` returned `[]` — because
+  `update-ref` moves the ref without touching any working tree and Step 1 read the checkout's
+  copy. The rows existed in the commit and on GitHub; only the bytes the reader opened were
+  old. Step 1 now reads `git show master:.devmeta/streams.md`. This is the skill's own named
+  failure, *a stream missing from the table is invisible*, reached through its own procedure —
+  and the reason "verify on the thing" has to include *which* copy of the thing.
+- 2026-09-21, same run: **a freshly cut stream read as an unknown driver**, one minute after
+  the cut, on the seat's own commit. The cut moves the branch, so every stream is born
+  matching the rule for thirty minutes. Exempted in Step 3. The seat had written into the
+  table that "neither branch has moved" and the door contradicted it a minute later — a
+  reminder that a sentence the seat writes about the machine is a claim, and the machine
+  outranks it.
+- 2026-09-21, same run: **the door printed a state with no session.** Both rows showed a live
+  `blocked`/`idle` state resolved by cwd while the session column said `—`, because the table
+  had not been told the names. That tells the human the door found somebody and will not say
+  who. Step 2 now says to print the pane id and terminal title on a cwd match; `—` may only
+  mean *nobody is there*.
 
 - 2026-09-20, from building the command (08s4-pvp in `ai-newsletter`): writing this door as
   code found eight places it was underspecified, and two of them were defects every hand-built

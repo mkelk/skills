@@ -13,7 +13,7 @@ reference and follow it exactly.** With no or an unknown argument, show this tab
 | Argument | Cadence | Door |
 |---|---|---|
 | `status` | whenever the human asks "what is running" | `references/status.md` — one screen from `.devmeta/streams.md`, `tk`, the process list and `ListAgents`; what waits on the human; what has stalled. |
-| `cut <slug>` | once per new side stream | `references/cut.md` — the next free port block, a branch and worktree, `.env`, deps, the records, a brief file the new session reads. |
+| `cut <slug>` | once per new stream | `references/cut.md` — asks first whether it is a side stream or the mainline in a worktree, then: the port block, a branch and worktree, `.env`, deps, the records, a brief file the new session reads. |
 | `land <slug>` | once per finished stream | **not built yet** — `references/land.md` holds the checklist; landings are done by hand against it until two have confirmed every step. |
 
 Principles, binding for every door:
@@ -24,10 +24,14 @@ Principles, binding for every door:
 - **Doors, not engines.** The loop lives in the ticks skill; scoping in `dmtix start`. These
   doors read state, set streams up, and print what to tell a session. They never dispatch a
   tick and never decide anything the human should.
-- **Verify on the thing.** A session's report is not its state. `status` reads `tk`, the
-  worktrees and the process list; it does not ask the sessions. Three faces of one fault,
-  each of which cost something real on 2026-09-21: a hold *file* read instead of `pgrep`;
-  a *tracker* read instead of the tree; a *roster* read instead of the worktree.
+- **Verify on the thing — and on the right copy of it.** A session's report is not its state.
+  `status` reads `tk`, the worktrees and the process list; it does not ask the sessions. Four
+  faces of one fault, each of which cost something real on 2026-09-21: a hold *file* read
+  instead of `pgrep`; a *tracker* read instead of the tree; a *roster* read instead of the
+  worktree; and the streams table read from a **checkout's disk** instead of from `master`,
+  which printed "nothing is running" over two live streams because `update-ref` moves a ref
+  and touches no working tree. Reading the real thing is not enough if you read a stale copy
+  of it.
 - **Identity is what a session holds, not what it is called.** `ListAgents` names sessions,
   and a name says nothing about which branch one drives. Reading a naming convention as an
   absence made this seat call a working stream stalled and have a second pane opened on a
@@ -64,7 +68,13 @@ parallel streams the guessing failed five distinct ways:
 What a fix has to give, whatever its shape:
 - **Given a worktree, name its session; given a session, name its worktrees.** Both
   directions, from the machine rather than from anyone's memory. Today only the first is
-  recoverable, by asking who has been committing or reading `/proc/<pid>/cwd`.
+  recoverable — and **it is more recoverable than this section has been admitting**:
+  `herdr api snapshot` answers it directly, giving every agent's `cwd`, `agent_status`,
+  `pane_id` and terminal title, which is worktree → pane → state without asking anyone. On
+  2026-09-21 the doors had that answer in hand and still printed `—` for both sessions and
+  still ended a cut by asking the human for a name. **The missing half is not the measurement,
+  it is the habit of using it.** What is genuinely still missing is the other direction: a
+  session that dispatches ticks into trees it does not sit in cannot be asked what it holds.
 - **One driver per worktree, provably.** Two seats on one tree is the most dangerous state
   on the machine and tonight it was caught by luck — one of them said out loud what it
   thought it owned.
@@ -72,7 +82,9 @@ What a fix has to give, whatever its shape:
   unfinished and an open pane whose worktree is deleted are the same fault, and neither shows
   up in a roster of names.
 - **The human should not be the index.** Asking "whose pane is this?" cost real time tonight
-  and only worked because three sessions answered honestly.
+  and only worked because three sessions answered honestly. A door that ends by saying *tell
+  me the session's name and I will put it in the table* has made him the index in writing;
+  the `cut` door said exactly that until 2026-09-21.
 
 Until it exists, every door treats the roster as a hint and the machine as the fact.
 
