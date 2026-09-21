@@ -84,7 +84,7 @@ Proof it really is the Claude session id, since nobody should take a field's nam
 | at checkpoint | **the stream's own** `.devmeta/increments/increment-<its id>/completion.md` exists — never a glob over `increments/*/`, which matches every finished increment in the tree and says yes for everyone. |
 | implementer worktrees | `git worktree list` from the row's worktree, rows under `.ticks-worktrees/` whose branch is `tick/<one of its epics>/*`; for each, uncommitted lines (`git status --short | wc -l`) and commits ahead of the stream branch. |
 | last movement | age of the stream branch's tip commit; age of the newest commit on any of its tick branches. |
-| playwright | `pgrep -f "playwright tes[t]"` — if any, which worktree path it runs in. **A stream's tick worktrees under `.ticks-worktrees/` count as that stream's**, so a tier running in `nl-4xn` is held by the mainline, not by nobody. A running cwd that no row claims prints `held by <cwd>`; never print "free" while a process is running, whoever it belongs to — "free" is the word another session acts on. |
+| playwright | `pgrep -f "playwright tes[t]"` — then **check each match is a runner, not a watcher.** The bracket stops the pattern matching *its own* `pgrep`; it does nothing about other processes whose command line happens to contain the string, and the most common such process is a wait-loop somebody wrote to sit out a tier (`while pgrep -f "playwright test"; do sleep 15; done`). Read `/proc/<pid>/cmdline` for every match and **discard the shells**: a real tier is a `node` process under `node_modules`, not `/usr/bin/bash -c`. On 2026-09-21 the door reported the machine held for several minutes after a tier had finished, because two of the mainline's own wait-loops survived it — and those loops could never exit either, since each one's `pgrep` matched its own command line and then the other's. Three streams held off a tier for nothing, one of them about to build a page. **Reporting "held" when nothing runs is the mirror of reporting "free" while something does, and the door already forbids the second.** It is cheaper than the first only because it wastes other people's time instead of corrupting an artefact. | **A stream's tick worktrees under `.ticks-worktrees/` count as that stream's**, so a tier running in `nl-4xn` is held by the mainline, not by nobody. A running cwd that no row claims prints `held by <cwd>`; never print "free" while a process is running, whoever it belongs to — "free" is the word another session acts on. |
 | progress | From the tick files, not `tk graph` (which counts only open tasks): for each of the increment's epics in roadmap order, its children (`parent == epic id`) and how many are closed. The increment's position is **the first epic not closed, out of the epic count** ("E1 of 3"); that epic's `closed/total` is the bar. Epics after it usually have zero children — the method plans just-in-time — so they show as "unplanned", never as 0%. **The current epic can have zero children too** (it was reached before it was cut): it is named unplanned as well, not "0/0". And **an increment whose every epic tick is closed reads 100%** whatever the last epic's children look like — a closed epic is closed; do not let a half-populated child list drag a finished increment back below the line. The `~%` column is the one increment-wide number, by Morten's formula (see Step 5); it is labelled rough and sits beside the glyphs that show the true shape. |
 
 ## Step 3 — Classify
@@ -204,6 +204,17 @@ that is a defect in the tick, and naming it gets it fixed.
 - Nudge, land or message a stream whose row says it is the human's own.
 
 ## Corrections from real runs
+
+- 2026-09-21: **the door called two bash wait-loops a running Playwright tier.** The real run
+  had exited; what `pgrep` still matched were the mainline's own watchers, each of which
+  contained the literal string `playwright test` in its command line. Worse, those loops were
+  themselves undeadable: each one's `pgrep -f "playwright test"` matched its own command line,
+  so the condition could never go false and a second loop had been started on top of the
+  first. The door reported the machine held, three other streams held off correctly and for
+  nothing, and the session that owned the loops sat waiting on something that could not
+  happen. **A pattern match over `ps` is a claim about what a string looks like; a PID is the
+  process.** Step 2 now says to read `/proc/<pid>/cmdline` and discard the shells, and any
+  wait a session writes should wait on a PID rather than a name.
 
 - 2026-09-21: **the door could not tell an unscoped stream from a scoped one the seat had not
   noticed.** Both scoped streams had projects, epics and running implementer waves; the table
