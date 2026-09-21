@@ -48,6 +48,20 @@ finished and unlanded?
      "Previously: …". `README.md` and `_overview.md` numbers blocks: **regenerate with
      `fp docs:numbers`**, never resolve.
    - PNG baselines: take the side stream's, then regenerate from the full run in step 6.
+     **This is where two streams' regenerations actually collide — not in the window.**
+     Baselines are per-branch files, so two streams regenerating the same shared page are
+     each correct on their own tree and neither can overwrite the other; the collision is an
+     add/add conflict that surfaces only when the **second** of them lands. So the seat does
+     not need to order two regeneration windows to protect a shared page, and saying it will
+     is a false comfort. What the second lander needs is the resolution: **take either side,
+     merge, then delete that spec's `__screenshots__` and re-run `test:ui:update` for the
+     specs concerned.** The tempting move — resolve by choosing the newer-looking file —
+     **produces a picture of a page that never existed**, because each file is a true picture
+     of a different tree. *(Unresolved, 2026-09-21: the delete-first step exists so a
+     within-tolerance stale baseline is not silently kept, but a separate measurement the
+     same day found `--update-snapshots=all` rewrites files whose comparison passed. Both
+     cannot be true of the same command. Measure before relying on either; delete-first is
+     the safe order regardless.)*
    - **The Active block in `current-increment.md`: always the mainline's, whether or not
      git conflicted** — a side branch cut after the mainline's line last changed merges the
      side's block clean, and a lander that checks only the Streams table misses it.
