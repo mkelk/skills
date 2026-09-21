@@ -79,7 +79,16 @@ Principles, binding for every door:
   So when a default needs an executor and the honest answer is "the seat, by remembering",
   **the default is wrong and the right answer is a guard that trips.** And a guard is a claim
   until someone has watched it fire: replacing a person who remembers with a mechanism that
-  is *assumed* to work replaces one wish with another.
+  is *assumed* to work replaces one wish with another. **A guard's stated guarantee is a
+  second claim, separate from the guard, and it is the one that gets published.** On
+  2026-09-21 an anti-staleness guard was a regex over runner source text whose docstring said
+  *the day a runner changes what it needs, that test fails* — and a reviewer ran the real
+  regex over twelve idioms: `config?.KEY` alone defeats it, one character from the code as
+  written, and the walk never enters the package every config comes from. The claim had
+  already been copied into `docs/current/`. So: **test the sentence the guard makes about
+  itself, against the case that sentence names**, and where a gap remains, say it aloud in the
+  same breath. A guard that over-promises is worse than none, because it is believed — and its
+  promise outlives it, in documentation nobody re-derives.
 - **A written rule whose evidence has expired is more dangerous than no rule, because it is
   followed without being read.** Three instances on 2026-09-21, and the seat was central to
   all three. *Two tiers do not fit on this machine* had been obsolete in `.tick/profile.md`'s
