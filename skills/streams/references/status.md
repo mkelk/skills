@@ -261,6 +261,18 @@ that is a defect in the tick, and naming it gets it fixed.
   red at the end** — fix the first, and the second was never in the run. The rule is cheap:
   **when one test shoots more than one baseline, force the earlier one first and confirm the
   test runs to completion before reading the later one.**
+  **And prove the picture was written rather than inferring it from a green exit** — *"the
+  test passed" and "the picture was written" are different facts, and the second is the one
+  you need.* The instrument is a **pre-pass manifest**: before any browser runs, record every
+  baseline's `sha256` and `mtime`. Afterwards each file falls in exactly one bucket, and
+  `git status` alone cannot separate the middle two, because a file rewritten with identical
+  bytes shows as unmodified:
+  - **new mtime, new hash** — it moved. Name the cause or revert it.
+  - **new mtime, same hash** — written and genuinely identical. **This is the bucket that
+    proves a picture was examined**, which is the fact the check is really after.
+  - **same mtime** — never written. For the second shot of an ordered pair, this is the
+    failure the whole rule exists to catch.
+  (Built 2026-09-21 over 340 PNGs, while waiting for a window.)
 
 - 2026-09-21: **"the machine is free" and "the window is open" are different sentences, and the
   seat said the first.** Having established that a stream's stuck wait-loops were not a running
