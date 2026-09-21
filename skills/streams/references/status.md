@@ -23,6 +23,25 @@ a stream name that is also an id). Match it in either. A row that lists epics bu
 in either cell is refused **by name** — say which row and what it is missing, and carry on with
 the rest; a docs-only row (no epics, `—`) is exempt, since it has no increment to find.
 
+### Then read the machine, and reconcile it against the table
+
+**The table is the seat's claim; `git worktree list` is the measurement.** Run it, and for
+every worktree that is neither the mainline's nor a `.ticks-worktrees/` tick tree, find its
+row. **A worktree with no row is a stream the seat cannot see** — worse than a stream whose
+driver moved, because every other door reads the table: a `status` reports it as absent, and
+a landing or a machine hand-off is decided as though it did not exist. Print each one under
+its own heading with its branch, head, last commit time and whether anything of its is
+running, and say plainly that it is unlisted. Then find its seat by asking the plausible
+sessions by name, and add the row before doing anything else with the machine.
+
+On 2026-09-21 an unlisted `tierspeed` stream held the browser for a `chat.png` regeneration
+while this seat, reading only the table, released the machine to another stream; two full
+Vitest suites ran inside the screenshot window and the image was committed on the strength
+of it. A rule in the `cut` door would not have caught it — the stream never went through
+that door. **Only a detector that starts from the machine catches a stream that never
+announced itself.** Run the same reconciliation in reverse: a row whose worktree no longer
+exists on disk is a landed stream whose row was never removed.
+
 ## Step 2 — Measure each stream, on the thing
 
 For every row, gather — all read-only, all from the machine, none from a message:
