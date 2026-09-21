@@ -80,6 +80,22 @@ Principles, binding for every door:
   **the default is wrong and the right answer is a guard that trips.** And a guard is a claim
   until someone has watched it fire: replacing a person who remembers with a mechanism that
   is *assumed* to work replaces one wish with another.
+- **A written rule whose evidence has expired is more dangerous than no rule, because it is
+  followed without being read.** Three instances on 2026-09-21, and the seat was central to
+  all three. *Two tiers do not fit on this machine* had been obsolete in `.tick/profile.md`'s
+  own words for a day — both the memory figure and the tier's cost — and four streams obeyed it
+  anyway, because obeying was cheaper than checking. The screenshot-blindness finding that an
+  afternoon of measurement produced **was already in `.tick/learnings.md`**, tolerance named
+  explicitly; it was rediscovered at full cost. And a stream planning a wave hit a `tk` flag
+  that is silently ignored, whose fix was the last line of a learnings entry it had not re-read
+  though its own protocol says to.
+  So the failure has two halves and they need different answers. **A rule that is stale gets
+  obeyed** — so when a rule cites a measurement, the measurement's date goes with it, and a
+  rule whose numbers cannot be pointed at is treated as a hypothesis. **A finding that is not
+  re-read gets rediscovered** — so the value of writing it down is entirely in the re-reading,
+  and a protocol that says *re-read before planning* is one of the few instructions worth
+  obeying mechanically. When measurement and a written record disagree, the measurement wins
+  and **the record gets the measurement folded into it**, not a second entry beside it.
 - **The seat is expensive.** Whatever this skill can read from a file, the seat must not
   carry in context. If a door is missing something the seat keeps remembering, the fix is
   the door, not the memory.
