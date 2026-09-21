@@ -146,6 +146,17 @@ state now. Correcting the brief would have closed the incident and left the faul
 **the same false sentence was in `docs/current/how/hosts.md`**, the living documentation, the
 copy that has to be true. A brief is dated exploration and may age; `docs/current/` may not.
 
+**A todo entry is not the state of the code, and this is the mistake the seat keeps making.**
+On 2026-09-21 two briefs passed a stale entry to a stream as current fact: one said a host's
+model runner was inert when it had been live for two days, and one described a chat's failure
+mode from an entry's prose — quoting a refusal sentence **that is not in the code**, for a case
+that **does not refuse at all** (the runner is built outside the try, the constructor throws,
+the component awaits with no catch, and the visitor's message sits in the transcript with
+nothing after it). Both were caught by streams reading the tree instead of the brief. An entry
+is a record of what someone observed *when they wrote it*, and the fresher the entry looks the
+more dangerous it is. **Quote code from code; cite the entry as the reason to look, never as
+the thing seen.**
+
 The check that was missing, and that belongs in any brief touching a host: **a chosen value
 and a running value are different things.** `grep` the host's `.env` for what somebody set;
 `docker exec … printenv` for what the process actually has. A value can be live by derivation
