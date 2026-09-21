@@ -74,9 +74,24 @@ and the mainline owns the deploy host. Install deps (`pnpm install --frozen-lock
 - **Increment id.** `<NN>s<k>-<xxx>`: `NN` the mainline's number, `k` the next side index in
   the table, `xxx` three random lowercase letters. **A mainline's is `<NN>-<xxx>`** — no `s`,
   no index — whether or not it runs in the main checkout.
-- **If `--scope` names a todo entry:** move it whole (index line and details) from
-  `todo/todo.md` into a new `.devmeta/increments/increment-<id>/_overview.md` under a
-  `## Taken from the todo` heading, **each entry head-noted with what has aged**, write the overview's skeleton (Goal, Produces, Not
+- **If `--scope` names a todo entry: MARK it on `master`, do not move it.** (Morten,
+  2026-09-21; the rule lives in `CLAUDE.md` → *Todo, one home per task*.) On `master`, in the
+  same `update-ref` commit that adds the stream's row, change the entry's index line from
+  `- [ ]` to `- [~] … — **<increment>**, taken <date>`. **Nothing is deleted and nothing is
+  copied.** The new `.devmeta/increments/increment-<id>/_overview.md` **names** the entries
+  under a `## Taken from the todo` heading, **each head-noted with what has aged** — the text
+  stays in `todo/todo.md`, which every worktree already has.
+  **Before marking, check the entry is not already `[~]` on `master`.** That is the whole
+  prevention: a stream that syncs forward sees a claim before it scopes. Marking on the
+  stream's branch instead buys only late detection, and moving buys none at all — two streams
+  scoping one entry used to write the *same delete*, which git merges cleanly.
+  **The delete happens once, at the landing**, by the stream that finished it, into
+  `todo/todo.done.md` with the date and where it landed.
+  **Transitional, until the streams cut before 2026-09-21 have landed:** those streams still
+  carry deletes on their branches while `master` carries the mark. At their landing the
+  resolution is the same either way — the entry is done, so it moves to `todo.done.md` — but
+  expect a conflict there rather than a clean delete, and resolve it as *done*, not as *keep*.
+  Then write the overview's skeleton (Goal, Produces, Not
   included, Roadmap, Definitions of done, Exit criteria, How to run) from it, and create the
   tk project and one epic with `tk create`, stamping `--base-branch` on the epic. Otherwise, if
   the seat already knows the scope well (it was designed in conversation and nothing is in the
