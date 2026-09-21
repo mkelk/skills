@@ -41,22 +41,36 @@ For each, act rather than report:
 - **Relays owed.** Did a stream find something another must act on and the seat has not passed
   it? That is the seat's whole job and it is the thing that silently does not happen.
 
-## Step 3 — Say only what earns the human's attention
+## Step 3 — Always print the table
 
-**Lead with whether anything needs them.** If nothing does, say so in one line and print the
-table. Do not narrate the upkeep — that a cell was refreshed or a window closed is the seat
-doing its job, not news.
+**The full status table goes out every pass, without exception** — every stream, every column,
+as `status.md` Step 5 defines them. Not a summary, not the rows that changed, not an
+abbreviation because the pass was quiet. It is the thing the human actually reads: a glance
+tells them who is moving, who is not, and how the machine is loaded, and that glance only
+works if the shape is identical every time. A pass that prints prose and no table has failed,
+however good the prose.
+
+**Lead with whether anything needs them**, then the table. Do not narrate the upkeep — that a
+cell was refreshed or a window closed is the seat doing its job, not news.
 
 ```
 STREAMS · <date> <time> · nothing needs you   (or: NEEDS YOU — <n> items)
 
 NEEDS YOU
-  <tick>  <stream>  DO … · WHERE … · CLOSES WHEN …
+  <tick>  <stream>  DO … · WHERE … · CLOSES WHEN …          (or "  —")
 
-<the status table>
+STREAM  SESSION  STATE  EPICS  ~%  AT  IN FLIGHT  LAST  WHAT NOW  PORTS
+<every stream, every column, the same shape every pass>
+
+PLAYWRIGHT  free | held by <worktree>
 
 Pushed forward: <one line, only if something was actually done>
 ```
+
+**Every column, every pass.** IN FLIGHT and LAST are how a human sees a stream drifting before
+it stalls; PORTS is how they know which is which; PLAYWRIGHT is the one line that says whether
+the machine is spoken for. Dropping a column because it looked uninteresting this pass is how
+the pass where it mattered reads the same as the pass where it did not.
 
 **A NEEDS YOU item is only an item if the human can act on it now.** A registered decision
 whose default is already running and doing no harm is not urgent — say it once, then let the
