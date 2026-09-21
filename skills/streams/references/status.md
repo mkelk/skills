@@ -96,6 +96,25 @@ Per stream, one word, by these rules in order:
 - **unknown driver** — the branch or a tick branch moved **within the last 30 minutes** and **neither the row's named session nor any agent at the row's worktree is found** — the name is checked first and anywhere, since a session can drive a stream from another tree. Not a stall: someone is working and the seat cannot see who. **Never for a stream nobody has opened yet:** the cut writes the Active line and the brief and commits them, so a stream's branch always moved a minute ago and every stream is *born* matching this rule, for half an hour, before a session exists. Two tests, either exempting the row — its status still reads `cut, not started`, or every commit on its branch is the seat's own cut. The branch test is the measurable one; a status cell is a claim the starting session is meant to clear and sometimes does not. It matters because unknown drivers print *above* the table and are chased first: a signal that fires on every cut is one a seat learns to skim, and the night it means something is the night it gets skimmed. Report it first; the human usually knows (a session resumed from a transcript does not register with the others). If the row says the stream is the human's own, this is expected and is not reported.
 - **stalled** — no in-progress tick, no implementer process, AND either (a) open ready ticks exist with no dispatch for more than 20 minutes, or (b) the session is `waiting` (ListAgents) or **`blocked` (herdr)** and the newest commit is older than 30 minutes — `blocked` means it is sitting on a prompt and will not move until a human answers in that pane, or (c) an implementer worktree has uncommitted work and **the stream's own session is absent from both sources** — the session named in the row, not an agent in the tick worktree; implementers are not herdr panes and are never seen there, so reading (c) the other way makes every live wave look stalled. or **(d) a tick whose branch is already merged into the stream branch is still open, with nothing in progress** — merged-and-gated but not closed, which is the one that hides best: the tree is green, so nothing reads as ready, so rules (a) and (b) stay silent while the session has in fact stopped. Check it directly: for each open tick, is `tick/<epic>/<id>` an ancestor of the stream branch? Rule (c) is off for the caller's own row and for a row the human drives. Say which rule fired.
 
+**`idle` with undispatched work is the stall signature, and it is not the same as `working`.**
+A session that is `working` has a run continuing; a session that is `idle` has ended a turn.
+So `idle` + an unfinished epic + nothing dispatched means **the turn ended without starting
+the next thing**, which is a stall even though nothing is broken and nobody is blocked.
+Measured 2026-09-21: a stream said *"final review next"*, ended its turn, and sat 31 minutes;
+the probe was what restarted it, and its own diagnosis was the shape the runner doc names —
+**finishing a large body of work triggers the urge to summarise and hand back, and an epic
+boundary is a waypoint, not a stopping point.** It wrote a good summary instead of starting
+the next thing. So do not read a well-written hand-over as completion: *the report reads like
+the end of the work* is the tell.
+
+**A failed gate is a branch in the loop where closes get orphaned.** The same probe found two
+ticks still `in_progress` that had been merged and gated: the wave gate went red, attention
+moved to the repair tick, and the deferred closes fell through that gap. The stream would have
+sworn the wave was closed. **`tk graph` is authoritative where anybody's recollection is
+not** — so after any red gate, re-read the graph rather than the memory of what was merged.
+This is stall rule (d) one step earlier: (d) catches *open* ticks whose branch is merged; this
+catches *in-progress* ones, which look even more like work is happening.
+
 **Point the silence check at whoever is furthest ahead.** That stream's silence costs the most and looks the most like concentration — twice on 2026-09-20 the furthest-ahead stream was the one nobody was watching.
 - **running** — in-progress ticks or live implementer worktrees.
 - **idle** — nothing open, nothing in flight (a scoped-not-started stream, a docs-only branch).
