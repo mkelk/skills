@@ -13,6 +13,7 @@ reference and follow it exactly.** With no or an unknown argument, show this tab
 | Argument | Cadence | Door |
 |---|---|---|
 | `status` | whenever the human asks "what is running" | `references/status.md` — one screen from `.devmeta/streams.md`, `tk`, the process list and `ListAgents`; what waits on the human; what has stalled. |
+| `keep-running` | on a timer, every ~30 min | `references/keep-running.md` — `status`, then **act**: close forgotten windows, answer streams owed an answer, refresh drifted cells, land what is finished, restart what stalled, relay what one stream found. Prints only what the human must act on. |
 | `cut <slug>` | once per new stream | `references/cut.md` — asks first whether it is a side stream or the mainline in a worktree, then: the port block, a branch and worktree, `.env`, deps, the records, a brief file the new session reads. |
 | `hotfix <slug>` | when a host is blocked on a running stream's gated fix | `references/hotfix.md` — merge one stream's branch to `master` **without landing it**: the stream is unfinished and stays alive. Needs the human's go, a conflict-free merge, a typecheck on the merged tree, and the SHA handed to whoever owns the host. |
 | `land <slug>` | once per finished stream | **not built yet** — `references/land.md` holds the checklist; landings are done by hand against it until two have confirmed every step. |
