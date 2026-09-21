@@ -4,8 +4,17 @@ Set a new side stream up so its session can start from files alone. Everything t
 to do by hand, and the brief it used to write from memory.
 
 Arguments: `cut <slug> [--from mainline|master] [--scope "<todo entry name>"]`. `slug` names
-the branch (`YYYY-MM-DD-side-<slug>`) and the worktree (`<repo>-side-<slug>` beside the main
-checkout). Default `--from mainline`: cut from the mainline's branch tip so the stream has the
+the branch and the worktree (`<repo>-side-<slug>` beside the main checkout).
+
+**Branch names put the slug first and the date last: `<slug>-<YYYY-MM-DD>`.** A mainline's
+slug is `inc<NN>`. So `prod-2026-09-21`, `todos-2026-09-21`, `inc09-2026-09-21` — never
+`2026-09-21-side-prod`. **The date-first form is unreadable in every narrow list**, which is
+where branch names are actually read: Morten's herdr sidebar on 2026-09-21 showed three
+streams as `2026-09-21-side-…`, `2026-09-21-incre…` and `2026-09-21-side-…`, identical for
+eleven characters and truncated exactly where they started to differ. A name is for telling
+things apart, and a shared prefix is the one place that cannot happen. Several streams cut on
+one day is the normal case, not the exception, so the date is the least distinguishing part
+of the name and belongs at the end, where it still sorts and still says when. Default `--from mainline`: cut from the mainline's branch tip so the stream has the
 current tree; `--from master` when the stream must not carry the mainline's unfinished work.
 
 ## Step 0 — Is this a side stream at all?
@@ -42,11 +51,11 @@ is free again (08s1 landed and 3920 was free while 3960 looked next; the first c
 From the main checkout (read-only; never `git checkout` there):
 
 ```bash
-git worktree add -b <date>-side-<slug> ../<repo>-side-<slug> <from-branch>
+git worktree add -b <slug>-<date> ../<repo>-side-<slug> <from-branch>
 ```
 
 **A mainline in a worktree is named after its increment, not after a slug:** branch
-`<date>-increment-<NN>`, worktree `<repo>-increment-<NN>`. The worktree's name is the only
+`inc<NN>-<date>`, worktree `<repo>-increment-<NN>`. The worktree's name is the only
 label a human reads in `git worktree list`, in a pane title and in `/proc/<pid>/cwd`, so it
 should say which branch lives there — that is one cheap half of the mapping problem the
 SKILL names, paid for at the cut.
@@ -76,7 +85,10 @@ and the mainline owns the deploy host. Install deps (`pnpm install --frozen-lock
   `/dmtix start` when the scope is genuinely open.
 - **The Streams row.** On **master**, via a scratch worktree and `git update-ref`: add the row
   (session `—` until the human names it, status `cut, not started`), commit, push. Then
-  `git merge master` into the new branch so it carries its own row.
+  `git merge master` into the new branch so it carries its own row. **This is the one merge
+  into a stream's branch the seat ever does**, and it is safe only because it happens at the
+  cut, before any session holds the tree. Every later table change is announced to the
+  stream, never merged in by the seat — see the SKILL's principle on whose branch it is.
   **Then put the main checkout back in line, in the same breath:**
   ```bash
   git -C <main checkout> restore --source=HEAD --staged --worktree .devmeta/streams.md
@@ -134,6 +146,14 @@ exist yet.
 
 ## Corrections from real runs
 
+- 2026-09-21: **branch names were date-first and therefore unreadable where they are read.**
+  Three streams cut on one day gave `2026-09-21-side-prod`, `2026-09-21-side-todos` and
+  `2026-09-21-increment-09` — identical for eleven characters, and a narrow sidebar truncates
+  precisely where they begin to differ. Slug first, date last. **Existing running streams are
+  not renamed for this**: a branch rename moves the worktree's head, the `--base-branch` stamp
+  every provisioned tick carries, and any implementer worktree already cut from it. The
+  convention changes for the next cut; the cost of applying it backwards is paid by whoever is
+  mid-wave.
 - 2026-09-21, cutting two streams onto an empty machine (`fh`): three faults, all in this
   door. **(1)** It had no answer for "there is no mainline yet" and its defaults would have
   made the human's mainline into a side stream — Step 0 now asks. **(2)** `update-ref` left
