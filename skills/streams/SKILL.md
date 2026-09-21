@@ -179,6 +179,18 @@ Principles, binding for every door:
   - A **screenshot that passes under tolerance** reads as *nothing changed*. (Stale-and-green;
     found twice in one increment.)
   - A **spec that does not appear in a run** reads as *it passed in that run*.
+  - A **print statement after an edit that silently changed nothing** reads as *the edit
+    landed*. Twice on 2026-09-21, in both seats. The seat's own: a python heredoc whose
+    assertion failed, aborting the write, while the `git commit && git push` chained after it
+    ran anyway on an unchanged tree — **two hollow commits reached master**, each describing a
+    streams row it did not contain. A stream's own, twelve hours later: a `str.replace`
+    against text a sync had already changed, followed by `print('overview marked')` firing
+    unconditionally — and the thing it failed to record was **the increment's own
+    completion**. It was caught by the harness noticing the file on disk differed from the
+    last read, *not* by any check. So: **a print statement is not a check; assert the thing
+    you claim to have done.** For a file edit, assert the new text is present after writing;
+    for a commit, `test -n "$(git diff --cached --name-only)"` before running it. Both fixes
+    are one line, and both faults published a confident false record.
   In every case the instrument produced **nothing**, and nothing was read as **good**. The
   common cure is not more instruments — it is to ask, of any green result, *what would this
   look like if the instrument were simply not working?* **Where the answer is "the same", the
