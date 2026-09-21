@@ -60,6 +60,9 @@ parallel streams the guessing failed five distinct ways:
 - A stream was cut without a row, so it was **invisible to every door** and the machine was
   handed away over the top of its running tier.
 - A session **renamed itself mid-life**; messages to the old name still worked, which hid it.
+  (On 2026-09-21 it happened again and the old name **bounced** — `No agent named … is
+  reachable` — which is the better failure of the two: a send that silently succeeds against a
+  stale name is how a stream gets told something its driver never reads.)
 - A session held **two branches**, which the one-row-per-session table cannot represent, so
   the reconciliation kept dropping one and its row silently reverted.
 - Panes were **closed while their work was unfinished** (a mainline seat mid-deploy) and
@@ -85,6 +88,17 @@ What a fix has to give, whatever its shape:
   and only worked because three sessions answered honestly. A door that ends by saying *tell
   me the session's name and I will put it in the table* has made him the index in writing;
   the `cut` door said exactly that until 2026-09-21.
+- **Store no identity that the machine can answer on demand.** Every handle a table can hold
+  drifts, and on 2026-09-21 all three drifted within twenty minutes of being written, each a
+  different way: a session **renamed itself mid-life** (`fh-side-prod-c2` → `side-prod`, and a
+  message to the old name bounced); a **pane id changed** when a pane was closed and reopened
+  (`w10:p1` → `w22:p1`) with nothing about the stream changing; and a **terminal title is
+  whatever a human last typed** — `inc-09`, `todo.md review`, `Increment definition`,
+  `Claude Code`, not one of them naming a branch. **The worktree path is the only join key
+  that cannot drift**, because a session's `cwd` cannot differ from the tree it is sitting in,
+  and it is already in the table. The `[ref]` is the only stable name-like handle; it survived
+  the rename unchanged. So a session column is a cache with a short life, and every door that
+  reads one should resolve it again rather than believe it.
 
 Until it exists, every door treats the roster as a hint and the machine as the fact.
 

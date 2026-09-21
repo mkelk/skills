@@ -190,6 +190,15 @@ that is a defect in the tick, and naming it gets it fixed.
 
 ## Corrections from real runs
 
+- 2026-09-21: **every session cell in the table was wrong twenty minutes after being written**,
+  in three different ways — a session renamed itself and the old name bounced, a pane id
+  changed when its pane was reopened, and a terminal title was whatever a human last typed.
+  Read a row's driver from its **worktree** (the column beside the session cell); a `cwd`
+  cannot drift from the tree it holds, while every name, title and pane id can and did. Match
+  the stored name if it still resolves, fall back to the worktree, and treat the cell as a
+  cache to refresh rather than a fact to report. `ListAgents`' `[ref]` survived the rename
+  unchanged and is the handle worth storing.
+
 - 2026-09-21: **the door did not read in the order it asks for.** "Step 5 — Restart what is
   stalled, **before you print**" sat after Step 4, Print, with the probe section wedged
   between them. A door read top to bottom therefore printed first and restarted afterwards,
