@@ -167,6 +167,39 @@ finished and unlanded?
      needs re-running alone. A tier that *writes* baselines is the opposite — a contended
      regeneration cannot certify itself, and the cure is a forced pass on a quiet machine then
      a cold read-back with no `--update-snapshots`.
+   - **Measured end-to-end 2026-09-21 (09s4-hos), so this supersedes the reasoning above
+     rather than sitting beside it.** Two forced passes, 804 passed / 12 skipped / 0 failed,
+     verified by **sha256 rather than exit code**: 171 rewritten, 146 kept with a named cause,
+     25 reverted, and the verification pass wrote nothing — every kept file had the same hash
+     afterwards and every reverted file was still byte-identical to HEAD.
+     - **Under `all` the delete is ceremony, confirmed.** Three files that had **passed a
+       reading gate an hour earlier** were rewritten anyway (`admin-routing.png`,
+       `issues.png`, `chat.png`, every project) while four untouched pages came back with the
+       **same sha256 and the same mtime**. 169 of 340 left alone. So a forced pass is not
+       "rewrite everything": it is a byte comparison, and byte-drift is invisible to the
+       tolerance gate that passed an hour before.
+     - **A forced pass DOES write both shots of an ordered pair.** Proven with an isolated
+       two-snapshot test, first file deleted and second stale: *A snapshot doesn't exist …
+       writing actual* → *… is not the same, writing actual* → `✓ 1 passed`, both on disk, and
+       all 20 multi-screenshot executions ran to completion. **So the ordered-pair rule
+       protects the VERIFICATION run, not the regeneration** — which is the opposite of how
+       this door described it.
+   - **Expect a forced pass to sweep up other streams' unfinished regenerations, and say so.**
+     The same run rewrote **twelve-plus** files belonging to nobody currently running: tick
+     `jky` added `Sources` to the admin sidebar on 2026-09-20 and left **eight** admin
+     baselines unregenerated (every link below it shifted one 28px row; the files were still
+     dated 2026-09-19 while `admin.spec.ts`'s own had been refreshed — **a partial sweep, which
+     is the `changed`-mode signature exactly**); `8lr`'s masthead sweep missed
+     `issue-author-image.png` ×4; `s8a`'s credit line left three. **Three separate partial
+     sweeps outstanding on master simultaneously.** Two consequences: **force over the pages
+     that wear a change rather than trusting a census** — a `changed` pass would have left all
+     three — and **a regenerating stream must name which rewritten files are its own and which
+     it inherited**, or the lander reads the whole set as that stream's work.
+   - **Symmetry across projects is a heuristic for noise and does not outrank reading the
+     render.** A rule saying *a baseline that moved in only 2 of 4 projects is scatter, revert
+     it* was overruled correctly: at 390px those pages are captured with a drawer over the
+     masthead, so the element was **not in frame at all**. Desktop-only movement was the true
+     answer. Read the render before applying any symmetry rule.
 7. **Prove the merge landed what you think, before you delete anything.**
    `git merge-base --is-ancestor <branch> origin/master` — and read the records themselves,
    not the merge's exit code: does the trunk's `current-increment.md` say what shipped, does
