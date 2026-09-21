@@ -21,6 +21,15 @@ Principles, binding for every door:
   stream and the standing rules; the seat edits it with a scratch worktree and `git
   update-ref`, never a checkout — the main checkout belongs to whichever session runs the
   mainline. Every stream gets it by sync forward.
+- **The seat writes on master. A stream's branch belongs to the stream — including the merge.**
+  Sync-forward at the cut is the seat's, because nobody holds the tree yet. After that it is
+  the stream's: the seat says *master has moved, sync when it suits you*, and the stream
+  merges when its own work allows. On 2026-09-21 the seat merged master into a running
+  stream's branch to deliver a table update, and that stream had **two implementer worktrees
+  already provisioned from the previous head** and had to reset both before dispatch. Nothing
+  was lost, and nothing about the change was wrong — it was one file the stream did not touch.
+  The cost was entirely in the timing, which is the point: a seat cannot see what a stream has
+  staged, so it cannot know a harmless merge is harmless. Announce; do not merge.
 - **Doors, not engines.** The loop lives in the ticks skill; scoping in `dmtix start`. These
   doors read state, set streams up, and print what to tell a session. They never dispatch a
   tick and never decide anything the human should.
