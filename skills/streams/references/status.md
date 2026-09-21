@@ -7,7 +7,7 @@ from files and processes, never from memory and never by asking the sessions.
 worn this door long enough usually grows one (in `ai-newsletter`: `pnpm fp streams:status`,
 `--json` for the parts). It reads the same sources in about a second and costs the seat
 nothing, which is the whole point — the seat's context is the expensive thing on the machine.
-Read its output, print Step 4's shape, and fall back to the steps below only when it is absent
+Read its output, print Step 5's shape, and fall back to the steps below only when it is absent
 or refuses a row.
 
 **Run the worktree reconciliation yourself even then.** `git worktree list` against the rows
@@ -70,7 +70,7 @@ For every row, gather — all read-only, all from the machine, none from a messa
 | implementer worktrees | `git worktree list` from the row's worktree, rows under `.ticks-worktrees/` whose branch is `tick/<one of its epics>/*`; for each, uncommitted lines (`git status --short | wc -l`) and commits ahead of the stream branch. |
 | last movement | age of the stream branch's tip commit; age of the newest commit on any of its tick branches. |
 | playwright | `pgrep -f "playwright tes[t]"` — if any, which worktree path it runs in. **A stream's tick worktrees under `.ticks-worktrees/` count as that stream's**, so a tier running in `nl-4xn` is held by the mainline, not by nobody. A running cwd that no row claims prints `held by <cwd>`; never print "free" while a process is running, whoever it belongs to — "free" is the word another session acts on. |
-| progress | From the tick files, not `tk graph` (which counts only open tasks): for each of the increment's epics in roadmap order, its children (`parent == epic id`) and how many are closed. The increment's position is **the first epic not closed, out of the epic count** ("E1 of 3"); that epic's `closed/total` is the bar. Epics after it usually have zero children — the method plans just-in-time — so they show as "unplanned", never as 0%. **The current epic can have zero children too** (it was reached before it was cut): it is named unplanned as well, not "0/0". And **an increment whose every epic tick is closed reads 100%** whatever the last epic's children look like — a closed epic is closed; do not let a half-populated child list drag a finished increment back below the line. The `~%` column is the one increment-wide number, by Morten's formula (see Step 4); it is labelled rough and sits beside the glyphs that show the true shape. |
+| progress | From the tick files, not `tk graph` (which counts only open tasks): for each of the increment's epics in roadmap order, its children (`parent == epic id`) and how many are closed. The increment's position is **the first epic not closed, out of the epic count** ("E1 of 3"); that epic's `closed/total` is the bar. Epics after it usually have zero children — the method plans just-in-time — so they show as "unplanned", never as 0%. **The current epic can have zero children too** (it was reached before it was cut): it is named unplanned as well, not "0/0". And **an increment whose every epic tick is closed reads 100%** whatever the last epic's children look like — a closed epic is closed; do not let a half-populated child list drag a finished increment back below the line. The `~%` column is the one increment-wide number, by Morten's formula (see Step 5); it is labelled rough and sits beside the glyphs that show the true shape. |
 
 ## Step 3 — Classify
 
@@ -85,7 +85,40 @@ Per stream, one word, by these rules in order:
 - **running** — in-progress ticks or live implementer worktrees.
 - **idle** — nothing open, nothing in flight (a scoped-not-started stream, a docs-only branch).
 
-## Step 4 — Print
+## When a stream is silent, probe before concluding
+
+This door can see that a stream is idle; it can never see *why*, and the three reasons look
+identical from outside — the session is blocked on a prompt, its tier is refusing, or the
+account is. One word settles it: send the session, or the tier in question, **"reply ALIVE, no
+tools"**. It answers in about three seconds and costs nothing.
+
+A refusal's own text says nothing about its scope. On 2026-09-20 four implementers died on
+sonnet 429s; the seat read that as account-wide and told four streams to hold for 45 minutes.
+A one-word sonnet probe answered immediately — the limit had already lifted, and a haiku scout
+and an opus dispatch had been running through the whole window. Report the probe's result, not
+the 429's prose.
+
+## Step 4 — Restart what is stalled, before you print
+
+**A stall is not a line in a report. It is work that has stopped, and the seat's job is to
+start it again** (Morten, 2026-09-20). So after Step 3 and before Step 5's screen: for every
+stream classified **stalled**, message its session — say which rule fired, with the number, and
+ask for one line back if it is mid-something. Then print, naming each stream you nudged.
+
+The one exception: **a stream waiting on the human is not stalled and is never nudged.** Its
+work has not stopped, it has been handed over. That is a NEEDS YOU item, and the human is the
+only one who can clear it.
+
+Two further exceptions keep their existing force: a row the human drives is the human's to
+nudge, and the caller's own row is skipped.
+
+Prefer asking to instructing. "`8ab` has been ready 21 minutes with nothing dispatched; one
+line is enough if you are mid-something" gets a truthful answer, where "dispatch `8ab`" gets
+compliance and sometimes a wrong dispatch. And when a stall has a shape that has been seen
+before, name it — a session that recognises *the report reads like the end of the work* fixes
+the cause, not the instance.
+
+## Step 5 — Print
 
 Exactly this shape. Column headers always; columns aligned; a `—` where a column does not
 apply; nothing narrated between the header and the table. Prose, if any, goes **after**, and
@@ -148,39 +181,6 @@ Wrap to three indented lines if it does not fit one. If the tick's description d
 say where or what closes it, say so — "(tick gives no location)" — rather than guessing;
 that is a defect in the tick, and naming it gets it fixed.
 
-## When a stream is silent, probe before concluding
-
-This door can see that a stream is idle; it can never see *why*, and the three reasons look
-identical from outside — the session is blocked on a prompt, its tier is refusing, or the
-account is. One word settles it: send the session, or the tier in question, **"reply ALIVE, no
-tools"**. It answers in about three seconds and costs nothing.
-
-A refusal's own text says nothing about its scope. On 2026-09-20 four implementers died on
-sonnet 429s; the seat read that as account-wide and told four streams to hold for 45 minutes.
-A one-word sonnet probe answered immediately — the limit had already lifted, and a haiku scout
-and an opus dispatch had been running through the whole window. Report the probe's result, not
-the 429's prose.
-
-## Step 5 — Restart what is stalled, before you print
-
-**A stall is not a line in a report. It is work that has stopped, and the seat's job is to
-start it again** (Morten, 2026-09-20). So after Step 3 and before Step 4's screen: for every
-stream classified **stalled**, message its session — say which rule fired, with the number, and
-ask for one line back if it is mid-something. Then print, naming each stream you nudged.
-
-The one exception: **a stream waiting on the human is not stalled and is never nudged.** Its
-work has not stopped, it has been handed over. That is a NEEDS YOU item, and the human is the
-only one who can clear it.
-
-Two further exceptions keep their existing force: a row the human drives is the human's to
-nudge, and the caller's own row is skipped.
-
-Prefer asking to instructing. "`8ab` has been ready 21 minutes with nothing dispatched; one
-line is enough if you are mid-something" gets a truthful answer, where "dispatch `8ab`" gets
-compliance and sometimes a wrong dispatch. And when a stall has a shape that has been seen
-before, name it — a session that recognises *the report reads like the end of the work* fixes
-the cause, not the instance.
-
 ## What this door never does
 
 - Edit a stream's tree, dispatch its ticks, or decide anything the human should.
@@ -189,6 +189,14 @@ the cause, not the instance.
 - Nudge, land or message a stream whose row says it is the human's own.
 
 ## Corrections from real runs
+
+- 2026-09-21: **the door did not read in the order it asks for.** "Step 5 — Restart what is
+  stalled, **before you print**" sat after Step 4, Print, with the probe section wedged
+  between them. A door read top to bottom therefore printed first and restarted afterwards,
+  which is the opposite of what its own heading demanded, and the probe — the one-word check
+  that tells a stall from a block — sat past the point where it was useful. Reordered:
+  classify, probe, restart, print. Nothing changed but the sequence, and the sequence was the
+  instruction.
 
 - 2026-09-21, two streams cut onto an empty machine (`fh`). **The table was read from disk and
   the disk was stale.** The seat wrote both rows on master with `update-ref`, pushed them, and
