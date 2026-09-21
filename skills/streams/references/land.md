@@ -101,6 +101,33 @@ finished and unlanded?
      where this bites: git answers "which line is current" and never "what order does the
      history read in". Assert the ordering by name after every merge — `_overview.md`'s
      `Previously:` chain, the diary's dates — rather than waiting for a conflict marker.
+     **The absence of a conflict is not evidence the merge was right** — and the two files
+     that prove it are the two every landing touches. `current-increment.md`'s header: both
+     sides legitimately edit it, git takes one, and the result is wrong with nothing to warn
+     you (which is why the Active-block rule above says *always the mainline's, whether or not
+     git conflicted*). And `todo/todo.md`: when a stream scopes an entry it **deletes** that
+     entry on its branch, master never saw the delete, so at the merge **a scoping decision
+     and an untouched line are indistinguishable** — keep-both silently returns claimed work
+     to the trunk. On 2026-09-21 that would have restored **sixteen** entries across two
+     streams, and the rule for that file is literally *keep both*.
+     **So resolve list files against `git merge-base`, not against the two sides, and assert
+     the result by counting.** Ask of each entry: did one side *add* it, or did one side
+     *remove* it? A removal is a scoping decision and it wins. Then check the arithmetic: the
+     base had 106 entries, the resolution 94, master 95. **A resolution larger than the side
+     you merged from is the signature** — it is the cheapest check there is, it needs no diff
+     reading, and it catches the one fault a per-branch gate can never see.
+     **But the count is a trigger to investigate, not a verdict.** A larger count is also what
+     a legitimately unlanded stream looks like: 09s4-hos resolved to 96 against master's 95 and
+     the difference was exactly the entries its own cut had moved into its overview, which
+     master still carries because that increment has not landed yet. One-home-per-task working,
+     not keep-both leaking — and *both* produce a bigger number. **The verdict is the direct
+     test: entries present in the resolved file but in NEITHER side. That set must be empty.**
+     Anything in it was resurrected by the merge and belongs to nobody. Run the count first
+     because it is free, then answer it with that check rather than with an explanation. The same question
+     — *can this file shrink on purpose?* — is what tells you whether keep-both is safe for any
+     file at all: `.tick/learnings.md` fails it too, because one side had compacted to its cap
+     while the other widened entries in place, and keep-both breaks the cap the compaction
+     existed to hold.
 5. **`## At landing`.** Execute each instruction under that heading in the stream's overview
    (a row to add to `privacy.ts`, a masthead link plus its tooltip key in the same commit) and
    name each in the merge message. A stream that needs the merge to do something says so

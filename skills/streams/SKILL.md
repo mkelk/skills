@@ -105,7 +105,18 @@ Principles, binding for every door:
   and that gets recorded as evidence. **A mutation that does not change the result is not a
   clean bill — it is an unexplained result**, and the two explanations (the assertion is
   blind; the plant did not do what you thought) must be told apart before either is believed.
-  First thing to check: is the planted string a **substring** of the original?
+  First thing to check, and state it in the direction you can actually apply: **is the string
+  you planted a SUPERSTRING of the string the assertion names?** `Waiting` → `NotWaiting` is
+  the canonical shape — the rendered text changed, and the matcher still matches because what
+  it looks for is still inside it. A **rename-style plant can never fail** against a substring
+  matcher, so choosing one is choosing a test that cannot fail. Plant a *deletion* or an
+  unrelated token instead.
+  **And this is not a testing detail; it is how this project accepts any guard at all.** Every
+  red-green proof every stream runs is *plant it, watch it fail, revert* — so every stream can
+  be misled by it, and **the failure is silent in the direction that reads as success**. The
+  sentence that certifies a blind guard is *"planted it, still passed, so it must be covered
+  elsewhere."* (09s3-kbw, 2026-09-21, generalising its own `kni` finding past the fixtures it
+  was found in.)
 - **A written rule whose evidence has expired is more dangerous than no rule, because it is
   followed without being read.** Three instances on 2026-09-21, and the seat was central to
   all three. *Two tiers do not fit on this machine* had been obsolete in `.tick/profile.md`'s
