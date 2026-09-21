@@ -267,16 +267,24 @@ that is a defect in the tick, and naming it gets it fixed.
   test runs to completion before reading the later one.**
   **And prove the picture was written rather than inferring it from a green exit** — *"the
   test passed" and "the picture was written" are different facts, and the second is the one
-  you need.* The instrument is a **pre-pass manifest**: before any browser runs, record every
-  baseline's `sha256` and `mtime`. Afterwards each file falls in exactly one bucket, and
-  `git status` alone cannot separate the middle two, because a file rewritten with identical
-  bytes shows as unmodified:
-  - **new mtime, new hash** — it moved. Name the cause or revert it.
-  - **new mtime, same hash** — written and genuinely identical. **This is the bucket that
-    proves a picture was examined**, which is the fact the check is really after.
-  - **same mtime** — never written. For the second shot of an ordered pair, this is the
-    failure the whole rule exists to catch.
-  (Built 2026-09-21 over 340 PNGs, while waiting for a window.)
+  you need.* **Corrected 2026-09-21, from the source, within the hour of being written here.** The seat
+  recorded a three-bucket pre-pass manifest whose middle bucket — *new mtime, same hash =
+  written and examined* — **cannot occur**. Under `all`, `expect.js:12645` sets `expected` to
+  `void 0` before the browser is asked, so **no tolerance comparison happens at all**; `:12654`
+  then compares bytes and calls `writeFiles` **only if they differ**, and byte-identical falls
+  through to `handleMatching()` — pass, writing nothing. So **mtime changes if and only if the
+  hash changes**: two states, not three, and mtime is corroboration of the hash rather than an
+  independent signal. It **cannot prove a picture was examined**, which was the whole reason
+  the seat asked for it. It also follows that `git status` *is* an accurate list of what was
+  written under `all`, because Playwright never rewrites an identical file — so the argument
+  that a manifest was needed to see past it was wrong too.
+  **What actually proves the second shot was reached is the missing-snapshot path, not a
+  manifest:** under `all` a missing snapshot passes and the test continues, so `same mtime`
+  can only mean byte-identical. A pre-pass manifest still earns a smaller, real job — a stable
+  before-state with per-file hashes, so a cause can be named per file and a wrong keep reverted
+  against something known — but it is not the instrument it was billed as. **The step was
+  right for the wrong mode**, which is the same conflation twice in one afternoon, by two
+  different parties, about the same two modes.
 
 - 2026-09-21: **"the machine is free" and "the window is open" are different sentences, and the
   seat said the first.** Having established that a stream's stuck wait-loops were not a running
