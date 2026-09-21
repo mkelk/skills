@@ -97,6 +97,15 @@ Principles, binding for every door:
   itself, against the case that sentence names**, and where a gap remains, say it aloud in the
   same breath. A guard that over-promises is worse than none, because it is believed — and its
   promise outlives it, in documentation nobody re-derives.
+  **And the trap under the trap: a plant can pass.** 2026-09-21, proving a guard by planting a
+  mutation — `Waiting` → `NotWaiting` — the assertion **still passed**, because
+  `getByRole(..., { name })` matches by **substring**, exactly like `getByText`. With
+  `{ exact: true }` it failed properly. So the guard absorbed the plant and **read as proven
+  while being blind.** This is the one case where *watch it fail* misleads: it does not fail,
+  and that gets recorded as evidence. **A mutation that does not change the result is not a
+  clean bill — it is an unexplained result**, and the two explanations (the assertion is
+  blind; the plant did not do what you thought) must be told apart before either is believed.
+  First thing to check: is the planted string a **substring** of the original?
 - **A written rule whose evidence has expired is more dangerous than no rule, because it is
   followed without being read.** Three instances on 2026-09-21, and the seat was central to
   all three. *Two tiers do not fit on this machine* had been obsolete in `.tick/profile.md`'s
