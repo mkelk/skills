@@ -90,8 +90,13 @@ Principles, binding for every door:
   that is silently ignored, whose fix was the last line of a learnings entry it had not re-read
   though its own protocol says to.
   So the failure has two halves and they need different answers. **A rule that is stale gets
-  obeyed** — so when a rule cites a measurement, the measurement's date goes with it, and a
-  rule whose numbers cannot be pointed at is treated as a hypothesis. **A finding that is not
+  obeyed** — so when a rule cites a measurement, **date the measurement, not the rule.** The
+  difference decides whether anyone ever checks: *"30.5 GiB, measured 2026-09-19"* invites a
+  re-measure; *"as of 2026-09-19, two tiers do not fit"* reads as provenance and is obeyed as
+  fact. The memory figure was dangerous less for its age than because **its number was
+  load-bearing and uncheckable in place** — *two tiers do not fit* never said against what, so
+  nobody could tell it had stopped being true without going and measuring. A rule whose
+  numbers cannot be pointed at is a hypothesis. **A finding that is not
   re-read gets rediscovered** — so the value of writing it down is entirely in the re-reading,
   and a protocol that says *re-read before planning* is one of the few instructions worth
   obeying mechanically. When measurement and a written record disagree, the measurement wins
