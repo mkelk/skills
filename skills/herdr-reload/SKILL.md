@@ -21,7 +21,8 @@ The mechanics are in `scripts/herdr-reload.py` (next to this file). Run it; don'
      session id. The `->` line is the exact command it will be restarted with (the original
      flags, minus any old `--resume`/`--continue`).
    - `ok`: already on the current binary.
-   - `busy`: on an older binary but `working` or `blocked`. Never restarted. With
+   - `busy`: on an older binary and not `idle` (`working`, `blocked`, or `done`, which herdr shows
+     for a finished turn that may still have background work). Never restarted. With
      `--force`, its agent gets a restart note instead (see below).
    - `skip`: with the reason. The pane running the script, which is your own, is always
      skipped.
