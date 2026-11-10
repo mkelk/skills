@@ -20,6 +20,12 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   short and in plain English: bottom line first, no hedging, no jargon, no tech-legalese.
   Rewrite only — it does no new work.
 
+- **[herdr-reload](skills/herdr-reload/)** — after a Claude Code update, `/herdr-reload` moves
+  the sessions already running in your herdr panes onto the new binary. Each idle pane on an
+  old version gets `/exit` and then `claude --resume` of the same session. Dry run first;
+  busy panes are never interrupted. `/herdr-reload force` skips the confirmation and queues a
+  restart note to each busy pane's agent instead.
+
 ## Install
 
 ```bash
