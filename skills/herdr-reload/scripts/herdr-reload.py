@@ -115,7 +115,18 @@ def plan():
             exe = os.readlink(f"/proc/{proc['pid']}/exe")
         except OSError:
             exe = None
-        row.update(pid=proc["pid"], argv=proc["argv"], exe=exe, version=version_of(exe))
+        argv = proc.get("argv")
+        if not argv:  # herdr 0.9.1 reports no argv: read it from /proc
+            try:
+                with open(f"/proc/{proc['pid']}/cmdline", "rb") as f:
+                    argv = [x.decode() for x in f.read().split(b"\0") if x]
+            except OSError:
+                argv = None
+        if not argv:
+            row.update(action="skip", why="cannot read the process's arguments")
+            rows.append(row)
+            continue
+        row.update(pid=proc["pid"], argv=argv, exe=exe, version=version_of(exe))
         if exe and exe.endswith(" (deleted)"):
             row["version"] += " (deleted)"
         if pane == me:
@@ -127,7 +138,7 @@ def plan():
         elif not row["session"]:
             row.update(action="skip", why="herdr has no session id for it")
         else:
-            row.update(action="reload", why="", cmd=new_args(proc["argv"], row["session"]))
+            row.update(action="reload", why="", cmd=new_args(argv, row["session"]))
         rows.append(row)
     return target, rows
 
