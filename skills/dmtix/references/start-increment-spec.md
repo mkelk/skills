@@ -18,7 +18,7 @@ Run the detection contract from `/dmtix bootstrap` (skill present, `.tick/`
 present, config has both lifecycle headings, `.devmeta/` present). If anything is missing,
 tell the user what, confirm, and follow `references/bootstrap.md` (the bootstrap door of
 this same skill) before continuing. Then run bootstrap's upgrade check (its step 6) once: the
-start of an increment is when a pin can be dropped and a migration costs nothing mid-run. Do
+start of an increment is when a migration costs nothing mid-run. Do
 not duplicate its logic here.
 
 ## Step 1 — Increment id
@@ -73,7 +73,7 @@ Create the increment directory with `ia-cycles/.gitkeep` and `_overview.md`:
 # Increment <NN>-<xxx> — <Title>
 
 **Status:** NOT STARTED · **Target:** <date or —>
-**Engine:** synthesized ticks skill (project-level if vendored — see its PROVENANCE.md — else user-level)
+**Engine:** the ticks skill at user level (`~/.claude/skills/ticks/`)
 
 ## Goal
 <goal>
