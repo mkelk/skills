@@ -3,12 +3,17 @@
 Answer "what is running, is anything waiting for me, has anything stalled" in one screen,
 from files and processes, never from memory and never by asking the sessions.
 
-**If the project provides a status command, run it instead of Steps 1–3.** A project that has
-worn this door long enough usually grows one (in `ai-newsletter`: `pnpm fp streams:status`,
-`--json` for the parts). It reads the same sources in about a second and costs the seat
-nothing, which is the whole point — the seat's context is the expensive thing on the machine.
-Read its output, print Step 5's shape, and fall back to the steps below only when it is absent
-or refuses a row.
+**The steps below are the definition of this door.** They name every section the screen shows
+— NEEDS YOU, STALLED / UNKNOWN DRIVER, the stream table, PLAYWRIGHT, HOLDS, OWED, SCHEDULES,
+LOG — and the file or process each is computed from: `coord/streams.md`, `coord/log.md` (read
+through the skill's `scripts/coord.py show`), `coord/schedules.md` and `coord/asks.md` in git's
+common directory; `tk` in each stream's worktree; `git worktree list`; the process list; and
+herdr's snapshot or `ListAgents` for the sessions. **A project may ship its own command that
+prints this screen; if the project's instruction file names one, run it instead of Steps 1–3.**
+A project that has worn this door long enough usually grows one: it reads the same sources in
+about a second and costs the seat nothing, which is the whole point — the seat's context is the
+expensive thing on the machine. Read its output, print Step 5's shape, and fall back to the
+steps below only when it is absent or refuses a row.
 
 **Run the worktree reconciliation yourself even then.** `git worktree list` against the rows
 the command printed, every time — it is three seconds, and it is the one guard that catches
@@ -23,23 +28,56 @@ and because the seat must be able to answer without it. **Where the command and 
 disagree, these steps are right and the command has a bug** — say so, and record it where the
 project records work, rather than quietly reporting what the command said.
 
-## Step 1 — Read the table
+## Step 1 — Read coord first: the table, then the log
 
-**`git show master:.devmeta/streams.md` — from the ref, never from a checkout's disk.** The
-file is the same on every branch, which is exactly what makes reading it from disk look safe;
-it is not. The seat writes the table on master with `update-ref`, and **`update-ref` moves the
-ref without touching any working tree**, so the bytes on disk stay at whatever they were
-before the last row was written. A door reading them answers about a machine that no longer
-exists. Read the ref and the whole class of fault is gone. Each row gives a stream's
+**Coord is read first, before anything is done on the machine or a host.** A session that
+starts or resumes runs this door (or at least `coord.py show`) before it acts: the facts other
+streams depend on — a hold on a host, which build is live, what to wait for — are lines in
+`coord/log.md`, not messages, because a message is gone with its session and a log line is not.
+
+**The table is `<git common dir>/coord/streams.md`** (`git rev-parse --path-format=absolute
+--git-common-dir`). Every worktree of the repository reads the same file, at once; git never
+tracks it, so there is no copy on a branch to be stale and no commit to sync forward to. It is
+**per machine**: streams on another machine have their own. The seat edits it in place — no
+commit, no `update-ref`, no announcement for a row change.
+
+**If a project has no `coord/streams.md` yet and still keeps the table committed on master,
+read it from the ref, `git show master:.devmeta/streams.md`, never from a checkout's disk — and
+say on the screen which home was read.** Until 2026-09-23 the table lived there, written on
+master with `update-ref`, and **`update-ref` moves the ref without touching any working tree**,
+so the bytes on disk stay at whatever they were before the last row was written. A door reading
+them answers about a machine that no longer exists (2026-09-21: "nothing is running" with two
+streams live; see Corrections). Moving the live table into coord removed the ref and the
+fault with it; `.devmeta/streams.md` in git now keeps only the rules for streams and landed
+streams' history.
+
+Each row gives a stream's
 increment, session name, branch, worktree, ports, host and epics. **The worktree is the only
 cell that is a fact; the session and epics cells are caches the seat wrote by hand** and both
-have been measured wrong on the same afternoon. Step 2 says where each is really read from. If the file is
-missing, say so and stop — this door has nothing to stand on without it.
+have been measured wrong on the same afternoon. Step 2 says where each is really read from. If
+no table can be read from either home, say so and stop — this door has nothing to stand on
+without it.
 
 **The increment id may be in either the `stream` cell or the `increment` cell** (`08s3-pci` is
 a stream name that is also an id). Match it in either. A row that lists epics but carries no id
 in either cell is refused **by name** — say which row and what it is missing, and carry on with
 the rest; a docs-only row (no epics, `—`) is exempt, since it has no increment to find.
+
+**Then read the rest of coord**, for the sections after the table (Step 5):
+
+- `python3 <skill dir>/scripts/coord.py show` — the open holds with their time left, the holds
+  past their end, the seat's unpaid `OWED` lines, and the log's newest lines. Read the file
+  through the script rather than by eye: a hold is open only until a `RELEASE` line for the same
+  `<what>`, and its end is the `until … UTC` stored last on its line.
+- `coord/schedules.md` — its **Dies with its session** section: what runs on a clock inside a
+  session (session crons, `/loop`s, background shells waiting for a time) and so stops when
+  herdr, Claude or the machine does. The `restart` door owns the file's format.
+- `coord/asks.md` — its **Now** rows: what waits on the human, each with the exact thing to type.
+  The `queue` door owns the file.
+
+A coord file that is not there is said on its section's line, never skipped in silence: a
+missing `schedules.md` means nobody has listed what runs on a clock, which is not the same
+fact as nothing running on one.
 
 ### Then read the machine, and reconcile it against the table
 
@@ -78,7 +116,7 @@ For every row, gather — all read-only, all from the machine, none from a messa
 
 Proof it really is the Claude session id, since nobody should take a field's name for its meaning: the pane at one worktree reported `value` `c8954c0f-…`, and that is the same id the harness had independently keyed that session's scratchpad path on. Two witnesses, one id.
 
-**And a warning for whoever checks this next: the terminal title will look like a valid key and is not.** On 2026-09-21 `terminal_title_stripped` equalled the `ListAgents` session name on **all four** live panes — `orchestrator`, `side-todos`, `inc-09`, `side-prod`. Four for four is what a reader will see, and it is still wrong: the agreement is Claude setting the title from the name, not an identity between them. Anything else that sets a title breaks it, silently, and nothing in the sample warns you. Match by cwd = the row's worktree; this catches sessions that never registered with Claude's list (a resumed session, a pane opened by the human) and gives `blocked` as a first-class state, which `ListAgents` only shows as "waiting". **Two agents with the same cwd is a finding in itself, and it is the loudest one this door has** — report it; one checkout, one orchestrator. It is also the only identity claim answerable from `cwd` alone, which is why it survives every correction to the rest of this cell: two seats on one tree is the most dangerous state on the machine, and it needs no name to detect. **Except the seat's own pane:** the orchestrating session is often started in the main checkout and is one of the two. **The caller says who it is; the door does not guess.** A project command takes `--self <cwd or pane id>`, falling back to `HERDR_PANE_ID` when the flag is absent, so both ways of calling are right; a seat reading these steps by hand excludes the pane it is sitting in, which it knows for free. Inference was tried and failed twice — `herdr pane read <id>` to recognise its own prompt, which does not work when the door runs as a subprocess, and cwd matching, which is wrong the moment the seat steps into a stream's worktree to write records. **Excluding the caller must not swallow a real finding:** two *other* agents in one checkout is still reported, and the flag is shown wherever the door shows the command, or nobody passes it. Better still, start the seat in a directory of its own. **The caller is never read as a row's session or state** — excluding it must not then turn the seat's own stream into an "unknown driver". If another agent shares that cwd, it supplies the session and state; if none does, the row prints `—` in both columns and the unknown-driver rule is skipped for that row alone. The seat knows it is sitting there; saying so tells the human nothing. **When a row's driver is matched by cwd rather than by name, print what the machine knows — the pane id and the terminal's title — never `—`.** herdr gives both, and a row printing a live state beside an empty session says the door found somebody and will not name them. `—` in that column means *nobody is there*; it must never mean *somebody is there and the table has not been told their name*. Needs `tk` ≥ 0.31 for `tk herd`, but the snapshot is `herdr`'s own CLI and needs nothing. |
+**And a warning for whoever checks this next: the terminal title will look like a valid key and is not.** On 2026-09-21 `terminal_title_stripped` equalled the `ListAgents` session name on **all four** live panes — `orchestrator`, `side-todos`, `inc-09`, `side-prod`. Four for four is what a reader will see, and it is still wrong: the agreement is Claude setting the title from the name, not an identity between them. Anything else that sets a title breaks it, silently, and nothing in the sample warns you. Match by cwd = the row's worktree; this catches sessions that never registered with Claude's list (a resumed session, a pane opened by the human) and gives `blocked` as a first-class state, which `ListAgents` only shows as "waiting". **Two agents with the same cwd is a finding in itself, and it is the loudest one this door has** — report it; one checkout, one orchestrator. It is also the only identity claim answerable from `cwd` alone, which is why it survives every correction to the rest of this cell: two seats on one tree is the most dangerous state on the machine, and it needs no name to detect. **Except the seat's own pane:** the orchestrating session is often started in the main checkout and is one of the two. **The caller says who it is; the door does not guess.** A project command takes `--self <cwd or pane id>`, falling back to `HERDR_PANE_ID` when the flag is absent, so both ways of calling are right. **A `--self <cwd>` takes an agent sitting exactly there first, then one inside it, and never one above it** (a review, 2026-09-24: matching both directions took the first agent related either way, so an agent in the home directory, listed before the seat, was removed in the seat's place); a seat reading these steps by hand excludes the pane it is sitting in, which it knows for free. Inference was tried and failed twice — `herdr pane read <id>` to recognise its own prompt, which does not work when the door runs as a subprocess, and cwd matching, which is wrong the moment the seat steps into a stream's worktree to write records. **The exclusion is one list, read by every check downstream — not a rule bolted onto the duplicate-agents finding alone.** The caller's agent is dropped from the snapshot once, before any check runs, so it is invisible to the duplicate-agents rule *and* to the "agent in no stream's tree" line above: the seat commonly starts in the main checkout, which by design carries no row, so a door whose "no stream's tree" check reads a copy of the list `--self` never touched still reports the seat there on every run, `--self` notwithstanding (filed 2026-09-21, fixed 2026-09-23 — named here so the next status door built from this reference builds the exclusion once, upstream of both checks, rather than twice). **Excluding the caller must not swallow a real finding:** two *other* agents in one checkout is still reported, a second unattributed session in the same unrowed tree is still reported, and the flag is shown wherever the door shows the command, or nobody passes it. Better still, start the seat in a directory of its own. **The caller is never read as a row's session or state** — excluding it must not then turn the seat's own stream into an "unknown driver". If another agent shares that cwd, it supplies the session and state; if none does, the row prints `—` in both columns and the unknown-driver rule is skipped for that row alone. The seat knows it is sitting there; saying so tells the human nothing. **When a row's driver is matched by cwd rather than by name, print what the machine knows — the pane id and the terminal's title — never `—`.** herdr gives both, and a row printing a live state beside an empty session says the door found somebody and will not name them. `—` in that column means *nobody is there*; it must never mean *somebody is there and the table has not been told their name*. Needs `tk` ≥ 0.31 for `tk herd`, but the snapshot is `herdr`'s own CLI and needs nothing. |
 | its epics | **From the stream's own `.devmeta/current-increment.md`, not from the table's epics cell.** The `**Roadmap (tk):**` line is per branch, written by the method when the stream scopes itself, and reads either `project <id> → <epic> (E1 …), <epic> (E2 …)` or the literal `none.` when nothing is scoped. That line is authoritative; the table's cell is the seat's memory of it, refreshed by hand and therefore stale by default. **The two differ constantly and the difference is not cosmetic**: on 2026-09-21 two streams scoped themselves and ran implementer waves for an hour while the table still said `— (not scoped)`, so the door printed *unscoped, docs only* over live work — identical, on screen, to the one stream that genuinely had no increment. **A door that cannot tell "not scoped yet" from "scoped, and the seat has not noticed" renders both as the first**, which is the more reassuring of the two and the wrong one. Fall back to the table's cell only when the worktree is gone (a landed stream whose row survives), and say which source was used. |
 | its ticks | **Read them in the stream's own worktree, never anywhere else** — the tracker is per branch, so the same command in the main checkout answers about the mainline's ticks and looks entirely plausible. `tk list --status open` there. **The tracker is shared across every worktree of one repo, so filter by the stream's own epics** — a tick belongs to the stream if `tk show <id>` names one of its epics as parent. Count in-progress (●) and awaiting-human (◐) that way. **An awaiting query counts only ticks whose status is not closed:** `tk close` does not clear the `awaiting` flag, so a closed tick keeps it forever and every hand-built sweep reports work the human answered days ago as still waiting on them. Filter on status first, `awaiting` second. **Ready is not `tk ready`** (it has no per-epic scope and counts the whole tracker): derive it from `tk graph <epic> --json` as open tasks whose blockers are all closed. **And readiness runs through the parent chain, not the tick's own `blocked_by`.** A tick parked under a future epic has an *empty* `blocked_by` — the blocking lives on its parent — so by its own record it looks ready the moment it is created, and the stall rule fires on its age. Measured 2026-09-21: a tick created at 11:06:23 under an epic blocked until 11:40:47 was reported "ready 35 min, no dispatch" at 11:41:42; its real reachable age was 55 seconds. **Switching to an unblock clock does not fix it** — that tick has no blocker whose clearing could be timed. A tick is not ready if its parent epic is blocked, or if that epic has not been planned into children. Streams park ticks under future epics deliberately; expect more of it. Ignore ◐ ticks from earlier increments that were never closed (they show in every worktree). |
 | at checkpoint | **the stream's own** `.devmeta/increments/increment-<its id>/completion.md` exists — never a glob over `increments/*/`, which matches every finished increment in the tree and says yes for everyone. |
@@ -91,13 +129,13 @@ Proof it really is the Claude session id, since nobody should take a field's nam
 
 Per stream, one word, by these rules in order:
 
-- **checkpoint** — project tick open, `completion.md` present, no in-progress tick → waiting to be landed. **A stream at its checkpoint is a NEEDS YOU item, before and after the landing.** The method ends `/dmtix go` at the checkpoint and the close is the human's: they review, smoke-test, and give the close reason. Landing it does not discharge that — a landed stream whose project tick is still open is still waiting on them, and a status that prints `NEEDS YOU —` beside a row reading "at checkpoint" is contradicting itself. Say what they are being asked to look at and where. **It is the project tick at `awaiting: checkpoint` specifically, and it clears when that tick closes, not when the stream lands** — the fix must not make every stream permanently loud.
+- **checkpoint** — project tick open, `completion.md` present, no in-progress tick → waiting to be landed. **A stream at its checkpoint is a NEEDS YOU item, before and after the landing.** The method ends `/dmtix go` at the checkpoint and the close is the human's: they review, smoke-test, and give the close reason. Landing it does not discharge that — a landed stream whose project tick is still open is still waiting on them, and a status that prints `NEEDS YOU —` beside a row reading "at checkpoint" is contradicting itself. Say what they are being asked to look at and where. **It is the project tick at `awaiting: checkpoint` specifically, and it clears when that tick closes, not when the stream lands** — the fix must not make every stream permanently loud. **And the flag alone is not the fact this line reports** (2026-09-23, filed by the seat the same day): `awaiting: checkpoint` is written onto the project tick at *scoping*, before a single epic has run, so it sits there just as much on a stream 0/10 into E1 as on one that has actually finished every epic and written its report. Reading the flag alone printed "review `<stream>`'s completion report and close it" for a stream with no `completion.md` anywhere — the report to review did not exist — which is the same recurring-and-never-news shape as the seat's own pane reported as "agent in no stream's tree" on every run: a signal that fires at every stream's scoping is one a seat learns to skim. **The decision: print nothing, not a quieter note**, for a reachable worktree whose report is not there yet — the table's own progress column already says "0/10" or "unplanned" for a stream that early, so the human is not missing information by this line's silence. The one carve-out is a worktree that is *gone* (a landed stream): the report can no longer be re-checked there, and the earlier finding — the project tick stays a NEEDS YOU item after landing — still holds, so an unreachable worktree keeps the line on the flag alone rather than losing it to a check it cannot run.
 - **needs Morten** — any tick awaiting human, or a human item in the overview not yet answered.
 - **unknown driver** — the branch or a tick branch moved **within the last 30 minutes** and **neither the row's named session nor any agent at the row's worktree is found** — the name is checked first and anywhere, since a session can drive a stream from another tree. Not a stall: someone is working and the seat cannot see who. **Never for a stream nobody has opened yet:** the cut writes the Active line and the brief and commits them, so a stream's branch always moved a minute ago and every stream is *born* matching this rule, for half an hour, before a session exists. Two tests, either exempting the row — its status still reads `cut, not started`, or every commit on its branch is the seat's own cut. The branch test is the measurable one; a status cell is a claim the starting session is meant to clear and sometimes does not. It matters because unknown drivers print *above* the table and are chased first: a signal that fires on every cut is one a seat learns to skim, and the night it means something is the night it gets skimmed. Report it first; the human usually knows (a session resumed from a transcript does not register with the others). If the row says the stream is the human's own, this is expected and is not reported.
-- **stalled** — no in-progress tick, no implementer process, AND either (a) open ready ticks exist with no dispatch for more than 20 minutes, or (b) the session is `waiting` (ListAgents) or **`blocked` (herdr)** and the newest commit is older than 30 minutes — `blocked` means it is sitting on a prompt and will not move until a human answers in that pane, or (c) an implementer worktree has uncommitted work and **the stream's own session is absent from both sources** — the session named in the row, not an agent in the tick worktree; implementers are not herdr panes and are never seen there, so reading (c) the other way makes every live wave look stalled. or **(d) a tick whose branch is already merged into the stream branch is still open, with nothing in progress** — merged-and-gated but not closed, which is the one that hides best: the tree is green, so nothing reads as ready, so rules (a) and (b) stay silent while the session has in fact stopped. Check it directly: for each open tick, is `tick/<epic>/<id>` an ancestor of the stream branch? Rule (c) is off for the caller's own row and for a row the human drives. Say which rule fired.
+- **stalled** — no in-progress tick, no implementer process, AND either (a) open ready ticks exist with no dispatch for more than 20 minutes — **unless the stream's own pane shows a running shell** (2026-09-23: a stream legitimately waiting on its own long-running shell — a full UI tier gating an epic close-out — read as a stall while herdr's own `agent_status` for that pane was `done` and its Claude Code footer said a shell was still running; `done` means the session's own turn ended, not that nothing in its pane is running). Read live, once per row: the pane's own footer names a shell count on its "auto mode" line (`herdr pane read <pane id>`) when one is running there. A footer that names one holds the whole of rule (a) off for that row, not just the tick that happened to trip it — the stream is waiting on the run, not on a dispatch. **But only for an hour** (three times the 20 minutes; a review, 2026-09-24): the longest shell a stream legitimately waited on where this was measured was the full UI tier at an epic's close, three spec groups of up to about 15 minutes each, and a dev server left running since yesterday must not hide a real stall for as long as it runs. Past the hour the line shows again, worded as a check: `check: a shell is running but nothing has dispatched for <n> min`. **Only the footer counts**: the lines below the input box's last rule, or the last non-empty line when the capture has no box. Footer text quoted in the conversation above the box is not the pane's footer. A footer read as showing none still stalls as before. **When no pane could be checked at all** — no agent to point at, herdr down, the read itself failing — the line still fires (an unconfirmed absence is not a confirmed one) but is worded as a check ("pane unreadable, check rather than assume stalled") rather than a plain stall, or (b) the session is `waiting` (ListAgents) or **`blocked` (herdr)** and the newest commit is older than 30 minutes — `blocked` means it is sitting on a prompt and will not move until a human answers in that pane, or (c) an implementer worktree has uncommitted work and **the stream's own session is absent from both sources** — the session named in the row, not an agent in the tick worktree; implementers are not herdr panes and are never seen there, so reading (c) the other way makes every live wave look stalled. or **(d) a tick whose branch is already merged into the stream branch is still open, with nothing in progress** — merged-and-gated but not closed, which is the one that hides best: the tree is green, so nothing reads as ready, so rules (a) and (b) stay silent while the session has in fact stopped. Check it directly: for each open tick, is `tick/<epic>/<id>` an ancestor of the stream branch? Rule (c) is off for the caller's own row and for a row the human drives. Say which rule fired.
 
 **A containerised Playwright run cannot be matched to a worktree, and looks like nothing.**
-New 2026-09-21, the moment `fp test:container` became runnable locally. A UI tier running
+New 2026-09-21, the moment the project's containerised test run became runnable locally. A UI tier running
 *inside* the image appears on the host process table as **`root`, from
 `/root/.cache/node/corepack`, with an unreadable `cwd`** — so `pgrep -f "playwright tes[t]"`
 finds it, and every rule this door has for attributing a browser to a stream fails at once:
@@ -107,7 +145,7 @@ reads as harmless.** A seat that resolves "cwd empty, not one of my streams" to 
 therefore the machine is free" hands a window out on top of a live tier. **An unreadable
 instrument is not a permissive one: refuse to act on a process you cannot attribute.**
 To attribute it, ask Docker rather than `/proc`: `docker ps` names the container
-(`focusheron-test-run-…` on `fp-test:latest`) and its age. And note the machine arithmetic has
+(the project's test-run container, on its test image) and its age. And note the machine arithmetic has
 changed — a container tier is a *second* Playwright run on this machine that no worktree
 claims, so the streams table cannot represent it and the PLAYWRIGHT line must say
 `held by <container>` as readily as `held by <worktree>`.
@@ -124,8 +162,8 @@ the next thing. So do not read a well-written hand-over as completion: *the repo
 the end of the work* is the tell.
 **But the signature has a false positive that reads identically, and it fired the same day.**
 2026-09-21: a stream's pane read `idle`, its tick read `open`, `updated_at` was nine hours
-old, and nothing local was in flight — a textbook stall. The work **was running**, on
-`focusheron-prod`, dispatched at 16:20:40Z and still going. **Two independent instruments were
+old, and nothing local was in flight — a textbook stall. The work **was running**, on the
+production host, dispatched at 16:20:40Z and still going. **Two independent instruments were
 blind at once**, and a door that treats their agreement as corroboration gets a confident
 wrong answer:
 - **Work on a remote host is invisible to every local instrument this door uses.** No process
@@ -223,6 +261,19 @@ STREAM     SESSION         STATE     EPICS   ~%    AT               IN FLIGHT   
 …
 
 PLAYWRIGHT  free | held by <worktree>
+
+HOLDS
+  <what>   <since>   until <HH:MM>, <n> min left | ended <n> min ago: release it or hold it again   <by>   (or "  —")
+
+OWED
+  <id>   <stream>   <how long it has waited>   <what is owed>   (or "  —")
+
+SCHEDULES
+  <owner>   <what> · <when>                                  (or "  —   <why there are none>")
+  after herdr or Claude stops: /streams restart (each row says how)
+
+LOG  (the newest lines of coord/log.md)
+  <line>                                                     (or "  —   nothing logged yet")
 ```
 
 **One table, one row per stream** — the session and the progress on the same line, so a
@@ -253,7 +304,40 @@ the line is **an instruction**. **DO is the tick's title** — the only imperati
 else ("approve the seed card", "re-walk the tour"); never invent a step the title does not
 name. WHERE and CLOSES WHEN come from the rest of `tk show`: the description says where to look
 (a route, a file, a screenshot) and the acceptance says what closes it (his approval quoted in
-the close reason; a decision written into an overview; a value put on a host). Three parts, in this order, in plain words:
+the close reason; a decision written into an overview; a value put on a host). **WHERE picks by
+what it points at, never by which path-shaped token comes first, and among what qualifies, by
+TEXT ORDER — the first qualifying thing the tick actually says, not a rank ordered by kind**
+(the seat, 2026-09-23, three passes on one finding). A `/tmp` path, or one under a
+build or dependency directory (`node_modules`, `.next`, `dist`), is never a candidate at all,
+whatever else the description does or does not name (pass one: the naive "first token starting
+with `/`" read took a `/tmp/<web-build>-…` throwaway path out of a tick's own build-gate
+instructions and printed it as the place to look). A bare directory is not a location, and never
+outranks a route or a file (pass two: a tick's own generic mention of the docs directory — a
+directory, named in boilerplate every tick in the epic carries — was outranking that tick's own
+`/about`). Ranking what was left **by kind** just moved the same bug one level down (pass three):
+a tick's standing-gates paragraph mentions several real, existing files (the project's diary
+among them), and "an existing file always wins" let one of those outrank the tick's own `/about`,
+stated earlier in the same description, every time. The fix is **text order, not rank**: among
+the three qualifying kinds — a path that names a file and exists as one on disk, relative to the
+stream's own worktree; a `docs/` path that names a file; a URL route (`/about`, `/health`) —
+WHERE is whichever one appears **first in the description's own text**, because a tick states
+its own location before its standing paragraphs, and this depends on no particular wording.
+Only when nothing qualifies anywhere in the text do the fallbacks apply, in order: a bare file
+or `.png` mention, then a bare directory (a token spelled with a trailing `/`, or one that
+exists as a directory rather than a file), then "(tick gives no location)". **What counts as a
+path** (a review, 2026-09-24): every path the description names, in backticks or not, and every
+match, never only the first. One tick stated its own plan path bare, first, and a backticked
+`.tick/config.md` in its standing gates won because only backticked files were read, and only
+the first of them. A brace path (`__screenshots__/{phone,desktop}-light/…/home-{empty,full}.png`)
+is shown as written, and a file needs a name before its extension, so a lone `.png` is never a
+location (the old pattern stopped at `{` and printed `WHERE .png`). **Never a candidate:**
+a scratch path (`/tmp`, `/var/tmp`, `/private/tmp`, `/dev/shm`, `/run/user`); a build or output
+directory anywhere in the path, first segment or last (`node_modules`, `.next`, `dist`, `build`,
+`coverage`, `test-results`); an absolute path on a disk (`/home/…`, `/Users/…`, `~/…`), which is
+not a route; and a slash command (`/dmtix go`, `/streams land <stream>`), which is not a route
+either — a one-segment token that names a known command or a skill under the worktree's
+`.claude/skills/`.
+Three parts, in this order, in plain words:
 
     <tick>   <stream>   DO <the act> · WHERE <session or path> · CLOSES WHEN <the acceptance>
 
@@ -266,11 +350,49 @@ Wrap to three indented lines if it does not fit one. If the tick's description d
 say where or what closes it, say so — "(tick gives no location)" — rather than guessing;
 that is a defect in the tick, and naming it gets it fixed.
 
+**NEEDS YOU has three sources, not one:** the ticks awaiting the human (above); every **Now**
+row of `coord/asks.md`, with its id and the exact thing to type; and **every hold past its
+end**, in the same three parts:
+
+    hold   <what>   DO release it if it is done: coord.py log "RELEASE <what>". Otherwise hold it again with a new end (--for 40m)
+                    · WHERE <what>'s hold ended <n> min ago, at <HH:MM>
+                    · CLOSES WHEN the log has a RELEASE line for it, or a new hold with a later end
+
+The sections after PLAYWRIGHT come from coord (Step 1), and each one prints `  —` rather than
+disappearing when it is empty, so an empty section reads as *looked, nothing there*:
+
+- **HOLDS** — every open hold, with when it began, its time left and who holds it. **A hold has
+  an end** (the human, 2026-09-29): `coord.py log "HOLD <what>: …"` refuses a line without
+  `--for` or `--until`, and the end is stored on the line. **When the end has passed the hold
+  stays held** — it is listed here as ended *and* under NEEDS YOU, and waits for a person:
+  `RELEASE <what>`, or a new `HOLD <what>` from the same holder with a new end. **Nothing
+  releases on its own.** And nothing is listed that has no end: holds written before holds had
+  ends had been closed under many wordings, and a standing false hold teaches people to ignore
+  the list. Clock times are
+  shown in the human's local time; the log stores UTC.
+- **OWED** — every unpaid `OWED <stream>: <what>` line, with its id, the stream, how long it has
+  waited and what is owed; `PAID <id>` closes one. The seat writes these lines, and reads this
+  section on every pass instead of remembering (`keep-running`): **a stream that is correctly
+  holding says nothing, so it falls out of a seat's working set.** On 2026-09-21 one sat idle 29
+  minutes waiting for a window close the seat never sent, because the seat tracked *who had
+  spoken lately* instead of *who was waiting*. The list used to live in the seat's head; since
+  2026-09-29 it is a line kind in the log.
+- **SCHEDULES** — the rows of `coord/schedules.md`'s **Dies with its session** section: owner,
+  what, when. A struck-through row (`~~what~~ ended …`) has ended and is left out. These are the
+  rows that stop with their session, which is why they are on this screen and the system rows
+  (crontab, timers) are not: after herdr, Claude or the machine stops, they are what the
+  `restart` door brings back, each by the restart its row names. No file prints `  —   no
+  coord/schedules.md: list what runs on a clock there`; a file with no such rows prints
+  `  —   nothing on a clock dies with a session`.
+- **LOG** — the newest lines of `coord/log.md`, oldest first: the holds, deploys and hand-offs
+  a stream must be able to read after the message that announced them is gone.
+
 ## What this door never does
 
 - Edit a stream's tree, dispatch its ticks, or decide anything the human should.
-- Edit `streams.md`. If the table is wrong (a row for a landed stream, a missing row), say so
-  and let the seat fix it with the update-ref procedure.
+- Edit `coord/streams.md` or any other coord file, or write a log line. If the table is wrong (a
+  row for a landed stream, a missing row), say so and let the seat fix the row in place; if a
+  hold is past its end, it is a NEEDS YOU item, not something this door releases.
 - Nudge, land or message a stream whose row says it is the human's own.
 
 ## Corrections from real runs
@@ -280,7 +402,7 @@ that is a defect in the tick, and naming it gets it fixed.
   ratio over a **full-page** capture, so the longer the page the blinder it is to its own
   chrome. (3) **The changed thing was not in frame.** The third was read, not inferred: two
   chat specs moved asymmetrically, and cropping the top 150 px of the phone baseline showed
-  the inspiration chat opens there as a **drawer covering the masthead** — so a masthead change
+  the chat panel opens there as a **drawer covering the masthead** — so a masthead change
   genuinely did not alter that render, and Playwright correctly left the file untouched while
   125 siblings were rewritten. The old symmetry heuristic reads all three as one. **Only
   reading a render distinguishes them**, so budget for reading renders wherever a state is
@@ -441,12 +563,14 @@ that is a defect in the tick, and naming it gets it fixed.
   classify, probe, restart, print. Nothing changed but the sequence, and the sequence was the
   instruction.
 
-- 2026-09-21, two streams cut onto an empty machine (`fh`). **The table was read from disk and
+- 2026-09-21, two streams cut onto an empty machine. **The table was read from disk and
   the disk was stale.** The seat wrote both rows on master with `update-ref`, pushed them, and
-  its own `streams:status` answered "nothing is running" — `--json` returned `[]` — because
+  its own status command answered "nothing is running" — `--json` returned `[]` — because
   `update-ref` moves the ref without touching any working tree and Step 1 read the checkout's
   copy. The rows existed in the commit and on GitHub; only the bytes the reader opened were
-  old. Step 1 now reads `git show master:.devmeta/streams.md`. This is the skill's own named
+  old. Step 1 then read `git show master:.devmeta/streams.md`; since 2026-09-23 the live table
+  is `coord/streams.md` in git's common directory, one file for every worktree, with no ref to
+  fall behind, and the ref is only the fallback for a project that has not moved. This is the skill's own named
   failure, *a stream missing from the table is invisible*, reached through its own procedure —
   and the reason "verify on the thing" has to include *which* copy of the thing.
 - 2026-09-21, same run: **a freshly cut stream read as an unknown driver**, one minute after
@@ -461,7 +585,7 @@ that is a defect in the tick, and naming it gets it fixed.
   who. Step 2 now says to print the pane id and terminal title on a cwd match; `—` may only
   mean *nobody is there*.
 
-- 2026-09-20, from building the command (08s4-pvp in `ai-newsletter`): writing this door as
+- 2026-09-20, from building the command in a project: writing this door as
   code found eight places it was underspecified, and two of them were defects every hand-built
   sweep had been shipping — a closed tick keeps its `awaiting` flag, so answered work was
   reported as still waiting on the human; and a stream's ticks were being read outside its own

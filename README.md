@@ -12,9 +12,17 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
 
 - **[streams](skills/streams/)** — the seat that sees every stream. For the one session that
   coordinates several dmtix increments running side by side: `/streams status` (what is
-  running, what waits on the human, what has stalled — from files), `/streams cut <slug>`
-  (a new side stream: branch, worktree, ports, records, a brief). Landing is a checklist
-  until two hand landings confirm it.
+  running, what waits on the human, what has stalled — from files), `/streams keep-running`
+  (the hourly pass that acts on it), `/streams queue` (what waits on the human), `/streams cut
+  <slug>` (a new side stream: branch, worktree, ports, records, a brief), and `compact`,
+  `restart`, `hotfix`, `land`. Live state lives in git's common directory (`coord/`), shared
+  by every worktree and never committed; `scripts/coord.py` writes its log and enforces holds
+  with an end. Landing is a checklist until two hand landings confirm it.
+
+- **[roadmap](skills/roadmap/)** — beside `streams`, for the seat: a plan above the
+  increments that several streams build together. Each piece points at one tick in its own
+  stream, and the roadmap holds only what ticks cannot, the links between streams. `/roadmap
+  status | update | decide | review | new <name>`.
 
 - **[joe](skills/joe/)** — type `/joe` after a long agent answer and get the same thing back
   short and in plain English: bottom line first, no hedging, no jargon, no tech-legalese.

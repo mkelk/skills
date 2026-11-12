@@ -1,6 +1,6 @@
 ---
 name: streams
-description: The seat that sees every stream — for the one session that coordinates several dmtix increments running side by side in their own worktrees. "status" prints what is running, what is waiting on the human and what has stalled, from files; "cut" sets a new side stream up (branch, worktree, ports, records, a brief). Not for the sessions that run a stream — they use dmtix go. Landing is still by hand until the land door exists.
+description: The seat that sees every stream — for the one session that coordinates several dmtix increments running side by side in their own worktrees. "status" prints what is running, what is waiting on the human and what has stalled, from files; "keep-running" acts on it hourly; "queue" keeps what waits on the human; "cut" sets a new side stream up (branch, worktree, ports, records, a brief); "compact", "restart", "hotfix" and "land" cover the long-running sessions' context, bringing clocks back after a stop, an early fix to master, and finishing a stream. Live state lives in git's common directory (coord/), shared by every worktree. Not for the sessions that run a stream — they use dmtix go.
 ---
 
 # streams — the seat that sees every tree
@@ -12,17 +12,40 @@ reference and follow it exactly.** With no or an unknown argument, show this tab
 
 | Argument | Cadence | Door |
 |---|---|---|
-| `status` | whenever the human asks "what is running" | `references/status.md` — one screen from `.devmeta/streams.md`, `tk`, the process list and `ListAgents`; what waits on the human; what has stalled. |
-| `keep-running` | on a timer, every ~30 min | `references/keep-running.md` — `status`, then **act**: close forgotten windows, answer streams owed an answer, refresh drifted cells, land what is finished, restart what stalled, relay what one stream found. Prints only what the human must act on. |
+| `status` | whenever the human asks "what is running" | `references/status.md` — one screen from `coord/streams.md`, `coord/log.md`, `tk`, the process list and the panes (herdr, or `ListAgents`); what waits on the human; what has stalled; open holds, what the seat owes, what runs on a clock. |
+| `keep-running` | on a timer, hourly (a cheap scout subagent does the looking: `references/scout.md`) | `references/keep-running.md` — `status`, then **act**: close forgotten windows, answer streams owed an answer, refresh drifted cells, land what is finished, restart what stalled, relay what one stream found. Prints only what the human must act on. |
+| `queue` | whenever something waits on the human; checked every `keep-running` | `references/queue.md` — the list of what waits on the human (`coord/asks.md`, one row each, with the exact thing to type and a why), kept by the seat alone; a go counts only typed in the seat. |
+| `compact` | twice a day at quiet times, or inside `keep-running` | `references/compact.md` — the long-running sessions' context: a larger auto-compact window and an after-compaction hook in each stream's worktree, and the idle tidy (`scripts/compact-idle.py`) that sends `/compact` through herdr to a stream that is idle, large, quiet and holds nothing. Never the seat. |
 | `cut <slug>` | once per new stream | `references/cut.md` — asks first whether it is a side stream or the mainline in a worktree, then: the port block, a branch and worktree, `.env`, deps, the records, a brief file the new session reads. |
+| `restart` | after herdr, a Claude session, WSL or the machine stopped | `references/restart.md` — read `coord/schedules.md` (every crontab line, timer, session cron and background loop, with owner and how to restart it), find what is no longer running, and have each owner bring its own back. |
 | `hotfix <slug>` | when a host is blocked on a running stream's gated fix | `references/hotfix.md` — merge one stream's branch to `master` **without landing it**: the stream is unfinished and stays alive. Needs the human's go, a conflict-free merge, a typecheck on the merged tree, and the SHA handed to whoever owns the host. |
 | `land <slug>` | once per finished stream | **not built yet** — `references/land.md` holds the checklist; landings are done by hand against it until two have confirmed every step. |
 
 Principles, binding for every door:
-- **The state is a file.** `.devmeta/streams.md` on master is the table of every running
-  stream and the standing rules; the seat edits it with a scratch worktree and `git
-  update-ref`, never a checkout — the main checkout belongs to whichever session runs the
-  mainline. Every stream gets it by sync forward.
+- **The state is a file — in git's common directory, not on a branch.** Live coordination state
+  lives in `<git common dir>/coord/` (`git rev-parse --path-format=absolute --git-common-dir`):
+  one directory every worktree of the repository shares at once, which git never tracks.
+
+  | State | Home |
+  |---|---|
+  | The running streams' rows (worktree, session, ports, host, epics, status) | `coord/streams.md` |
+  | Holds, deploys, hand-offs, what the seat owes: one dated line per event, append-only | `coord/log.md` |
+  | What runs on a clock, with its owner and how to restart it | `coord/schedules.md` |
+  | What waits on the human | `coord/asks.md` |
+  | A roadmap's live state (the `roadmap` skill) | `coord/roadmaps/<name>.md` |
+  | The rules for streams, and landed streams' history | `.devmeta/streams.md`, in git |
+
+  The seat edits `coord/streams.md` in place at a cut, a landing or a correction — no commit,
+  no `update-ref`, no announcement for a row change — after copying it to the scratchpad, by
+  exact match, and reads the change back. Any session writes a log line when it takes or
+  releases a hold, deploys, or hands something to another stream, **in addition to** any
+  message: a message is gone with its session, a log line is not. Write log lines with the
+  skill's `scripts/coord.py log`, which enforces the hold rules; `coord.py init` creates the
+  directory on first use. **It is per machine**: anything that must cross machines goes to the
+  project's issue tracker. Why it moved there, from the committed table it replaced: on
+  2026-09-23 the table churned through a commit per row change, every stream had to sync
+  forward to see it, and the facts streams depended on — a production hold, which build was
+  live, what to wait for — lived only in chat messages.
 - **The seat writes on master. A stream's branch belongs to the stream — including the merge.**
   Sync-forward at the cut is the seat's, because nobody holds the tree yet. After that it is
   the stream's: the seat says *master has moved, sync when it suits you*, and the stream
@@ -41,8 +64,9 @@ Principles, binding for every door:
   instead of `pgrep`; a *tracker* read instead of the tree; a *roster* read instead of the
   worktree; and the streams table read from a **checkout's disk** instead of from `master`,
   which printed "nothing is running" over two live streams because `update-ref` moves a ref
-  and touches no working tree. Reading the real thing is not enough if you read a stale copy
-  of it. **And a fifth face, the one aimed at the seat: a report can cite a run that did not
+  and touches no working tree. (The committed table that fault came from is gone — `coord/`
+  has one copy — but the principle is not.) Reading the real thing is not enough if you read a
+  stale copy of it. **And a fifth face, the one aimed at the seat: a report can cite a run that did not
   contain the thing it reports on.** On 2026-09-21 a tick reported two named baselines
   "both passed unchanged in the union run" — and that spec **was not in the union**, not in
   the list it was given and not in the one that ran. The conclusion happened to be right; a
@@ -63,13 +87,15 @@ Principles, binding for every door:
   `git worktree list` against the table before acting on the machine, and add the row before
   the first command — a rule in the `cut` door cannot catch a stream that never went through
   that door.
+- *(A project that keeps its tasks in an issue tracker rather than a todo file is spared the
+  todo half of the next principle; it still holds for any list file two branches both edit.)*
 - **A merge silently restores what a stream moved out, and nobody is watching for it.** When
   a stream scopes a todo entry into its overview, it deletes that entry on its branch. Master
   never saw the delete — so when the seat adds new entries *adjacent* to it, the next sync
   forward turns a clean delete into a conflict whose obvious resolution **puts the moved entry
   back**. No second stream, no mistake by anyone. On 2026-09-21 a stream caught two entries
   restored this way and only because it verified **both** directions: zero occurrences in
-  `todo/todo.md`, two in the overview. Checking only the file you edited finds nothing. **The
+  the todo file, two in the overview. Checking only the file you edited finds nothing. **The
   brief's usual warning does not cover this** — *tell the seat which entries you moved* guards
   against a second stream taking one, not against master re-adding it underneath you. And the
   seat manufactures the conflict: it adds entries to master all day, beside entries streams
@@ -78,9 +104,9 @@ Principles, binding for every door:
   verify in both directions.
 - **The seat is never a load-bearing part of operations.** Morten, 2026-09-21, rejecting a
   default that named the orchestrator as executor: *"better that prod hits the ceiling and
-  sends Sentry issues than you being a 'shadow' part of ops."* A stream had registered a
+  sends error reports than you being a 'shadow' part of ops."* A stream had registered a
   decision correctly — recommendation, default, named executor — and the executor it named was
-  the seat: *pause the newsletter when spend nears the ceiling.* The seat accepted, twice
+  the seat: *pause the paid job when spend nears the ceiling.* The seat accepted, twice
   noting it had no alarm and would check when it happened to look. **That is not a control; it
   is a wish with a name attached.** A seat is an interactive session that may be asleep,
   elsewhere, or gone next week, and work that depends on one being awake has no owner at all.
@@ -93,7 +119,7 @@ Principles, binding for every door:
   *the day a runner changes what it needs, that test fails* — and a reviewer ran the real
   regex over twelve idioms: `config?.KEY` alone defeats it, one character from the code as
   written, and the walk never enters the package every config comes from. The claim had
-  already been copied into `docs/current/`. So: **test the sentence the guard makes about
+  already been copied into the project's docs. So: **test the sentence the guard makes about
   itself, against the case that sentence names**, and where a gap remains, say it aloud in the
   same breath. A guard that over-promises is worse than none, because it is believed — and its
   promise outlives it, in documentation nobody re-derives.
@@ -210,9 +236,14 @@ Principles, binding for every door:
   were already written down in `.tick/profile.md`, and the seat held four streams' Vitest
   suites anyway — across a window longer than the run it protected. **A rule whose measurement
   has been superseded is a cached answer presented as a measurement**, the same fault this
-  door hunts everywhere else, wearing the costume of caution. So: hold for a **writing** run
-  only, publish the window as a duration rather than an open-ended wait, and let read-only
-  verification and Vitest run alongside. The distinction that survives, from the stream that
+  door hunts everywhere else, wearing the costume of caution. So: hold only what cannot be
+  isolated (a **writing** run on a shared singleton, not a read), and **every hold has an end**
+  — `coord.py log "HOLD <what>: …" --for 40m` or `--until 07:30`, refused without one, one
+  holder at a time, closed with `RELEASE <what>` — so a hold is a duration rather than an
+  open-ended wait, and a passed end shows under NEEDS YOU instead of holding the machine
+  forever. Read-only verification runs alongside. A project that isolates its writing runs
+  too (a per-checkout build database, say) takes no hold for them at all; one project got
+  there on 2026-11-04. The distinction that survives, from the stream that
   argued it: **the finding-and-telling earns its cost; the stop-the-world does not.**
 
 ## Open problem: worktrees, sessions and panes are three things with no mapping
