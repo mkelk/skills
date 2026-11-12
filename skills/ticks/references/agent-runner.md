@@ -8,9 +8,8 @@ This is the runner-neutral execution contract. **Before reading further, identif
 |---|---|
 | Codex | [`codex-runner.md`](codex-runner.md) |
 | Claude Code | [`claude-runner.md`](claude-runner.md) |
-| Pi | [`pi-runner.md`](pi-runner.md) |
 
-Read this file first, then the matching adapter. The adapter maps every capability in this doc to the primitives your harness actually provides. Vocabulary: the **harness** is the coding-agent product you run in (Claude Code, Codex, Pi); the **runner** is the orchestration role this protocol defines — runner-neutral means any harness can play it through its adapter.
+Read this file first, then the matching adapter. The adapter maps every capability in this doc to the primitives your harness actually provides. Vocabulary: the **harness** is the coding-agent product you run in (Claude Code, Codex); the **runner** is the orchestration role this protocol defines — runner-neutral means any harness can play it through its adapter.
 
 The harness plays the orchestrator; git and `.tick/` are the durable coordination layer.
 
@@ -138,7 +137,7 @@ An absent or empty hook section is a no-op; so is an unrecognized `##` heading, 
 
 **Re-read the file at each consumption point** — same rule as `.tick/learnings.md`. Do not inline a copy from a previous session or an earlier boundary; a session may span an epic boundary when a run auto-continues (the rule is still a fresh session per epic; see "What a run actually costs"), and config may change mid-run. If the file is absent, fall back to current behavior: implementers discover test commands themselves.
 
-**Actor convention.** Export `TK_ACTOR=<runner>:orchestrator` at run start, such as `claude:orchestrator`, `codex:orchestrator`, or `pi:orchestrator`. The `--actor` flag on `tk close` and `tk update` overrides `TK_ACTOR` for one call; precedence is `--actor` > `TK_ACTOR` > tick owner. Actor names are provenance, not ownership or routing: another runner may resume the same tick. `tk note` uses `--from agent|human` instead of `TK_ACTOR`. One feed quirk: because status changes take priority in activity detection, `tk approve` on a *terminal* awaiting type (approval/review/content/work) surfaces in the feed as a `close` entry and `tk reject` as a `note` entry — still stamped with the actor; non-terminal approvals (input/escalation/checkpoint) don't close the tick.
+**Actor convention.** Export `TK_ACTOR=<runner>:orchestrator` at run start, such as `claude:orchestrator` or `codex:orchestrator`. The `--actor` flag on `tk close` and `tk update` overrides `TK_ACTOR` for one call; precedence is `--actor` > `TK_ACTOR` > tick owner. Actor names are provenance, not ownership or routing: another runner may resume the same tick. `tk note` uses `--from agent|human` instead of `TK_ACTOR`. One feed quirk: because status changes take priority in activity detection, `tk approve` on a *terminal* awaiting type (approval/review/content/work) surfaces in the feed as a `close` entry and `tk reject` as a `note` entry — still stamped with the actor; non-terminal approvals (input/escalation/checkpoint) don't close the tick.
 
 **Run continuously.** Once the user has asked you to execute the epic, work wave to wave without stopping to ask "should I continue?". The only reasons to stop are: a blocker you can't resolve, genuine ambiguity that prevents progress, or the epic is done. Progress-summary check-ins between waves just cost the user time.
 
@@ -649,7 +648,7 @@ Claude may create ticks that Codex executes, Codex may create ticks that Claude 
 | Project rules and tests | `.tick/config.md`, `.tick/learnings.md` (head) and `.tick/learnings-ref.md` (body), and the active harness's instruction files |
 | Integrated work | integration branch history |
 | In-flight work | deterministic `tick/<epic>/<tick>` branch and worktree |
-| Runner provenance | activity actor such as `claude:orchestrator`, `codex:orchestrator`, or `pi:orchestrator` |
+| Runner provenance | activity actor such as `claude:orchestrator` or `codex:orchestrator` |
 | Human decisions and blockers | tick notes and awaiting state |
 
 On handoff, the incoming runner:

@@ -5,7 +5,7 @@ description: Work with Ticks issue tracker and AI agent runner. Use when managin
 
 # Ticks Workflow
 
-Ticks is an issue tracker designed for AI agents. The `tk` CLI manages tasks, and `tk board` provides a web-based board for monitoring; epics are executed by the current harness using the shared protocol in `references/agent-runner.md` and its Claude, Codex, or Pi adapter.
+Ticks is an issue tracker designed for AI agents. The `tk` CLI manages tasks, and `tk board` provides a web-based board for monitoring; epics are executed by the current harness using the shared protocol in `references/agent-runner.md` and its Claude Code or Codex adapter. This is the engine skill (it lives in `mkelk/skills`); the `tk` binary itself comes from upstream `pengelbrecht/ticks`, whose own `ticks` skill is a tracker-only one. Don't install that one alongside this, and don't run `tk skills install`: it writes the binary's own embedded skill into the project's `.claude/skills/ticks/`, where it takes precedence over this one.
 
 ## When to Use Ticks vs TodoWrite
 
@@ -88,17 +88,6 @@ The three **`At …`** sections are **hooks**, not authorization: a project runs
 
 **Inferred profile (`.tick/profile.md`).** Alongside the *declared* config above, the orchestrator maintains an *inferred* `.tick/profile.md` at run start: how a fresh worktree is made runnable (dependency install recipe) and which test tiers are parallel-safe in-worktree vs. must run post-merge (a venue says where a tier can safely run; a tier routed post-merge belongs to the wave gate). It's generated and maintained by the runner, never hand-authored — see `references/agent-runner.md` → "Project execution profile".
 
-**6. Pi executable extension (when running an epic in Pi):**
-
-Check whether Pi registered `/ticks-plan`, `/ticks-run`, `/ticks-status`, and `/ticks-dashboard` (RPC clients can inspect `get_commands`). If they are absent, explain that the skill supplies instructions but cannot activate extension code, and recommend the package:
-
-```bash
-pi install git:github.com/pengelbrecht/ticks
-# Local checkout:
-pi install /absolute/path/to/ticks
-```
-
-Do not claim that loading or invoking this skill enables those commands. A generic skill installer may have installed only `skills/ticks/`. The user may install the package or choose the manual Pi adapter flow in `references/pi-runner.md`.
 
 ### Step 1: Gather What's Already Known
 
@@ -162,16 +151,6 @@ Run the **Definition of Ready** checklist in `references/tick-patterns.md` again
 ### Step 3: Create Ticks from Requirements
 
 **Dispatch planning at frontier tier.** Decomposition is the highest-leverage decision in the epic. Always synthesize at frontier tier, even when implementation will use a cheaper model or lower reasoning effort. Use parallel read-only exploration when the harness supports it — the scouts belong at the cheapest tier, since they read and summarize rather than judge. The plan is also where each tick's tier is *decided*: carry the tier out of planning with the tick, so dispatch is reading a decision rather than making one under time pressure (`references/agent-runner.md` → "Choosing a capability tier per tick", DEFAULT-DOWN RULE, and "What a run actually costs"). See also the active harness adapter.
-
-In Pi with the package extension installed, prefer safe automated planning:
-
-```text
-/ticks-plan <existing-childless-epic-id>                  # model-running dry-run
-/ticks-plan --requirements "new epic requirements"        # model-running dry-run
-/ticks-plan <target> --apply                              # explicit tracker apply
-```
-
-Planning dry-run is **not** a no-op: it runs configured read-only scouts and the frontier planner, persists logs/reports, and reports model usage/cost, while guaranteeing zero tracker mutation. Planning prompts include relevant Testing, Closeout Evidence Commands, Acceptance Evidence, and Rules sections as context, but models cannot add or authorize executable commands. `--apply` is separately explicit, requires clean non-default-branch controller state, asks again in TUI, and is the only mode that creates/commits ticks. Scout count/concurrency overrides are bounded (`--scouts 3..6`, `--scout-cap 2..4`). The extension validates strict versioned JSON, dependency acyclicity, vertical acceptance, and same-wave file safety before any mutation; the controller—not the model—adds the EPIC-SKELETON. See `references/pi-runner.md` for recovery and non-TUI confirmation semantics.
 
 Transform the gathered requirements into ticks organized by epic.
 
@@ -391,7 +370,7 @@ tk close <id> --reason "Completed: connection string in .env"
 
 ### Step 5: Run the Epic
 
-Execute the epic from the current harness. Read **`references/agent-runner.md`** first, then your harness adapter — **`references/codex-runner.md`** if you are running in Codex, **`references/claude-runner.md`** if you are running in Claude Code, **`references/pi-runner.md`** if you are running in Pi. If you haven't already, settle the *Goal-ready handoff* decision (above) before launching: how far should this run go before it stops for a human? The shape is:
+Execute the epic from the current harness. Read **`references/agent-runner.md`** first, then your harness adapter — **`references/codex-runner.md`** if you are running in Codex, **`references/claude-runner.md`** if you are running in Claude Code. If you haven't already, settle the *Goal-ready handoff* decision (above) before launching: how far should this run go before it stops for a human? The shape is:
 
 1. `tk graph <epic-id> --json` — get the waves and how wide you can run. If the result contains `"needs_planning": true`, the epic has no child ticks yet — flesh it out first (see the Big picture section above), then re-run `tk graph`.
 2. EPIC-SKELETON pre-flight — if the same result carries a non-empty `missing_process_ticks`, create the missing process ticks now with `--role` (templates in the Big picture section above), before wave 1.
@@ -450,12 +429,12 @@ tk reject <id> "feedback"                              # Reject with required fe
 **Close-reason convention:** always pass `--reason` with a concrete summary when closing.
 `tk close <id> --reason "Completed: <one-line summary of what landed>"` — never a bare `tk close`.
 
-**Actor convention (orchestrated runs):** export `TK_ACTOR=<runner>:orchestrator` at run start, such as `claude:orchestrator`, `codex:orchestrator`, or `pi:orchestrator`, so activity entries preserve runner provenance. Use `--actor <name>` to override for a single call.
+**Actor convention (orchestrated runs):** export `TK_ACTOR=<runner>:orchestrator` at run start, such as `claude:orchestrator` or `codex:orchestrator`, so activity entries preserve runner provenance. Use `--actor <name>` to override for a single call.
 Precedence: `--actor` flag > `TK_ACTOR` env > tick-owner default.
 
 ### Running the Epic
 
-Drive execution from the current harness (shared details in `references/agent-runner.md`; then `codex-runner.md` for Codex, `claude-runner.md` for Claude Code, `pi-runner.md` for Pi):
+Drive execution from the current harness (shared details in `references/agent-runner.md`; then `codex-runner.md` for Codex, `claude-runner.md` for Claude Code):
 
 ```bash
 # 1. Get the dependency graph (waves + max parallelism)
