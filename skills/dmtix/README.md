@@ -21,21 +21,23 @@ of three doors in `references/`.
 
 ## Dependency: the ticks engine
 
-dmtix is the *method*; it runs on the synthesized *ticks* skill (the *engine*). Install it too:
+dmtix is the *method*; it runs on the *ticks* skill (the *engine*), which lives in this repo
+at [`skills/ticks/`](../ticks/). Install both:
 
 ```bash
-npx skills add mkelk/ticks-melk -g -a claude-code --copy
+npx skills add mkelk/skills --skill dmtix --skill ticks -g -a claude-code
 ```
 
-It must resolve at user level (`~/.claude/skills/ticks/`) or be vendored into the project
-(`.claude/skills/ticks/`); `/dmtix bootstrap` checks for it and tells you if it's missing.
-(`mkelk/ticks-melk` is a fork of the stock tracker at `github.com/pengelbrecht/ticks`; its
-default branch carries the synthesized engine upgrades.)
+The engine must resolve at user level (`~/.claude/skills/ticks/`) or be vendored into the
+project (`.claude/skills/ticks/`); `/dmtix bootstrap` checks for it and tells you if it's
+missing. (It began as the skill in Peter Engelbrecht's `pengelbrecht/ticks`, by way of the
+fork `mkelk/ticks-melk`, now retired; see `skills/ticks/LICENSE`.)
 
 Two sources, two jobs: the **`tk` binary** comes from upstream `pengelbrecht/ticks` (its
-install script; 0.31 and 0.32 both work), the **skill** from `mkelk/ticks-melk`. Don't
-install upstream's own `ticks` skill: since v0.32 it is tracker-only, with no run loop, and
-`/dmtix bootstrap` refuses it.
+install script; 0.31 and 0.32 both work), the **skill** from this repo. Don't install
+upstream's own `ticks` skill, and don't run `tk skills install`: since v0.32 upstream's
+skill is tracker-only, with no run loop, and the command writes it into the project where
+it takes precedence. `/dmtix bootstrap` refuses both.
 
 ## Upgrading
 
