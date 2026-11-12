@@ -38,10 +38,15 @@ The devmeta adaptation is PRESENT when all four hold:
   `references/agent-runner.md` is beside it.
 - **Found, but no `references/agent-runner.md` → stop.** That is the tracker-only `ticks`
   skill, not the engine; `/dmtix go` would hand the run to a skill with no run loop. Tell the
-  user to install the engine over it: `npx skills add mkelk/ticks-melk -g -a claude-code`
+  user to install the engine over it: `npx skills add mkelk/skills --skill ticks -g -a claude-code`
   (or, at project level, replace the vendored copy), then re-run this command.
+- **Project level with a `.tk-skills-version` stamp → not a pin; stop.** `tk skills install`
+  wrote the `tk` binary's own embedded skill there (upstream's, which takes precedence over
+  the user-level engine). Show the stamp and offer to remove the directory, so the project
+  runs on the user-level engine; re-run this command after.
 - **Project level found → pinned mode.** Report it (include `PROVENANCE.md` contents if
-  present so the user can see how old the pin is). Leave untouched — upgrades are deliberate.
+  present so the user can see how old the pin is). Leave it during a run — upgrades are
+  deliberate; step 6 offers to drop it between increments.
 - **User level only → shared mode (the default; nothing to do).** Report it. If the user
   explicitly wants this project *pinned* to today's skill version, offer to vendor:
   `cp -r ~/.claude/skills/ticks .claude/skills/ticks` and write
@@ -50,7 +55,8 @@ The devmeta adaptation is PRESENT when all four hold:
 - **Neither → stop** and tell the user: install the synthesized ticks skill once at user
   level (`~/.claude/skills/ticks/`) or vendor a copy into this project
   (`.claude/skills/ticks/`), then re-run this command. The engine has one source:
-  `npx skills add mkelk/ticks-melk -g -a claude-code` (https://github.com/mkelk/ticks-melk).
+  `npx skills add mkelk/skills --skill ticks -g -a claude-code` (https://github.com/mkelk/skills,
+  `skills/ticks/`).
   Upstream `pengelbrecht/ticks` is where the `tk` binary comes from (its install script, or
   `tk upgrade`); its own `ticks` skill is tracker-only since v0.32 and does not run dmtix.
 
