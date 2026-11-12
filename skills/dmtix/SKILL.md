@@ -10,7 +10,7 @@ reference and follow it exactly.** With no or an unknown argument, show this tab
 
 | Argument | Cadence | Door |
 |---|---|---|
-| `bootstrap` | once per project, and after an engine update | `references/bootstrap.md` — install the method: verify the ticks skill resolves (user- or project-level), tk init, config lifecycle sections (additive), `.devmeta/` scaffold; on an existing project, the upgrade check (offers only, each shown first; `start` runs it too). Idempotent. |
+| `bootstrap` | once per project, and after an engine update | `references/bootstrap.md` — install the method: verify the ticks skill resolves (user-level; Claude Code resolves personal over project), tk init, config lifecycle sections (additive), `.devmeta/` scaffold; on an existing project, the upgrade check (offers only, each shown first; `start` runs it too). Idempotent. |
 | `start` (or `start-increment-spec`) | once per increment | `references/start-increment-spec.md` — interactive scoping (engine-drafted epic partition, human-ratified; goal-compatible DoDs), records tree, tk roadmap. Setup only. |
 | `go` | per session | `references/go.md` — start **or resume** the run; thin wrapper over the ticks skill; stops at the project checkpoint. |
 

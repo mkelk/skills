@@ -11,9 +11,11 @@ offers one).
 ## Detection contract (used here and by /dmtix start and /dmtix go)
 
 The devmeta adaptation is PRESENT when all four hold:
-1. The synthesized ticks skill is resolvable: `SKILL.md` **and** `references/agent-runner.md`
-   at **project level** (`.claude/skills/ticks/`) or **user level** (`~/.claude/skills/ticks/`).
-   Project level takes precedence when both exist. A `ticks` skill without
+1. The ticks engine skill resolves the way Claude Code loads it: `SKILL.md` **and**
+   `references/agent-runner.md` at **user level** (`~/.claude/skills/ticks/`), or — only when no
+   user-level `ticks` exists — at project level (`.claude/skills/ticks/`). Claude Code resolves
+   same-name skills *personal over project*, so while a user-level `ticks` is installed it is
+   the one that runs, and a project copy is never loaded. A `ticks` skill without
    `references/agent-runner.md` is the tracker-only skill (upstream `pengelbrecht/ticks`
    since v0.32): it can track work but cannot run a roadmap, so it does not count.
 2. `.tick/` exists (tracker initialized)
@@ -32,29 +34,28 @@ The devmeta adaptation is PRESENT when all four hold:
 - If `git check-ignore .tick/` matches: report which ignore file and ask before removing the
   rule (the tracker must be committed to work across sessions/machines).
 
-### 3. Skill (detect at both levels; this command never fetches or installs the skill)
-- Resolve in order: project `.claude/skills/ticks/SKILL.md`, then user
-  `~/.claude/skills/ticks/SKILL.md`. At whichever level resolves, check that
-  `references/agent-runner.md` is beside it.
+### 3. Skill (this command never fetches or installs the skill)
+- Resolve as Claude Code does: user `~/.claude/skills/ticks/SKILL.md` first; project
+  `.claude/skills/ticks/SKILL.md` only when there is no user-level one. Check that
+  `references/agent-runner.md` is beside whichever resolves.
 - **Found, but no `references/agent-runner.md` → stop.** That is the tracker-only `ticks`
   skill, not the engine; `/dmtix go` would hand the run to a skill with no run loop. Tell the
   user to install the engine over it: `npx skills add mkelk/skills --skill ticks -g -a claude-code`
-  (or, at project level, replace the vendored copy), then re-run this command.
-- **Project level with a `.tk-skills-version` stamp → not a pin; stop.** `tk skills install`
-  wrote the `tk` binary's own embedded skill there (upstream's, which takes precedence over
-  the user-level engine). Show the stamp and offer to remove the directory, so the project
-  runs on the user-level engine; re-run this command after.
-- **Project level found → pinned mode.** Report it (include `PROVENANCE.md` contents if
-  present so the user can see how old the pin is). Leave it during a run — upgrades are
-  deliberate; step 6 offers to drop it between increments.
-- **User level only → shared mode (the default; nothing to do).** Report it. If the user
-  explicitly wants this project *pinned* to today's skill version, offer to vendor:
-  `cp -r ~/.claude/skills/ticks .claude/skills/ticks` and write
-  `.claude/skills/ticks/PROVENANCE.md`: `Vendored from user-level skill on <date>`
-  (carry over any version marker the user-level copy contains). Do not vendor unless asked.
-- **Neither → stop** and tell the user: install the synthesized ticks skill once at user
-  level (`~/.claude/skills/ticks/`) or vendor a copy into this project
-  (`.claude/skills/ticks/`), then re-run this command. The engine has one source:
+  (and remove a project-level copy, below), then re-run this command.
+- **User level resolves → the default; nothing to do.** Report it. If the project *also* has
+  a `.claude/skills/ticks/`, it is a leftover that never runs (personal beats project) and
+  only misleads whoever reads the tree: a `.tk-skills-version` stamp means `tk skills install`
+  wrote it (the binary's embedded upstream skill); a `PROVENANCE.md` means an old attempt to
+  pin. Show which, and offer to remove it: a symlink is deleted, a tracked directory is
+  removed in a commit.
+- **Project level only → it runs; report it.** No user-level `ticks` exists, so this copy is
+  what Claude Code loads — a stamped one is upstream's skill, and on tk 0.31 that is an older
+  engine, not this one. Recommend installing the engine at user level, then removing the
+  project copy. **There is no pinning:** a project cannot be held on an older engine while a
+  user-level one is installed. To keep a running increment on the engine it started with,
+  update between increments instead (README → Upgrading).
+- **Neither → stop** and tell the user: install the ticks engine skill once at user level
+  (`~/.claude/skills/ticks/`), then re-run this command. The engine has one source:
   `npx skills add mkelk/skills --skill ticks -g -a claude-code` (https://github.com/mkelk/skills,
   `skills/ticks/`).
   Upstream `pengelbrecht/ticks` is where the `tk` binary comes from (its install script, or
@@ -150,15 +151,12 @@ idempotent: a migrated project shows nothing. Each offer is shown in full and wr
 the user's yes; a no is fine and the check offers it again next time. **Never during a run:**
 `/dmtix go` does not call this step, and an increment in progress is left as it is.
 
-Offer a migration only when the **resolved** engine (step 3) knows it — check its text, as
-below. A project pinned to an older copy must not be migrated past what that copy reads.
+Offer a migration only when the **resolved** engine (step 3) — the one that will actually
+run — knows it; check its text, as below. An older engine must not be migrated past what it
+reads.
 
-- **Pin.** Pinned mode (step 3), and no increment in progress — `.devmeta/current-increment.md`
-  is the placeholder, `NOT STARTED`, or names a project tick that is closed (the state at
-  `/dmtix start`). Show the copy's `PROVENANCE.md` and `diff -rq` against the user-level
-  skill, then offer to drop the pin: a symlink is removed; a vendored directory is removed
-  in a commit. The project then runs on the user-level engine. With an increment in
-  progress, say the pin stays until its next `/dmtix start`.
+- **Leftover project copy.** The step 3 case of a `.claude/skills/ticks/` beside a user-level
+  engine, offered again here if it was declined.
 - **Learnings.** `.tick/learnings.md` is over 4096 bytes, `.tick/learnings-ref.md` does not
   exist, and the resolved engine's `references/agent-runner.md` mentions `learnings-ref.md`.
   Offer the split now instead of at the next retro (every cold start until then pays for the
