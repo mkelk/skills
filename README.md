@@ -6,9 +6,16 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
 ## Skills
 
 - **[dmtix](skills/dmtix/)** — devmeta-on-ticks. A delivery method (interactive increment
-  scoping → autonomous walk-away run → durable narrative records) on top of the synthesized
-  **ticks** parallel-agent engine. Invoked with an argument: `/dmtix bootstrap | start | go`.
-  Requires the ticks engine skill (see the skill's README).
+  scoping → autonomous walk-away run → durable narrative records) on top of the **ticks**
+  engine below. Invoked with an argument: `/dmtix bootstrap | start | go`.
+
+- **[ticks](skills/ticks/)** — the engine dmtix runs on: plans an epic into ticks, runs them
+  as parallel or warm-chained agents in their own worktrees, gates each tick and each wave,
+  reviews, retros, and resumes from the tracker after any stop. Works the `tk` tracker,
+  whose binary comes from [`pengelbrecht/ticks`](https://github.com/pengelbrecht/ticks). It
+  began as the skill in that repo (MIT, Peter Engelbrecht; see
+  [skills/ticks/LICENSE](skills/ticks/LICENSE)) and moved here with its history; upstream's
+  own skill is now tracker-only, so install this one, not that.
 
 - **[streams](skills/streams/)** — the seat that sees every stream. For the one session that
   coordinates several dmtix increments running side by side: `/streams status` (what is
@@ -37,8 +44,14 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
 ## Install
 
 ```bash
+# the tk tracker binary (for dmtix and ticks), from upstream
+curl -fsSL https://raw.githubusercontent.com/pengelbrecht/ticks/main/install.sh | sh
+
 # everything in this repo, globally (user dir), for Claude Code
 npx skills add mkelk/skills -g -a claude-code
+
+# or just the method and its engine
+npx skills add mkelk/skills --skill dmtix --skill ticks -g -a claude-code
 
 # a single skill, and copy instead of symlink
 npx skills add mkelk/skills --skill dmtix -g -a claude-code --copy
@@ -50,4 +63,5 @@ update` upgrades; `npx skills remove` uninstalls. See <https://skills.sh>.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). `skills/ticks/` carries its own MIT notice, which keeps Peter
+Engelbrecht's copyright: [skills/ticks/LICENSE](skills/ticks/LICENSE).
