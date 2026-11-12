@@ -9,6 +9,14 @@ distinction is the whole of this door — on 2026-09-21 the seat did this operat
 for it, noticed mid-merge, and only then discovered the checklist it was half-following did
 not cover it.
 
+**Merge to `master` first, then deploy from `master` in the main checkout** (the human,
+2026-09-24: *"deploy from main unless there is some very particular situation"*). On 2026-09-24
+the seat did it backwards five times — the deploy from a stream's tree, the merge to `master`
+after — and each time `master` briefly lagged production. So this door ends with the SHA on
+`master`, and the deploy that follows is run from the main checkout. Deploying a stream's tree
+directly is the exception, only with the human's named reason, and that tree is merged to
+`master` straight after.
+
 ## When it applies
 
 All four, or it is not a hotfix:
@@ -34,7 +42,7 @@ All four, or it is not a hotfix:
 
 **A merge is not a cherry-pick.** Everything on that branch lands, not the three files anyone
 is thinking about. On 2026-09-21 a three-file fix carried twenty-six: the increment's records,
-twelve `.tick/issues/*.json`, two `docs/current/` pages, the todo, the diary — and
+twelve `.tick/issues/*.json`, two pages of the living documentation, the todo, the diary — and
 `.tick/config.md`, **the shared method contract**, which then faced every stream at its next
 sync.
 
@@ -47,7 +55,9 @@ a cherry-pick — it is that the stream splits it off first, on its own branch, 
 Merge into `master` in a **scratch worktree**, `--no-ff`, then **typecheck the merged tree
 before `update-ref`**. Uncached — a cached pass proves nothing about a merge. A clean
 `git merge` is not evidence the result compiles: a conflict boundary inside a structure makes
-keep-both drop a token while git reports success.
+keep-both drop a token while git reports success. And before `update-ref`, **put master's
+`.devmeta/current-increment.md` header back to the mainline's** — a side branch's header rides
+along clean, with no conflict to warn you (2026-09-24, under *Corrections*).
 
 The merge message carries the evidence, because a chat nobody can find is not a record:
 - that it is a **partial** land and the stream stays alive;
@@ -70,6 +80,10 @@ the seat performs. It is a decision for the human, with the count as evidence.
 
 ## Step 4 — Hand off the SHA, and nothing else
 
+*(The deploy that follows runs from `master` in the main checkout; see the rule above **When it
+applies**. A production host is owned by nobody but the human's go: there the SHA goes to the
+human with the exact deploy command to type, run from the main checkout.)*
+
 Tell the stream that owns the host **the commit master ended up on**. Do not tell it the host
 is running that commit, and do not check on its behalf: it reads `BUILD_SHA` on the box itself,
 **and a disagreement between the two is the finding**. Two instruments beat one assertion, and
@@ -78,7 +92,8 @@ because the deploy landed" from "the image changed because something recreated i
 declined to guess.
 
 Then announce to every other stream that master moved and why — **announce, never merge into
-their branches.**
+their branches.** Write the hand-off as a line in `coord/log.md` too (the skill's
+`scripts/coord.py log`): a message is gone with its session, a log line is not.
 
 ## Step 5 — Say plainly what did not happen
 
@@ -93,3 +108,9 @@ increment being landed*, and its real landing will merge the rest.
   correction. Everything above is what that landing actually did, except step 2, which is what
   it should have done and did only halfway — the human was told what rode along, but after the
   merge was already prepared rather than before.
+- 2026-09-24, a side stream's first epic: the side stream's `.devmeta/current-increment.md`
+  rode along and **replaced master's header with the side stream's**, cleanly, no conflict;
+  another stream caught it at its next sync. The header on `master` is the mainline's. So
+  after the merge and before `update-ref`, restore it: `git checkout <master before> --
+  .devmeta/current-increment.md` (or the mainline's own copy), and say so in the merge
+  message.
