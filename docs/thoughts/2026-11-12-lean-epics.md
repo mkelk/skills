@@ -136,7 +136,10 @@ the part that ages with model strength, and it is where E1's tokens went.
 
 The test for any ritual in `.tick/config.md` or the implementer prompt: *is this the harness checking
 the model, or the model checking itself?* The first stays constant as models change. The second shrinks.
-Shrinking the second is not thinning the first.
+Shrinking the second is not thinning the first. (Scope note, settled during the increment: the sunset
+tally below counts only checks that claim to catch something and carry a report line — `## Testing`
+tick-gate commands, by-path runs, planted faults. `## Rules` is human intent held constant: changed by
+the human, never demoted by the retro.)
 
 One structural gap: dmtix only accretes steering. The retro harvests learnings into the file; nothing
 ever retires a ritual, and the 150-line cap is the lone pruning mechanism. Proposed retro step: every
