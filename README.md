@@ -61,6 +61,12 @@ npx skills add mkelk/skills --skill dmtix -g -a claude-code --copy
 project's `.claude/skills/`. Omit `-a` and the CLI offers every detected agent. `npx skills
 update` upgrades; `npx skills remove` uninstalls. See <https://skills.sh>.
 
+**A user-level skill shadows a project's own skill of the same name.** Claude Code resolves
+same-name skills *personal over project*, and picks up a changed `SKILL.md` in running sessions.
+So if a repo on your machine ships its own `.claude/skills/streams` (or any name here), don't
+install that skill globally: every session in that repo would get this repo's version instead
+of its own.
+
 ## License
 
 MIT — see [LICENSE](LICENSE). `skills/ticks/` carries its own MIT notice, which keeps Peter

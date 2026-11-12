@@ -5,7 +5,7 @@ description: Work with Ticks issue tracker and AI agent runner. Use when managin
 
 # Ticks Workflow
 
-Ticks is an issue tracker designed for AI agents. The `tk` CLI manages tasks, and `tk board` provides a web-based board for monitoring; epics are executed by the current harness using the shared protocol in `references/agent-runner.md` and its Claude Code or Codex adapter. This is the engine skill (it lives in `mkelk/skills`); the `tk` binary itself comes from upstream `pengelbrecht/ticks`, whose own `ticks` skill is a tracker-only one. Don't install that one alongside this, and don't run `tk skills install`: it writes the binary's own embedded skill into the project's `.claude/skills/ticks/`, where it takes precedence over this one.
+Ticks is an issue tracker designed for AI agents. The `tk` CLI manages tasks, and `tk board` provides a web-based board for monitoring; epics are executed by the current harness using the shared protocol in `references/agent-runner.md` and its Claude Code or Codex adapter. This is the engine skill (it lives in `mkelk/skills`); the `tk` binary itself comes from upstream `pengelbrecht/ticks`, whose own `ticks` skill is a tracker-only one. Don't install that one alongside this, and don't run `tk skills install`: it writes the binary's own embedded skill into the project's `.claude/skills/ticks/`, which runs instead of this one wherever this one isn't installed at user level (Claude Code resolves personal over project).
 
 ## When to Use Ticks vs TodoWrite
 

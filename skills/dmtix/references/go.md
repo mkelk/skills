@@ -26,9 +26,10 @@ skill's re-entry is just re-invocation (stale-state recovery, worktree reconcili
 
 ## Step 2 — Hand over to the engine
 
-Invoke the `ticks` skill (Skill tool — project-level resolves over user-level; fall back to
-reading `SKILL.md` + references directly from `.claude/skills/ticks/` or
-`~/.claude/skills/ticks/`, whichever exists) and execute with exactly this instruction:
+Invoke the `ticks` skill (Skill tool — it loads the user-level `~/.claude/skills/ticks/`
+whenever one exists, since Claude Code resolves personal over project; fall back to reading
+`SKILL.md` + references directly from `~/.claude/skills/ticks/`, or `.claude/skills/ticks/` when
+there is no user-level copy) and execute with exactly this instruction:
 
 > Run the roadmap of project `<project-id>` (the active increment per
 > `.devmeta/current-increment.md`). Base branch: `<current branch>` — integration stops
