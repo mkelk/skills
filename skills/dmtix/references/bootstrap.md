@@ -1,9 +1,12 @@
 
 ## Purpose
 
-One-time-per-project installer of the devmeta method on top of the synthesized ticks engine.
-Safe to re-run anytime: on a healthy project it prints an all-green checklist and changes
-nothing. **Additive only — existing files and existing config sections are never modified.**
+One-time-per-project installer of the devmeta method on top of the synthesized ticks engine,
+and the upgrade path after an engine update: re-run it in each project. Safe to re-run
+anytime: on a healthy project it prints an all-green checklist and changes nothing.
+**Additive by default — existing files and config sections are never modified unless the
+user says yes to a change shown in full** (the upgrade check, step 6, is the only place that
+offers one).
 
 ## Detection contract (used here and by /dmtix start and /dmtix go)
 
@@ -116,13 +119,13 @@ Tick gate (per tick, in the worktree, run by the implementer): typecheck, the te
 change reaches, the build.
 -
 
-Wave gate (per wave or chain integration, run by the integrator): the full suite, slow
-suites, specs, shared generated outputs regenerated once.
+Wave gate (once per wave, when all its chains are merged, run by the integrator): the full
+suite, slow suites, specs, shared generated outputs regenerated once.
 -
 ```
 
-If a `## Testing` section already exists, leave it alone, whatever its shape: it is the
-project's, and this command never modifies existing sections.
+If a `## Testing` section already exists, leave it alone here, whatever its shape: it is the
+project's. Step 6 may offer to group an ungrouped one, shown first.
 
 ### 5. Records scaffold (create-if-missing)
 - `.devmeta/increments/` (directory)
@@ -131,12 +134,49 @@ project's, and this command never modifies existing sections.
 - `.devmeta/current-increment.md` — placeholder:
   `# Current Increment` / `**Active:** none — run /dmtix start`.
 
-### 6. Report
+### 6. Upgrade check (an existing project after an engine update)
+
+A project set up on an earlier engine keeps working on a newer one: nothing breaks, and the
+engine itself migrates what it must (its retro splits an over-budget learnings file). What
+stays on the old behaviour until someone acts is offered here. The checks read the
+project's files and the resolved engine's text, never version numbers, so they are
+idempotent: a migrated project shows nothing. Each offer is shown in full and written only on
+the user's yes; a no is fine and the check offers it again next time. **Never during a run:**
+`/dmtix go` does not call this step, and an increment in progress is left as it is.
+
+Offer a migration only when the **resolved** engine (step 3) knows it — check its text, as
+below. A project pinned to an older copy must not be migrated past what that copy reads.
+
+- **Pin.** Pinned mode (step 3), and no increment in progress — `.devmeta/current-increment.md`
+  is the placeholder, `NOT STARTED`, or names a project tick that is closed (the state at
+  `/dmtix start`). Show the copy's `PROVENANCE.md` and `diff -rq` against the user-level
+  skill, then offer to drop the pin: a symlink is removed; a vendored directory is removed
+  in a commit. The project then runs on the user-level engine. With an increment in
+  progress, say the pin stays until its next `/dmtix start`.
+- **Learnings.** `.tick/learnings.md` is over 4096 bytes, `.tick/learnings-ref.md` does not
+  exist, and the resolved engine's `references/agent-runner.md` mentions `learnings-ref.md`.
+  Offer the split now instead of at the next retro (every cold start until then pays for the
+  whole file): the entries move to `.tick/learnings-ref.md` under their categories, and the
+  hard rules and the category index stay in the head — the format in the engine's
+  `references/agent-runner.md` → "`.tick/learnings.md` — format and conventions". Show the
+  new head and both sizes before writing.
+- **Testing.** `## Testing` exists, has no `Tick gate` or `Wave gate` line, and the resolved
+  engine's `references/agent-runner.md` has "The tick gate and the wave gate". Until it is
+  grouped every command runs per tick (the engine's meaning for an ungrouped section), so the
+  lean saving does not arrive. Propose a grouping — typecheck, the tests a change reaches and
+  the build under the tick gate; the full suite, slow suites, end-to-end specs and regenerated
+  shared outputs under the wave gate; anything unclear under the tick gate, with a note —
+  and show the rewritten section as a diff. Every command stays verbatim; only the gate
+  lines are added and the bullets regrouped.
+
+### 7. Report
 
 Print a checklist of the four detection items with created/already-present/needs-attention
 per item, plus skill provenance, plus one line for `## Testing`: present, or absent with
-the skeleton offered (and whether it was taken). If anything was created, offer to commit it:
-`chore(dmtix): bootstrap devmeta adaptation (skill, config sections, records scaffold)`.
+the skeleton offered (and whether it was taken), plus one line per upgrade-check offer
+(taken, declined, or nothing to offer). If anything was created or changed, offer to commit
+it: `chore(dmtix): bootstrap devmeta adaptation (skill, config sections, records scaffold)`,
+or `chore(dmtix): upgrade to the current engine (<what changed>)` for step 6.
 
 **Do not start an increment or a run.** Next steps for the user:
 `/dmtix start` to scope work, `/dmtix go` to run it.

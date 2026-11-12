@@ -15,7 +15,7 @@ of three doors in `references/`.
 
 | `/dmtix <arg>` | Cadence | Does |
 |---|---|---|
-| `bootstrap` | once per project | installs the method into a ticks project: verifies the ticks skill resolves, `tk init`, injects `.tick/config.md` lifecycle sections (additive — never overwrites), scaffolds `.devmeta/`. Idempotent. |
+| `bootstrap` | once per project, and again after an engine update | installs the method into a ticks project: verifies the ticks skill resolves, `tk init`, injects `.tick/config.md` lifecycle sections (additive — never overwrites), scaffolds `.devmeta/`. On an existing project it is the upgrade check: offers what a newer engine needs, each change shown first. Idempotent. |
 | `start` | once per increment | interactive scoping — engine-drafted / human-ratified epic partition, goal-compatible definitions of done — then writes the records tree and the tk roadmap. Setup only; never executes. |
 | `go` | per session | starts **or resumes** the active increment's run; thin wrapper over the ticks skill; stops at the project checkpoint. Integration ends at the increment's base branch — merging to `main` is the human's act. |
 
@@ -36,6 +36,22 @@ Two sources, two jobs: the **`tk` binary** comes from upstream `pengelbrecht/tic
 install script; 0.31 and 0.32 both work), the **skill** from `mkelk/ticks-melk`. Don't
 install upstream's own `ticks` skill: since v0.32 it is tracker-only, with no run loop, and
 `/dmtix bootstrap` refuses it.
+
+## Upgrading
+
+```bash
+npx skills update -g          # the engine (ticks) and dmtix, at user level
+```
+
+Then run `/dmtix bootstrap` in each project, or just start its next increment: `/dmtix start`
+runs the same upgrade check. Nothing needs migrating by hand and nothing breaks if you skip
+it. The check offers what would otherwise stay on the old behaviour — drop a pinned engine
+copy, split an over-budget learnings file, group `## Testing` under the two gates — each shown
+in full before it is written, never during a run.
+
+A project in the middle of an increment can be kept on the engine it started with: point
+`.claude/skills/ticks` at a frozen copy before updating (a symlink, outside git), and the next
+`/dmtix start` offers to drop it.
 
 ## Where things live (the method's separation of concerns)
 
