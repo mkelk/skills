@@ -89,9 +89,34 @@ Same resolution as above. Then:
 3. STOP for human review.
 ```
 
-*(Deliberately no `Testing` section — the engine's execution profile infers test facts
-from the repo. `At run start` carries only the branch guard: method policy is exactly the
-kind of fact the repo cannot reveal, which is what these sections are for.)*
+*(Deliberately no `Testing` section in the template — test commands are project facts, not
+method, and the engine's execution profile infers them from the repo when the section is
+absent. `At run start` carries only the branch guard: method policy is exactly the kind of
+fact the repo cannot reveal, which is what these sections are for.)*
+
+### 4b. Testing skeleton (offer only — never written unasked)
+
+If `.tick/config.md` has no `## Testing` section, offer the engine's recommended two-gate
+shape and append it only on the user's yes. It carries the two gate lines and no commands;
+the project fills in its own, under whichever gate each belongs to. The engine adds no
+syntax for this — commands stay ordinary bullets (ticks skill `SKILL.md` → "Recommended
+`## Testing` shape"; definitions in `references/agent-runner.md` → "The tick gate and the
+wave gate").
+
+```markdown
+## Testing
+
+Tick gate (per tick, in the worktree, run by the implementer): typecheck, the tests the
+change reaches, the build.
+-
+
+Wave gate (per wave or chain integration, run by the integrator): the full suite, slow
+suites, specs, shared generated outputs regenerated once.
+-
+```
+
+If a `## Testing` section already exists, leave it alone, whatever its shape: it is the
+project's, and this command never modifies existing sections.
 
 ### 5. Records scaffold (create-if-missing)
 - `.devmeta/increments/` (directory)
@@ -103,7 +128,8 @@ kind of fact the repo cannot reveal, which is what these sections are for.)*
 ### 6. Report
 
 Print a checklist of the four detection items with created/already-present/needs-attention
-per item, plus skill provenance. If anything was created, offer to commit it:
+per item, plus skill provenance, plus one line for `## Testing`: present, or absent with
+the skeleton offered (and whether it was taken). If anything was created, offer to commit it:
 `chore(dmtix): bootstrap devmeta adaptation (skill, config sections, records scaffold)`.
 
 **Do not start an increment or a run.** Next steps for the user:
