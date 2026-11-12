@@ -8,9 +8,11 @@ nothing. **Additive only — existing files and existing config sections are nev
 ## Detection contract (used here and by /dmtix start and /dmtix go)
 
 The devmeta adaptation is PRESENT when all four hold:
-1. The synthesized ticks skill is resolvable: `SKILL.md` at **project level**
-   (`.claude/skills/ticks/`) or **user level** (`~/.claude/skills/ticks/`).
-   Project level takes precedence when both exist.
+1. The synthesized ticks skill is resolvable: `SKILL.md` **and** `references/agent-runner.md`
+   at **project level** (`.claude/skills/ticks/`) or **user level** (`~/.claude/skills/ticks/`).
+   Project level takes precedence when both exist. A `ticks` skill without
+   `references/agent-runner.md` is the tracker-only skill (upstream `pengelbrecht/ticks`
+   since v0.32): it can track work but cannot run a roadmap, so it does not count.
 2. `.tick/` exists (tracker initialized)
 3. `.tick/config.md` contains BOTH headings `## At epic close-out` and `## At project checkpoint`
 4. `.devmeta/` exists (records tree)
@@ -29,7 +31,12 @@ The devmeta adaptation is PRESENT when all four hold:
 
 ### 3. Skill (detect at both levels; this command never fetches or installs the skill)
 - Resolve in order: project `.claude/skills/ticks/SKILL.md`, then user
-  `~/.claude/skills/ticks/SKILL.md`.
+  `~/.claude/skills/ticks/SKILL.md`. At whichever level resolves, check that
+  `references/agent-runner.md` is beside it.
+- **Found, but no `references/agent-runner.md` → stop.** That is the tracker-only `ticks`
+  skill, not the engine; `/dmtix go` would hand the run to a skill with no run loop. Tell the
+  user to install the engine over it: `npx skills add mkelk/ticks-melk -g -a claude-code`
+  (or, at project level, replace the vendored copy), then re-run this command.
 - **Project level found → pinned mode.** Report it (include `PROVENANCE.md` contents if
   present so the user can see how old the pin is). Leave untouched — upgrades are deliberate.
 - **User level only → shared mode (the default; nothing to do).** Report it. If the user
@@ -39,11 +46,10 @@ The devmeta adaptation is PRESENT when all four hold:
   (carry over any version marker the user-level copy contains). Do not vendor unless asked.
 - **Neither → stop** and tell the user: install the synthesized ticks skill once at user
   level (`~/.claude/skills/ticks/`) or vendor a copy into this project
-  (`.claude/skills/ticks/`), then re-run this command. Install sources:
-  - **Morten's fork (preferred for now):** `npx skills add mkelk/ticks-melk -g -a claude-code`
-    (https://github.com/mkelk/ticks-melk)
-  - **Peter's original:** `npx skills add pengelbrecht/ticks -g -a claude-code`
-    (https://github.com/pengelbrecht/ticks)
+  (`.claude/skills/ticks/`), then re-run this command. The engine has one source:
+  `npx skills add mkelk/ticks-melk -g -a claude-code` (https://github.com/mkelk/ticks-melk).
+  Upstream `pengelbrecht/ticks` is where the `tk` binary comes from (its install script, or
+  `tk upgrade`); its own `ticks` skill is tracker-only since v0.32 and does not run dmtix.
 
 ### 4. Config (create whole, or inject missing sections only)
 - If `.tick/config.md` is missing: write the full template below.

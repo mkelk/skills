@@ -32,6 +32,11 @@ It must resolve at user level (`~/.claude/skills/ticks/`) or be vendored into th
 (`mkelk/ticks-melk` is a fork of the stock tracker at `github.com/pengelbrecht/ticks`; its
 default branch carries the synthesized engine upgrades.)
 
+Two sources, two jobs: the **`tk` binary** comes from upstream `pengelbrecht/ticks` (its
+install script; 0.31 and 0.32 both work), the **skill** from `mkelk/ticks-melk`. Don't
+install upstream's own `ticks` skill: since v0.32 it is tracker-only, with no run loop, and
+`/dmtix bootstrap` refuses it.
+
 ## Where things live (the method's separation of concerns)
 
 - **Method** (edit only to change how you work): `.tick/config.md`
