@@ -25,6 +25,8 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   `restart`, `hotfix`, `land`. Live state lives in git's common directory (`coord/`), shared
   by every worktree and never committed; `scripts/coord.py` writes its log and enforces holds
   with an end. Landing is a checklist until two hand landings confirm it.
+  New to it? Start at **[skills/streams/README.md](skills/streams/README.md)**: what the seat
+  and a stream are, how to begin, and seven worked examples.
 
 - **[roadmap](skills/roadmap/)** — beside `streams`, for the seat: a plan above the
   increments that several streams build together. Each piece points at one tick in its own
@@ -93,7 +95,7 @@ ref name that is itself the hit prints as a hash. A line that is reviewed and fi
 it; a file-name hit prints its own entry); the file takes exact lines only, never patterns.
 
 Beside it, `scripts/size-check` holds the skills an agent loads whole to a size budget: each
-`SKILL.md` and `references/*.md` (recipes too) of `streams` and `roadmap` under 16 KB,
+`SKILL.md`, `README.md` and `references/*.md` (recipes too) of `streams` and `roadmap` under 16 KB,
 `streams/references/status.md` under 24 KB. A file over budget prints with its size and the check
 fails; `--top 3` also prints the largest. Run both before you push:
 

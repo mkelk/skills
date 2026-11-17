@@ -45,6 +45,13 @@ class SizeCheck(unittest.TestCase):
         self.assertEqual(p.returncode, 1)
         self.assertIn("skills/roadmap/SKILL.md: 16384 bytes, budget 16384", p.stdout)
 
+    def test_readme_counts(self):
+        self.put("skills/streams/SKILL.md", 100)
+        self.put("skills/streams/README.md", 16 * 1024)
+        p = self.run_check()
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("skills/streams/README.md: 16384 bytes, budget 16384", p.stdout)
+
     def test_status_has_its_own_budget(self):
         self.put("skills/streams/references/status.md", 20 * 1024)
         self.assertEqual(self.run_check().returncode, 0)
