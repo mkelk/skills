@@ -16,8 +16,14 @@ writes only the sections that have content:
 | `## Resources` | what one stream holds alone: a port block, a database schema, a queue, a host | `cut`, `status` |
 | `## At cut` | the commands that make a fresh worktree runnable | `cut`, after the worktree exists |
 | `## At landing` | the checks run on the merged tree | `land` |
+| `## Heavy runs` | the runs too heavy for two at once (a browser test tier, say): how to see one running (a `pgrep` pattern), and the project's rules for them; `references/recipes/` has worked ones to point at | `status`, `land` |
+| `## Standing rules`, `## Seams`, `## At hotfix` | prose: rules pasted into a brief, files two branches both edit and how each resolves, a hotfix's verify and hand-off | `cut`, `land`, `hotfix` |
 
-`coord.py` below means `python3 <skill dir>/scripts/coord.py`.
+Only the first five are written by this door; add the prose sections by hand when the project
+has something to say in them.
+
+`coord.py` below means `python3 <skill dir>/scripts/coord.py`. `coord.py config --get <fact>`
+prints one bare value (`trunk`, `worktree --slug <s>`, `at-cut`, `heavy-runs`, …) for a command line.
 
 ## Step 1 — Is there a file already?
 

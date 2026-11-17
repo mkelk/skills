@@ -407,6 +407,25 @@ class ProjectConfig(CoordCase):
         self.assertEqual((code, facts["trunk"]["value"]), (0, "main"))
         self.assertTrue(facts["worktree"].endswith("demo-x"))
 
+    def test_get_prints_one_bare_fact(self):
+        repo = self.repo()
+        self.write_file(repo, "## Project\ntrunk: develop\n\n## Heavy runs\npgrep -f \"pytest -m slo[w]\"\n")
+        self.assertEqual(self.run_in(repo, "config", "--get", "trunk"), (0, "develop\n", ""))
+        self.assertEqual(self.run_in(repo, "config", "--get", "heavy-runs")[1], 'pgrep -f "pytest -m slo[w]"\n')
+        self.assertEqual(self.run_in(repo, "config", "--get", "seams"), (0, "", ""))
+        code, out, _ = self.run_in(repo, "config", "--get", "worktree", "--slug", "demo")
+        self.assertEqual((code, out.strip()), (0, os.path.join(os.path.dirname(repo), "demo-demo")))
+        self.assertIn("## Heavy runs", self.run_in(repo, "config")[1])
+
+    def test_get_refuses_unknown_fact_and_worktree_without_slug(self):
+        repo = self.repo()
+        code, _, err = self.run_in(repo, "config", "--get", "branch")
+        self.assertEqual(code, 2)
+        self.assertIn("trunk", err)
+        code, _, err = self.run_in(repo, "config", "--get", "worktree")
+        self.assertEqual(code, 2)
+        self.assertIn("--slug", err)
+
     def test_outside_a_repository(self):
         lone = os.path.join(self.tmp.name, "lone")
         os.makedirs(lone)

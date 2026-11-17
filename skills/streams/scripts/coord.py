@@ -27,14 +27,15 @@ Usage:
     coord.py init
     coord.py log "<text>" [--as <who>] [--for 40m | --until HH:MM]
     coord.py show [--holds] [--owed] [--log N]
-    coord.py config [--slug <slug>] [--json] [--file <path>]
+    coord.py config [--slug <slug>] [--json | --get <fact>] [--file <path>]
     coord.py init-file [--trunk B] [--worktree-root DIR] [--at-cut L]... [--at-landing L]...
                        [--resources L]... [--force]
 
 The project file `.devmeta/streams.md` (committed, at the repository's top) holds the project's facts in
 optional sections: `## Project` (`trunk:`, `worktree root:`), `## Resources`, `## At cut`, `## At landing`,
-and the prose sections the doors paste or follow. `config` prints each fact with where it came from: the
-file, or what was detected when the file says nothing.
+and the prose sections the doors paste or follow (`## Heavy runs`, `## Standing rules`, `## Seams`,
+`## At hotfix`). `config` prints each fact with where it came from: the file, or what was detected when
+the file says nothing; `config --get <fact>` prints one fact's bare value, for a command line.
 
 Python 3 standard library only.
 """
@@ -494,6 +495,11 @@ PROJECT_FILE = os.path.join(".devmeta", "streams.md")
 KNOWN_SECTIONS = ("Project", "Resources", "At cut", "At landing", "Standing rules", "Heavy runs", "Seams",
                   "At hotfix")
 SECTION = re.compile(r"^##\s+(.+?)\s*$")
+# The sections the doors follow as written; `config` passes them through untouched.
+PROSE_SECTIONS = ("Heavy runs", "Standing rules", "Seams", "At hotfix")
+# `config --get <fact>`: one fact's bare value, for a command line such as `git show "$(... --get trunk)":<path>`.
+GET_FACTS = ("trunk", "worktree-root", "worktree", "repo", "file", "at-cut", "at-landing", "resources",
+             "heavy-runs", "standing-rules", "seams", "at-hotfix")
 
 
 def _git(args, cwd=None):
@@ -624,6 +630,7 @@ def config(cwd=None, path=None, slug=None):
         "at_cut": at_cut,
         "at_landing": at_landing,
         "resources": sections.get("Resources", ""),
+        "sections": {name: sections.get(name, "") for name in PROSE_SECTIONS},
         "warnings": warnings,
     }
     if slug is not None:
@@ -649,9 +656,28 @@ def show_config(facts):
         out.extend(f"    {line}" for line in facts["resources"].splitlines())
     else:
         out.append("resources: (none; a stream claims nothing)")
+    present = [name for name in PROSE_SECTIONS if facts["sections"].get(name)]
+    out.append(f"sections: {', '.join('## ' + n for n in present)}" if present
+               else "sections: (no ## Heavy runs, ## Standing rules, ## Seams or ## At hotfix)")
     for w in facts["warnings"]:
         out.append(f"warning: {w}")
     return "\n".join(out)
+
+
+def get_fact(facts, name):
+    """One fact's bare value ('' when the project names none). Raises CoordError for an unknown name."""
+    if name not in GET_FACTS:
+        raise CoordError(f"no fact '{name}'; the facts are: {', '.join(GET_FACTS)}.")
+    if name == "worktree":
+        if "worktree" not in facts:
+            raise CoordError("--get worktree needs --slug <slug>.")
+        return facts["worktree"]
+    key = name.replace("-", "_")
+    if key in ("trunk", "worktree_root", "at_cut", "at_landing"):
+        return facts[key]["value"] or ""
+    if key in ("repo", "file", "resources"):
+        return facts[key] or ""
+    return facts["sections"][name.replace("-", " ").capitalize()]
 
 
 def _block(values):
@@ -758,6 +784,7 @@ def main(argv=None):
     p_cfg.add_argument("--file", help="the project file (default .devmeta/streams.md at the top)")
     p_cfg.add_argument("--slug", help="also print the worktree path for this stream slug")
     p_cfg.add_argument("--json", action="store_true")
+    p_cfg.add_argument("--get", metavar="FACT", help=f"print one fact's bare value: {', '.join(GET_FACTS)}")
     p_init = sub.add_parser("init-file", help="write .devmeta/streams.md from flags, only non-empty sections")
     p_init.add_argument("--file", help="where to write (default .devmeta/streams.md at the top)")
     p_init.add_argument("--trunk")
@@ -774,6 +801,15 @@ def main(argv=None):
         except CoordError as err:
             print(f"coord config: {err}", file=sys.stderr)
             return 1
+        if a.get:
+            try:
+                value = get_fact(facts, a.get)
+            except CoordError as err:
+                print(f"coord config: {err}", file=sys.stderr)
+                return 2
+            if value:
+                print(value)
+            return 0
         print(json.dumps(facts, indent=2, ensure_ascii=False) if a.json else show_config(facts))
         return 0
 
