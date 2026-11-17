@@ -80,7 +80,7 @@ For every row, gather — all read-only, all from the machine, none from a messa
 
 | what | how |
 |---|---|
-| its session | `term.py ls --json` (hc when hc holds sessions, else herdr's snapshot; exits 2 when neither answers; every answer names its `server`): every agent with its `cwd`, `foreground_cwd`, state (working / idle / **blocked**), id and label. `ListAgents` is a second source (busy / idle / waiting) that a CLI cannot call. Rules below. |
+| its session | `term.py ls --json` (hc when hc holds sessions, else herdr's snapshot; exits 2 when neither answers; every answer names its `server`): every agent with its `cwd`, `foreground_cwd`, `state` (working / idle / **blocked** / unknown), `id`, `session` and `label`. `ListAgents` is a second source (busy / idle / waiting) that a CLI cannot call. Rules below. |
 | its epics | **From the stream's own `.devmeta/current-increment.md`, not the table's epics cell.** Its `**Roadmap (tk):**` line, written per branch when the stream scopes, reads `project <id> → <epic> (E1 …), …` or `none.`; it is authoritative. Fall back to the table's cell only when the worktree is gone, and say which source was used. (2026-09-21) two streams ran waves for an hour while the table said `— (not scoped)`, and the door printed them as unscoped. |
 | its ticks | **In the stream's own worktree, never anywhere else** — the tracker is per branch, and the same command in the main checkout answers plausibly about the mainline. `tk list --status open`, filtered to ticks whose parent is one of the stream's epics. Count in-progress (●) and awaiting-human (◐). **Awaiting counts only ticks not closed**: `tk close` does not clear `awaiting`. **Ready is not `tk ready`** (tracker-wide): derive it from `tk graph <epic> --json` as open tasks whose blockers are all closed, **through the parent chain** — a tick under a blocked or unplanned epic has an empty `blocked_by` and is not ready. Ignore ◐ ticks from earlier increments never closed. (2026-09-21) a tick 55 s reachable read "ready 35 min" because its own `blocked_by` was empty. |
 | at checkpoint | **the stream's own** `.devmeta/increments/increment-<its id>/completion.md` exists — never a glob over `increments/*/`. |
@@ -95,8 +95,8 @@ session name often enough to fool a reader and drifts the moment anything else s
 driver that dispatches into other trees sits in its own known worktree, so it is attributed by
 the tree it sits in; an agent under **no** row's worktree gets **its own line** ("agent in no
 stream's tree", with its cwd). One row per agent at most.
-- **Store the session id**, not just the name (`.value` of herdr's `agent_session`, which is an
-  object — comparing the object matches nothing, forever, without erroring). A changed id on an
+- **Store the session id** (`session`), not just the name. term.py takes the string out of
+  herdr's `agent_session` object; comparing the object matches nothing, forever, without erroring. A changed id on an
   unchanged worktree is a finding: the pane was replaced. Until a row carries one, print the name
   as recorded, never as verified.
 - **Unreachable is not absent.** When the terminal server's answer fails, mark sessions
@@ -141,7 +141,7 @@ Per stream, one word, by these rules in order:
     could be read at all, still fire, worded as a check ("pane unreadable, check rather than
     assume stalled"). (2026-09-23) a stream waiting on its own long test tier read as stalled
     while its pane's state said `done`, which means the turn ended, not that nothing runs.
-  - **(b)** the session is `waiting` or **`blocked`** and the newest commit is older than 30
+  - **(b)** the session's `state` is **`blocked`** (`ListAgents`: `waiting`) and the newest commit is older than 30
     minutes — `blocked` sits on a prompt until a human answers in that pane.
   - **(c)** an implementer worktree has uncommitted work and **the stream's own session** is
     absent from both sources (implementers are not panes; reading it the other way makes every

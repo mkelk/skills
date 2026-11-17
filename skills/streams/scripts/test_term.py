@@ -30,14 +30,14 @@ sys.exit(int(fail) if fail else 0)
 
 HC_LIVE = {"terminals": [
     {"address": "t3", "agent": "claude", "cwd": "/w/repo-a", "state": "live", "labels": {"stream": "a"},
-     "status": {"state": "idle"}},
+     "status": {"state": "idle"}, "foreground": {"cwd": "/w/repo-a/sub"}},
     {"address": "t1", "agent": "bash", "cwd": "/w", "state": "finished"},
 ]}
 HC_EMPTY = {"hidden_finished": 1, "terminals": []}
 HERDR_SNAP = {"result": {"snapshot": {
     "workspaces": [{"workspace_id": "w6", "label": "b"}],
     "panes": [{"pane_id": "w6:p1", "workspace_id": "w6", "cwd": "/w/repo-b", "agent": "claude",
-               "agent_status": "done", "agent_session": {"value": "uuid-1"}},
+               "agent_status": "done", "agent_session": {"value": "uuid-1"}, "foreground_cwd": "/w/repo-b/x"},
               {"pane_id": "w6:p2", "workspace_id": "w6", "cwd": "/w/repo-c", "agent": "claude",
                "agent_status": "blocked"}],
     "agents": []}}}
@@ -86,7 +86,8 @@ class TermTest(unittest.TestCase):
     def calls(self, name=None):
         if not os.path.exists(self.log):
             return []
-        rows = [json.loads(line) for line in open(self.log)]
+        with open(self.log) as f:
+            rows = [json.loads(line) for line in f]
         return [r for r in rows if name is None or r[0] == name]
 
     # --------------------------------------------------------------------- which server answers
@@ -102,6 +103,7 @@ class TermTest(unittest.TestCase):
                          [("hc", "t3"), ("herdr", "w6:p1"), ("herdr", "w6:p2")])
         self.assertEqual(ls["sessions"][0]["label"], "a")
         self.assertEqual(ls["sessions"][0]["state"], "idle")
+        self.assertEqual(ls["sessions"][0]["foreground_cwd"], "/w/repo-a/sub")
 
     def test_hc_empty_and_herdr_with_panes_is_herdr(self):
         self.hc(ls=HC_EMPTY)
@@ -113,8 +115,11 @@ class TermTest(unittest.TestCase):
         self.assertEqual(by_id["w6:p1"]["state"], "idle")  # done reads idle
         self.assertEqual(by_id["w6:p1"]["session"], "uuid-1")
         self.assertEqual(by_id["w6:p1"]["label"], "b")
-        self.assertEqual(by_id["w6:p2"]["state"], "unknown")  # blocked is never idle
+        self.assertEqual(by_id["w6:p1"]["foreground_cwd"], "/w/repo-b/x")
+        self.assertEqual(by_id["w6:p2"]["state"], "blocked")  # blocked is never idle, nor unknown
         self.assertEqual(by_id["w6:p2"]["status"], "blocked")
+        self.assertEqual(by_id["w6:p2"]["foreground_cwd"], "")
+        self.assertIsNone(by_id["w6:p2"]["session"])
 
     def test_hc_empty_and_herdr_empty_is_hc(self):
         self.hc(ls=HC_EMPTY)
@@ -214,6 +219,33 @@ class TermTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertFalse(json.loads(out)["ended"])
 
+    def test_wait_on_hc_without_ended_is_an_error(self):
+        self.hc(WAIT={"terminal": "t3", "reason": "status"})
+        code, out, err = self.term("wait", "t3", "--timeout", "1")
+        self.assertEqual(code, 2)
+        self.assertIn("no `ended`", err)
+
+    def test_wait_failure_on_hc_is_exit_2(self):
+        self.hc(WAIT_EXIT="1")
+        code, _, err = self.term("wait", "t3")
+        self.assertEqual(code, 2)
+        self.assertIn("hc wait failed", err)
+
+    def test_wait_timeout_on_herdr_is_exit_1(self):
+        self.herdr(AGENT={"error": {"code": "timeout", "message": "timed out waiting for agent status"}},
+                   AGENT_EXIT="1")
+        code, out, _ = self.term("wait", "w6:p1", "--timeout", "1", "--json")
+        self.assertEqual(code, 1)
+        self.assertFalse(json.loads(out)["ended"])
+
+    def test_wait_error_on_herdr_is_exit_2(self):
+        self.herdr(AGENT={"error": {"code": "agent_not_found", "message": "agent target w6:p9 not found"}},
+                   AGENT_EXIT="1")
+        code, out, err = self.term("wait", "w6:p9", "--timeout", "1")
+        self.assertEqual(code, 2)
+        self.assertEqual(out, "")
+        self.assertIn("herdr agent wait failed", err)
+
     def test_wait_on_herdr(self):
         self.herdr(AGENT="{}")
         r = self.answer("wait", "w6:p1", "--timeout", "2")
@@ -241,6 +273,27 @@ class TermTest(unittest.TestCase):
         self.assertEqual(json.loads(app[app.index("--argv") + 1]), ["claude"])
         self.assertIn(["hc", "label", "t8", "stream=d"], self.calls("hc"))
         self.assertEqual([c for c in self.calls("hc") if c[1] == "run"], [])
+
+    def test_start_in_the_window_naming_no_terminal_starts_nothing_more(self):
+        self.hc(ls=HC_EMPTY, RUN={"address": "t9"})
+        self.fake("herdr-app", DO={"space": "s2"})
+        code, _, err = self.term("start", "/w/repo-d", "d", "--", "claude")
+        self.assertEqual(code, 2)
+        self.assertIn("named no terminal", err)
+        self.assertEqual([c for c in self.calls("hc") if c[1] in ("run", "label")], [])
+
+    def test_start_falls_back_to_hc_run_when_the_window_fails(self):
+        self.hc(ls=HC_EMPTY, RUN={"address": "t9"})
+        self.fake("herdr-app", DO="no window", DO_EXIT="1")
+        r = self.answer("start", "/w/repo-d", "d", "--", "claude")
+        self.assertEqual(r["session"], "t9")
+        self.assertEqual(len([c for c in self.calls("hc") if c[1] == "run"]), 1)
+
+    def test_start_on_herdr_takes_the_root_pane(self):
+        self.herdr(WORKSPACE={"result": {"focused": {"pane_id": "w5:p7"}, "workspace": {"workspace_id": "w5"},
+                                         "root_pane": {"pane_id": "w5:p1"}}}, PANE="{}")
+        r = self.answer("start", "/w/x", "x", "--", "bash")
+        self.assertEqual(r["session"], "w5:p1")
 
     def test_start_on_herdr_claude(self):
         self.hc(ls=HC_EMPTY)

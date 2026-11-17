@@ -397,8 +397,38 @@ class ProjectConfig(CoordCase):
         repo = self.repo()
         self.write_file(repo, "## Testing\n\nmake test\n", rel=".tick/config.md")
         facts = coord.config(cwd=repo)
-        self.assertIn(".tick/config.md", facts["at_landing"]["value"])
+        self.assertEqual(facts["at_landing"]["value"], "")  # prose, not a command line
         self.assertIn("default", facts["at_landing"]["source"])
+        code, out, err = self.run_in(repo, "config", "--get", "at-landing")
+        self.assertEqual((code, out), (0, ""))
+        self.assertIn(".tick/config.md", err)
+        self.assertIn("at_landing: see .tick/config.md → ## Testing", self.run_in(repo, "config")[1])
+
+    def test_get_trunk_with_nothing_detected_fails(self):
+        repo = self.repo("lone", "develop")
+        self.git("checkout", "-q", "--detach", cwd=repo)
+        self.git("branch", "-q", "-D", "develop", cwd=repo)
+        code, out, err = self.run_in(repo, "config", "--get", "trunk")
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("no trunk", err)
+
+    def test_headings_inside_a_fence_are_body_and_one_fence_is_stripped(self):
+        repo = self.repo()
+        self.write_file(repo, "## At cut\n\n```sh\n## install first\nuv sync\n```\n\n## At landing\nmake test\n")
+        facts = coord.config(cwd=repo)
+        self.assertEqual(facts["at_cut"]["value"], "## install first\nuv sync")
+        self.assertEqual(facts["at_landing"]["value"], "make test")
+        self.assertEqual(facts["warnings"], [])
+
+    def test_a_worktree_reads_the_main_checkouts_file(self):
+        repo = self.repo()
+        self.write_file(repo, "## Project\nworktree root: trees\n")
+        tree = os.path.join(self.tmp.name, "work", "demo-side")
+        self.git("worktree", "add", "-q", "-b", "side", tree, cwd=repo)
+        self.write_file(tree, "## Project\nworktree root: other\n")  # the branch's own copy differs
+        facts = coord.config(cwd=tree)
+        self.assertEqual(facts["worktree_root"]["value"], os.path.join(repo, "trees"))
+        self.assertEqual(facts["file"], os.path.join(repo, ".devmeta", "streams.md"))
 
     def test_json(self):
         repo = self.repo()
@@ -461,6 +491,14 @@ class ProjectConfig(CoordCase):
         self.assertEqual(facts["trunk"]["value"], "other")
         self.assertEqual(facts["at_landing"]["value"], "make test\nmake lint")
         self.assertEqual(facts["at_cut"]["value"], "")
+
+    def test_init_file_writes_a_home_path_as_tilde(self):
+        repo = self.repo()
+        home_path = os.path.join(os.path.expanduser("~"), "trees")  # what an unquoted ~/trees becomes
+        self.assertEqual(self.run_in(repo, "init-file", "--worktree-root", home_path)[0], 0)
+        with open(os.path.join(repo, ".devmeta", "streams.md")) as f:
+            self.assertIn("worktree root: ~/trees\n", f.read())
+        self.assertEqual(coord.config(cwd=repo)["worktree_root"]["value"], home_path)
 
     def test_init_file_with_nothing_writes_a_header_only(self):
         repo = self.repo()

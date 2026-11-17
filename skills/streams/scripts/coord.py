@@ -525,14 +525,31 @@ def main_checkout(cwd=None):
     return repo_top(cwd)
 
 
+FENCE = re.compile(r"^\s*(```|~~~)")
+
+
+def _unfence(body):
+    """A body that is one fenced block, fence lines and all, as the lines inside it."""
+    lines = body.splitlines()
+    if len(lines) >= 2 and FENCE.match(lines[0]) and FENCE.match(lines[-1]) \
+            and not any(FENCE.match(x) for x in lines[1:-1]):
+        return "\n".join(lines[1:-1]).strip()
+    return body
+
+
 def parse_sections(text):
-    """(sections, order): each `## ` heading's body, stripped, in file order. Text before the first is dropped."""
-    sections, order, name, body = {}, [], None, []
+    """(sections, order): each `## ` heading's body, stripped, in file order. Text before the first is dropped.
+
+    A `## ` line inside a fenced block is body, not a heading; a body that is one fenced block is
+    returned as the lines inside the fence."""
+    sections, order, name, body, fenced = {}, [], None, [], False
     for line in text.splitlines():
-        m = SECTION.match(line)
+        if FENCE.match(line):
+            fenced = not fenced
+        m = None if fenced else SECTION.match(line)
         if m:
             if name is not None:
-                sections[name] = "\n".join(body).strip()
+                sections[name] = _unfence("\n".join(body).strip())
             name, body = m.group(1), []
             if name not in order:
                 order.append(name)
@@ -540,7 +557,7 @@ def parse_sections(text):
         if name is not None:
             body.append(line)
     if name is not None:
-        sections[name] = "\n".join(body).strip()
+        sections[name] = _unfence("\n".join(body).strip())
     return sections, order
 
 
@@ -570,10 +587,13 @@ def detect_trunk(cwd=None):
 
 
 def config(cwd=None, path=None, slug=None):
-    """The project's facts, each {value, source}, plus `resources`, `warnings` and `file`."""
-    top = repo_top(cwd)
-    if not top:
+    """The project's facts, each {value, source}, plus `resources`, `warnings` and `file`.
+
+    The project file, a relative `worktree root:` and `.tick/config.md` resolve against the main
+    checkout, so the answer is the same from any worktree of the repository."""
+    if not repo_top(cwd):
         raise CoordError("not inside a git repository: there is no project to read.")
+    top = main_checkout(cwd)
     rel = path or PROJECT_FILE
     file_path = rel if os.path.isabs(rel) else os.path.join(top, rel)
     sections, order, warnings = {}, [], []
@@ -593,7 +613,7 @@ def config(cwd=None, path=None, slug=None):
         value, how = detect_trunk(cwd)
         trunk = {"value": value, "source": how}
 
-    home = main_checkout(cwd) or top
+    home = top
     repo = os.path.basename(home)
     if project.get("worktree root"):
         root = os.path.expanduser(project["worktree root"])
@@ -617,8 +637,9 @@ def config(cwd=None, path=None, slug=None):
             with open(tick, encoding="utf-8") as f:
                 testing = parse_sections(f.read())[0].get("Testing", "")
         if testing:
-            at_landing = {"value": "see .tick/config.md → ## Testing",
-                          "source": "default: .tick/config.md has a ## Testing section"}
+            # Prose, not commands: `--get at-landing` prints nothing; the human-readable output points there.
+            at_landing = {"value": "", "hint": "see .tick/config.md → ## Testing",
+                          "source": "default: nothing here; .tick/config.md has a ## Testing section"}
         else:
             at_landing = {"value": "", "source": "default: nothing (no .tick/config.md → ## Testing)"}
 
@@ -643,7 +664,7 @@ def show_config(facts):
     out = [f"project file: {facts['file'] or '(none; every fact below is detected or a default)'}"]
     for key in ("trunk", "worktree_root", "at_cut", "at_landing"):
         fact = facts[key]
-        value = fact["value"] if fact["value"] not in (None, "") else "(nothing)"
+        value = fact["value"] if fact["value"] not in (None, "") else fact.get("hint") or "(nothing)"
         if "\n" in value:
             out.append(f"{key}:  ({fact['source']})")
             out.extend(f"    {line}" for line in value.splitlines())
@@ -673,6 +694,8 @@ def get_fact(facts, name):
             raise CoordError("--get worktree needs --slug <slug>.")
         return facts["worktree"]
     key = name.replace("-", "_")
+    if key == "trunk" and not facts[key]["value"]:
+        raise CoordError(f"no trunk: {facts[key]['source']}. Name it in ## Project (`trunk: main`).")
     if key in ("trunk", "worktree_root", "at_cut", "at_landing"):
         return facts[key]["value"] or ""
     if key in ("repo", "file", "resources"):
@@ -687,6 +710,14 @@ def _block(values):
     return "\n".join(v.replace("\\n", "\n").strip() for v in values if v and v.strip()).strip()
 
 
+def _tilde(path):
+    """A path under the home directory as `~/...`, so the committed file is the same for everyone."""
+    home = os.path.expanduser("~")
+    if home and home != "~" and (path == home or path.startswith(home.rstrip(os.sep) + os.sep)):
+        return "~" + path[len(home.rstrip(os.sep)):]
+    return path
+
+
 def project_file_text(trunk=None, worktree_root=None, at_cut=None, at_landing=None, resources=None):
     """The project file with only the sections that have content."""
     parts = ["# Streams — this project's facts",
@@ -697,7 +728,7 @@ def project_file_text(trunk=None, worktree_root=None, at_cut=None, at_landing=No
     if trunk:
         project.append(f"trunk: {trunk}")
     if worktree_root:
-        project.append(f"worktree root: {worktree_root}")
+        project.append(f"worktree root: {_tilde(worktree_root)}")
     for name, body in (("Project", "\n".join(project)), ("Resources", _block(resources)),
                        ("At cut", _block(at_cut)), ("At landing", _block(at_landing))):
         if body:
@@ -809,6 +840,8 @@ def main(argv=None):
                 return 2
             if value:
                 print(value)
+            elif a.get == "at-landing" and facts["at_landing"].get("hint"):
+                print(f"coord config: no ## At landing; {facts['at_landing']['hint']}", file=sys.stderr)
             return 0
         print(json.dumps(facts, indent=2, ensure_ascii=False) if a.json else show_config(facts))
         return 0

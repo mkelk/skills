@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
 """One door between the streams tooling and the terminal server the sessions run in.
 
-Two servers can hold the sessions: `hc` (herdr-core, the server behind the herdr-app window) and herdr
-0.9.5 (its own server, read through `~/.config/herdr/herdr.sock`). Every caller in the streams skill
-goes through this file, so moving sessions from one server to the other changes nothing upstream.
+Two terminal servers can hold the sessions: `hc` (herdr-core, https://github.com/herdrdev/herdr-core,
+the server behind the herdr-app window, https://github.com/herdrdev/herdr-app) and herdr
+(https://github.com/herdrdev/herdr, written against 0.9.5, its own server read through
+`~/.config/herdr/herdr.sock`). Every caller in the streams skill goes through this file, so moving
+sessions from one server to the other changes nothing upstream, and this file is the one place to
+adapt for another terminal server. With neither one, every command exits 2 and the seat prints what
+to open by hand.
 
     term.py which [--json]                         which server answers, and what each one says
-    term.py ls [--json]                            sessions: id, cwd, label, agent, state
+    term.py ls [--json]                            sessions: id, cwd, foreground_cwd, label, agent,
+                                                   state, status, session
     term.py read <session> [--lines N] [--json]    what the session shows, with N lines of history
     term.py send <session> <text> [--json]         type the text and press Enter
     term.py start <cwd> <label> [--json] -- <cmd...>
                                                    start a program (a Claude session) in a new place
-    term.py wait <session> [--timeout S] [--json]  until it stops working (exit 1 on timeout)
+    term.py wait <session> [--timeout S] [--json]  until it stops working (exit 1 on timeout,
+                                                   exit 2 when the server reports an error)
 
 `--server hc|herdr` forces one server. Every `--json` answer carries `"server": "hc"|"herdr"`.
 
@@ -28,9 +34,12 @@ hc, it is hc. While sessions are moving one at a time, `ls` lists the chosen ser
 the other server's, each session tagged with its own `server`; `read`, `send` and `wait` look the
 session up in both (hc first) and use the server that has it.
 
-A session's `state` is `idle`, `working` or `unknown`. The server's own word stays in `status`
-(herdr: working, idle, done, blocked; hc: idle, working, done, blocked, error): `done` reads `idle`,
-`blocked` and anything else read `unknown`, so a session waiting on a prompt is never taken for idle.
+A session's `state` is `idle`, `working`, `blocked` or `unknown`. The server's own word stays in
+`status` (herdr: working, idle, done, blocked; hc: idle, working, done, blocked, error): `done` reads
+`idle`, `blocked` (waiting on a prompt) stays `blocked`, anything else reads `unknown`, so a session
+waiting on a prompt is never taken for idle. `foreground_cwd` is the directory of the program in the
+foreground, when the server gives it (else empty); `session` is the agent's own session id (the
+string inside herdr's `agent_session` object; hc's `session` label), or null.
 
 Python 3 standard library only.
 """
@@ -75,6 +84,8 @@ def _state(word):
         return "working"
     if word in ("idle", "done"):
         return "idle"
+    if word == "blocked":
+        return "blocked"
     return "unknown"
 
 
@@ -112,6 +123,7 @@ def _hc_session(t):
         "server": "hc",
         "id": t["address"],
         "cwd": t.get("cwd") or fg.get("cwd") or "",
+        "foreground_cwd": fg.get("cwd") or "",
         "label": labels.get("stream") or t.get("name") or t.get("where") or "",
         "agent": agent or "",
         "state": _state(word),
@@ -150,6 +162,7 @@ def _herdr_session(p, spaces):
         "server": "herdr",
         "id": p["pane_id"],
         "cwd": p.get("cwd") or "",
+        "foreground_cwd": p.get("foreground_cwd") or "",
         "label": spaces.get(p.get("workspace_id")) or p.get("terminal_title_stripped") or "",
         "agent": p.get("agent") or "",
         "state": _state(word),
@@ -241,21 +254,53 @@ def wait(session, timeout=None, forced=None):
     limit = None if timeout is None else timeout + 30
     if server == "hc":
         args = ["hc", "wait", session, "--json"] + ([] if timeout is None else ["--timeout", str(timeout)])
-        r = _check(_run(args, timeout=limit), "hc wait")
+        try:
+            r = _check(_run(args, timeout=limit), "hc wait")
+        except TermError as err:
+            raise TermError(str(err), 2)
         data = _json(r.stdout)
-        ended = bool(data.get("ended", True)) if isinstance(data, dict) else True
+        if not isinstance(data, dict) or not isinstance(data.get("ended"), bool):
+            raise TermError(f"term: hc wait gave no `ended`: {r.stdout.strip()[:200]}", 2)
+        ended = data["ended"]
     else:
         args = ["herdr", "agent", "wait", session] + ([] if timeout is None else ["--timeout", str(timeout * 1000)])
         r = _run(args, timeout=limit)
         if r is None:
             raise TermError("term: herdr agent wait: not installed", 2)
-        data, ended = _json(r.stdout), r.returncode == 0
+        data = _json(r.stdout)
+        if r.returncode == 0:
+            ended = True
+        elif _herdr_timed_out(data, r):
+            ended = False
+        else:
+            msg = (r.stderr or r.stdout).strip().splitlines()
+            raise TermError(f"term: herdr agent wait failed: {msg[-1] if msg else 'exit ' + str(r.returncode)}", 2)
     return {"server": server, "session": session, "ended": ended, "result": data}
+
+
+def _herdr_timed_out(data, r):
+    """herdr's own timeout: error code `timeout` (or its "timed out waiting" message); nothing else."""
+    err = data.get("error") if isinstance(data, dict) else None
+    if isinstance(err, dict):
+        return err.get("code") == "timeout"
+    return "timed out waiting for agent" in (r.stderr or "") + (r.stdout or "")
 
 
 def _slug(label):
     s = re.sub(r"[^a-z0-9_-]+", "-", label.lower()).strip("-")[:32]
     return s or None
+
+
+def _pane_id(obj):
+    """herdr's new pane: the root pane's id first, then any pane id anywhere in the answer."""
+    res = obj.get("result") if isinstance(obj, dict) and isinstance(obj.get("result"), dict) else obj
+    if isinstance(res, dict):
+        for k in ("root_pane", "pane"):
+            if isinstance(res.get(k), dict) and isinstance(res[k].get("pane_id"), str) and res[k]["pane_id"]:
+                return res[k]["pane_id"]
+        if isinstance(res.get("root_pane_id"), str) and res["root_pane_id"]:
+            return res["root_pane_id"]
+    return _find_key(obj, ("pane_id", "root_pane_id", "pane"))
 
 
 def _find_key(obj, keys):
@@ -280,7 +325,7 @@ def start(cwd, label, cmd, forced=None, workspace=None):
     cwd = os.path.abspath(os.path.expanduser(cwd))
     server, _ = choose(forced)
     if server == "hc":
-        tid = None
+        tid, app_ok = None, False
         if shutil.which("herdr-app"):
             # Shown in the window: a space named after the stream, its first tab running the command.
             args = ["herdr-app", "do", "space.new", "--name", label, "--folder", cwd, "--tab", label,
@@ -290,10 +335,15 @@ def start(cwd, label, cmd, forced=None, workspace=None):
                         "--argv", json.dumps(cmd)]
             r = _run(args, timeout=60)
             if r is not None and r.returncode == 0:
+                app_ok = True
                 tid = _find_key(_json(r.stdout), ("terminal",))
+        if app_ok and not tid:
+            # The window opened it, so the program is running there: never start a second one.
+            raise TermError(f"term: herdr-app opened a space but named no terminal: {r.stdout.strip()[:200]}", 2)
         if tid:
             _check(_run(["hc", "label", tid, f"stream={label}"]), "hc label")
         else:
+            # herdr-app is absent or exited non-zero: nothing was started.
             # No window to show it in: a terminal hc keeps alive, reachable by `hc attach`.
             args = ["hc", "run", "--bg", "--json", "--no-parent", "--outlive-parent", "--cwd", cwd,
                     "--label", f"stream={label}"]
@@ -303,14 +353,14 @@ def start(cwd, label, cmd, forced=None, workspace=None):
             tid = _find_key(_json(r.stdout), ("address",))
         return {"server": "hc", "session": tid, "cwd": cwd, "label": label}
 
-    # herdr 0.9.5: a workspace (nested under the given one as a worktree when --workspace is set), then
+    # herdr (0.9.5): a workspace (nested under the given one as a worktree when --workspace is set), then
     # the program in its root pane.
     if workspace:
         args = ["herdr", "worktree", "open", "--workspace", workspace, "--path", cwd, "--label", label, "--no-focus"]
     else:
         args = ["herdr", "workspace", "create", "--cwd", cwd, "--label", label, "--no-focus"]
     r = _check(_run(args, timeout=60), " ".join(args[:3]))
-    pane = _find_key(_json(r.stdout), ("pane_id", "root_pane_id", "pane"))
+    pane = _pane_id(_json(r.stdout))
     if not pane:
         raise TermError(f"term: {' '.join(args[:3])} named no pane: {r.stdout.strip()[:200]}")
     if os.path.basename(cmd[0]) == "claude":
