@@ -32,7 +32,7 @@ The engine is installed at user level (`~/.claude/skills/ticks/`); `/dmtix boots
 for it and tells you if it's missing. Claude Code resolves same-name skills *personal over
 project*, so a project's own `.claude/skills/ticks/` never runs while the user-level one is
 installed, and a project can't be held on another engine version. (It began as the skill in Peter Engelbrecht's `pengelbrecht/ticks`, by way of the
-fork `mkelk/ticks-melk`, now retired; see `skills/ticks/LICENSE`.)
+owner's fork, now retired; see `skills/ticks/LICENSE`.)
 
 Two sources, two jobs: the **`tk` binary** comes from upstream `pengelbrecht/ticks` (its
 install script; 0.31 and 0.32 both work), the **skill** from this repo. Don't install
