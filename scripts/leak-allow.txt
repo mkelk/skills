@@ -11,8 +11,6 @@ skills/ticks/LICENSE:sha256:ea020c21a1256304b5fb9a34e627c74e286b232d52c287a55276
 skills/dmtix/README.md:sha256:c0a1e0aafeed096511ea42b8557579a27501be1c0fb1676e2e719b78e883d9a6
 skills/ticks/references/agent-runner.md:sha256:25dbc267ef10af4ea8fc84e8582b554b2bab729fb5d5b426b81e1e8a5f9157c5
 skills/ticks/references/claude-runner.md:sha256:4f16126d8aa51b37883ba43d48129e8eaf2646aa0ed36d814f9a61a55dcbd55f
-# A test case for e-mail validation (an address shape, no real mailbox).
-skills/ticks/references/tick-patterns.md:sha256:6b99f5d2274191c6be21501e243cbbddb0b7b3308b7e70dfc3f41a26d5518cfc
 # Older wordings of lines that name the same public fork, kept in the history (commit messages
 # and earlier versions of the dmtix docs). Checked by scripts/leak-check --history.
 @message:sha256:978bf8f098b8e8321b98cc1d7413dace04c9a6b7fcb0668eb4f7b150ca72e1d8
