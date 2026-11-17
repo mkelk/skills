@@ -6,20 +6,21 @@ description: The seat's roadmaps — a plan above the increments that several st
 # roadmap — a plan above the increments, kept by the seat
 
 The words: a **roadmap** is made of **increments**, an increment of **epics**, an epic of
-**ticks**. A **stream** is where an increment runs: its branch, worktree, ports and session (the
+**ticks**. A **stream** is where an increment runs: its branch, worktree, resources and session (the
 `streams` skill). One stream can run several increments in a row, and one roadmap usually has
 several streams.
 
 A roadmap is governed the way streams are — *keep plans and overall governance out of the
 worktrees* — and this skill never changes the streams setup. It needs the `streams` skill's seat
 and its `coord/` directory (`<git common dir>/coord/`, shared by every worktree, never committed;
-`streams`' `scripts/coord.py init` creates it).
+`streams`' `scripts/coord.py init` creates it). **The trunk** below is the project's trunk branch,
+`python3 <streams skill dir>/scripts/coord.py config --get trunk`.
 
 | What | Home | Who writes |
 |---|---|---|
 | **Live state**: the pieces and their ticks, where each piece is, the human's tasks, the budget if it spends | `<git common dir>/coord/roadmaps/<name>.md`, edited in place, never committed | the seat only |
-| **The plan of record** | the roadmap's folder in git (e.g. `docs/plans/<name>/`: a `README.md` and whatever else the plan needs) | the seat only, on `master` |
-| **Decisions and changes to the plan**, dated, with the human's words | the folder's `status.md` in git | the seat only, on `master` |
+| **The plan of record** | the roadmap's folder in git (e.g. `docs/plans/<name>/`: a `README.md` and whatever else the plan needs) | the seat only, on the trunk |
+| **Decisions and changes to the plan**, dated, with the human's words | the folder's `status.md` in git | the seat only, on the trunk |
 | What waits on the human | a row in `coord/asks.md` (the `streams` skill's `queue` door), named in the live file's *The human's tasks* | the seat |
 
 A stream never edits any of these. It sends the seat its news, its decision or its change, and the
@@ -83,12 +84,12 @@ spent):
 ### `decide <name>`
 
 When the human decides something, or a stream's decision changes the plan:
-1. On `master`, append to `status.md` → *Decisions* (dated, the human's words quoted) and, when the
+1. On the trunk, append to `status.md` → *Decisions* (dated, the human's words quoted) and, when the
    plan changes, a row under *Changes to the plan* (date, change, why, where). Edit the plan of
    record where it says otherwise.
 2. An entry in the project's narrative history when it changes direction, if the project keeps
    one (with dmtix: `.devmeta/project-history.md`).
-3. Commit on `master` with named paths, push, and tell the streams it touches: *master has
+3. Commit on the trunk with named paths, push, and tell the streams it touches: *the trunk has
    moved, sync when it suits you*. Never merge into a stream's branch.
 
 ### `review <name>`
@@ -104,7 +105,7 @@ change, with a recommendation. Record what they decide with `decide`.
    `<!-- roadmap:status <name> -->` markers, *Where each piece is*, *The human's tasks*, and a
    budget section if it spends.
 2. Create its folder in git with the plan of record and a `status.md` holding only *Decisions* and
-   *Changes to the plan*; commit on `master`.
+   *Changes to the plan*; commit on the trunk.
 3. Tell each stream it names that the roadmap exists and that their news goes to the seat.
 
 ## Rules
