@@ -1,12 +1,13 @@
 ## Purpose
 
 Bring back what runs on a clock after the terminal server (hc or herdr), a Claude session, WSL or the machine
-stopped. The human, 2026-10-28: *"keep a list of cronned tasks etc, that is running in the stream complex and in which streams - so we can restart, if
-herdr/claude has been stopped"*.
+stopped. The human, 2026-10-28: *"keep a list of cronned tasks etc, that is running in the stream complex and in
+which streams - so we can restart"*.
 
 The list is `<git common dir>/coord/schedules.md`, beside `streams.md` and `log.md`: shared by every worktree, never
 committed, kept by the seat (the skill's `scripts/coord.py init` creates it with its three sections). The rule that
-every stream keeps its own rows true is one of the standing rules in `.devmeta/streams.md`. The `status` door reads
+every stream keeps its own rows true goes in the brief at `cut` (and in the project's `## Standing rules`, if it
+keeps one). The `status` door reads
 its session-bound rows.
 
 ## What the file holds
@@ -64,8 +65,8 @@ paid or subscription call nobody approved).
 Log it with the skill's `scripts/coord.py`:
 
 ```bash
-python3 ~/.claude/skills/streams/scripts/coord.py log "restart after <what stopped>: <rows> asked of <streams>" --as seat
-python3 ~/.claude/skills/streams/scripts/coord.py log "OWED <stream>: confirm your schedules are running" --as seat
+coord.py log "restart after <what stopped>: <rows> asked of <streams>" --as seat
+coord.py log "OWED <stream>: confirm your schedules are running" --as seat
 ```
 
 One `OWED` line for each owner not yet confirmed. Close each with `PAID <id>` when the owner's own coord line says
@@ -80,14 +81,11 @@ it is running.
 - `keep-running` reads `coord/schedules.md` on every pass: a row whose owner has closed, or whose **ends** condition
   has passed, is a row to strike.
 
-## Corrections from real runs
+## Field notes
 
-- 2026-10-28, the first inventory: one stream's four daily jobs ran as background shells in its session, from
-  scripts under `/tmp`. A herdr stop would have ended them silently and a WSL restart would have lost the scripts.
-  Two session crons (two other streams' last reads) had died at an earlier session exit and were brought back only
-  because each stream wrote a resume note.
-- 2026-10-28 ~03:51 UTC, the first real restart (WSL, not the kernel): the crontab and timers came back by themselves;
-  every detached or background shell was gone (one stream's four loops, two others' waits), and so was a script one
-  stream kept under `/tmp`. **Session crons survived where the session was resumed** (`claude --resume`): three
-  streams found theirs alive with the same ids, and re-creating one would have run it twice. So ask the owner to
-  *check* first (`CronList`) and re-create only what is missing; restart processes by `pgrep`, never by assumption.
+- (2026-10-28) the first inventory found a stream's four daily jobs as background shells from scripts under `/tmp`,
+  and two session crons already dead and saved only by resume notes — scripts live in the worktree, and every
+  stream keeps a resume note.
+- (2026-10-28) at the first real WSL restart the crontab and timers came back, every background shell and `/tmp`
+  script was gone, and session crons survived where the session was resumed — ask the owner to *check* first
+  (`CronList`) and re-create only what is missing; restart processes by `pgrep`, never by assumption.

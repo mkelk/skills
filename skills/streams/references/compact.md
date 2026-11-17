@@ -1,15 +1,9 @@
 ## Purpose
 
-Keep the long-running stream sessions small. The human, 2026-10-27: some streams and the seat run for
-weeks. A large context is fine in the middle of a piece of work, but they spend most of their time waiting, and
-every wait adds to what each call resends. Measured that day, from each session's own transcript:
-
-| session | context then | peak | running since |
-|---|---|---|---|
-| stream 1 | ~500k | ~835k | 2026-09-26 |
-| stream 2 | ~275k | ~966k | 2026-09-24 |
-| stream 3 | ~266k | ~903k | 2026-09-30 |
-| stream 4 | ~183k | ~967k | 2026-10-01 |
+Keep the long-running stream sessions small. Some streams and the seat run for weeks (the human,
+2026-10-27). A large context is fine in the middle of a piece of work, but they spend most of their time
+waiting, and every wait adds to what each call resends. (2026-10-27) four streams' transcripts showed 183k–500k
+contexts, with peaks of 835k–967k.
 
 Two costs follow. Every call rereads the whole context (cheap per token from the cache, but hundreds of calls a day).
 And every wait longer than the cache's life (5 minutes, or 1 hour) writes the whole context to the cache again at
@@ -108,12 +102,10 @@ If the worktree already has a `settings.local.json`, merge these keys into it. D
   log, their pages, commits and tk. A stream that keeps a promise only in its conversation will lose it. The hook
   tells it to ask the seat.
 
-## Corrections from real runs
+## Field notes
 
-- 2026-10-27, the first runs. A stream at 68k (a trial with `--min-tokens 50000`) came back as a 2.3k-token
-  summary, its four background tasks still running and the hook's text in place. The hook was added to a session
-  that was already running and still fired, so `settings.local.json` changes are picked up live. Then three more
-  at 183k, 275k and 500k. A 500k session takes minutes to compact, and herdr shows it `working` meanwhile.
-- The hook must find the stream's row by its worktree as the table writes it (`~/git/<wt>`). In bash, `~` in a
-  substitution's replacement expands back to `$HOME`, so the first version found no row. The tilde now goes
-  through a variable.
+- (2026-10-27) a 68k stream came back as a 2.3k summary with its background tasks still running, and a hook
+  added to a running session still fired — `settings.local.json` changes are picked up live; a 500k session takes
+  minutes to compact and shows `working` meanwhile.
+- (2026-10-27) the hook found no row because, in bash, `~` in a substitution's replacement expands back to `$HOME`
+  — the table writes worktrees home-relative (`~/<dir>`), so the tilde goes through a variable.

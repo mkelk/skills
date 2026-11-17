@@ -30,11 +30,10 @@ pass is exactly when a seat reads a cached answer and calls it a measurement.
 For each, act rather than report:
 
 - **A stream waiting on the seat.** The worst one and the easiest to miss: a stream that is
-  correctly holding says nothing, so it falls out of a seat's working set. On 2026-09-21 one
-  sat idle **29 minutes** waiting for a window close the seat never sent — because the seat
-  tracked *who had spoken lately* instead of *who was holding*. **The list is the open `OWED`
+  correctly holding says nothing, so it falls out of a seat's working set — track *who is
+  holding*, not *who spoke lately*. **The list is the open `OWED`
   lines in `coord/log.md`; read them here (`coord.py show --owed`), by name, every pass, instead
-  of remembering.** Write a line when you take on a debt: `python3 <skill dir>/scripts/coord.py
+  of remembering.** Write a line when you take on a debt: `coord.py
   log "OWED <stream>: <what>" --as seat` (it prints the id, e.g. `a7`), and close it when paid:
   `coord.py log "PAID a7" --as seat`. Silence from a stream is not absence of need.
 - **The queue** (`references/queue.md`). Read `coord/asks.md`: move a row the human answered in
@@ -56,7 +55,7 @@ For each, act rather than report:
 - **Stale table cells.** `status` reads epics from each stream's own Roadmap line, so a
   mismatch with `coord/streams.md` is visible here and nowhere else. Refresh session,
   epics and status cells when they have drifted. They drift within the hour, repeatedly.
-- **Finished and unlanded.** A stream at its checkpoint holds a worktree, a port block and a
+- **Finished and unlanded.** A stream at its checkpoint holds a worktree, its resources and a
   session, and usually something another stream wants. `land.md`: *land as soon as it can be
   landed.*
 - **Stalled streams.** Restart per `status.md` Step 4 — message the session, name the rule
@@ -66,13 +65,11 @@ For each, act rather than report:
   every one, every pass, and act the same pass:
   - **A self-matching wait**: a `while pgrep -f "<pattern>"` loop that matches its own command
     line and never ends. Find them in the process list (a shell whose command line holds
-    `pgrep -f` and the pattern it waits on). One stream sat 4 h in one, and another stream sat
-    behind it. Message the owner at once with the pid and the fix (`pgrep -f "[x]yz"`, or wait
+    `pgrep -f` and the pattern it waits on). Message the owner at once with the pid and the fix (`pgrep -f "[x]yz"`, or wait
     on a pid). The seat cannot stop another session's process (auto mode refuses it), so if the
     owner does not answer, ask the human for `! kill <pid>`.
   - **What the wait was for.** Read the end of the job's log. A job that failed hours ago behind
-    a wait nobody saw end is the usual find (on 2026-11-01 a stream's queued job had failed
-    before doing any work, and nobody knew). Tell the owner what failed.
+    a wait nobody saw end is the usual find. Tell the owner what failed.
   - **Idle with a ready tick and nothing in flight**, quiet for more than about 15 minutes:
     ask, in one line, what the stream is waiting on. If it waits on the seat, answer it now. If
     it waits on another stream, chase that stream, and check that one for the same faults.
@@ -84,8 +81,7 @@ For each, act rather than report:
   - **A row with no session for days** (a parked stream): ask the human once whether to close
     it, then don't ask again.
 - **Orphans.** Any process whose `cwd` is `(deleted)` belongs to a worktree that no longer
-  exists and **nothing on the machine knows it is there**. One set survived eight days, an
-  increment, five streams landing and a repository rename. Report them; kill only on the
+  exists and **nothing on the machine knows it is there**. Report them; kill only on the
   human's word, by PID, root first.
 - **Relays owed.** Did a stream find something another must act on and the seat has not passed
   it? That is the seat's whole job and it is the thing that silently does not happen.
@@ -113,29 +109,27 @@ STREAMS · <date> <time> · nothing needs you   (or: NEEDS YOU — <n> items)
 NEEDS YOU
   <tick>  <stream>  DO … · WHERE … · CLOSES WHEN …          (or "  —")
 
-STREAM  SESSION  STATE  EPICS  ~%  AT  IN FLIGHT  LAST  WHAT NOW  PORTS
+STREAM  SESSION  STATE  EPICS  ~%  AT  IN FLIGHT  LAST  WHAT NOW  RESOURCES
 <every stream, every column, the same shape every pass>
 
-PLAYWRIGHT  free | held by <worktree>
+HEAVY RUNS  free | held by <worktree or container> | — (the project names none)
 
 Pushed forward: <one line, only if something was actually done>
 ```
 
 **Every column, every pass.** IN FLIGHT and LAST are how a human sees a stream drifting before
-it stalls; PORTS is how they know which is which; PLAYWRIGHT is the one line that says whether
-the machine is spoken for. Dropping a column because it looked uninteresting this pass is how
+it stalls; RESOURCES is how they know which is which; HEAVY RUNS is the one line that says
+whether the machine is spoken for. Dropping a column because it looked uninteresting this pass is how
 the pass where it mattered reads the same as the pass where it did not.
 
 **A NEEDS YOU item is only an item if the human can act on it now — and reachability is the
 test, not the flag.** A close-out or checkpoint tick is assigned to the human and flagged
-awaiting **from the moment the epic is planned**, so it prints as NEEDS YOU for the whole
-epic — hours, sometimes a day — before its preconditions exist. Measured 2026-09-21: a tick
-reading *"Close out E2, and the increment checkpoint … STOP for the human"* surfaced while its
-epic sat at 0 of 8 with four implementers running. The flag was honest; the door's reading
-was not. **Apply the same parent-chain test as readiness:** a tick whose siblings are
+awaiting **from the moment the epic is planned**, so it prints as NEEDS YOU for the whole epic
+before its preconditions exist. **Apply the same parent-chain test as readiness:** a tick whose siblings are
 unfinished, or whose epic is unplanned or blocked, is not actionable however it is flagged.
 Print it only when the human could actually act, and until then it belongs in the stream's
-WHAT NOW, not in his list.
+WHAT NOW, not in their list. (2026-09-21) a close-out tick surfaced while its epic sat at 0 of 8
+with four implementers running.
 
 **A NEEDS YOU item is only an item if the human can act on it now.** A registered decision
 whose default is already running and doing no harm is not urgent — say it once, then let the
@@ -160,9 +154,12 @@ landed: say so and end the loop rather than waking every hour to print an empty 
 - **Nag.** A stream that is working does not need a wellness check, and a human who has already
   seen an item does not need it again on the next pass.
 
-## Corrections from real runs
+## Field notes
 
-- 2026-09-21, the run that produced this door: the seat asked four streams to hold, opened a
-  window, then narrowed it — and told only the three that had spoken since. The fourth held
-  silently for 29 minutes. **The list of who is owed an answer has to be written down, because
-  the streams that behave best are the ones that vanish from a seat's attention.**
+- (2026-09-21) the seat narrowed a window and told only the three streams that had spoken since;
+  the fourth held silently 29 minutes — the list of who is owed an answer is written down,
+  because the streams that behave best vanish from a seat's attention.
+- (2026-11-01) a stream sat 4 h in a self-matching wait with another behind it, and a queued job
+  had failed unseen behind a wait — run the whole stuck hunt every pass.
+- (2026-11-01) orphaned processes on a deleted worktree survived eight days and a repository
+  rename — look for `(deleted)` cwds every pass.

@@ -90,8 +90,18 @@ messages and author names of the commits (and any annotated tag) being pushed, a
 push on a hit. A hit prints as `file:line: <kind>` and never shows the matched value; a file or
 ref name that is itself the hit prints as a hash. A line that is reviewed and fine goes in
 `scripts/leak-allow.txt` as one exact entry (`scripts/leak-check --entry <file>:<line>` prints
-it; a file-name hit prints its own entry); the file takes exact lines only, never patterns. Tests:
-`python3 -m unittest discover -s scripts -p 'test_*.py'`.
+it; a file-name hit prints its own entry); the file takes exact lines only, never patterns.
+
+Beside it, `scripts/size-check` holds the skills an agent loads whole to a size budget: each
+`SKILL.md` and `references/*.md` (recipes too) of `streams` and `roadmap` under 16 KB,
+`streams/references/status.md` under 24 KB. A file over budget prints with its size and the check
+fails; `--top 3` also prints the largest. Run both before you push:
+
+```bash
+python3 -I scripts/leak-check && python3 scripts/size-check
+```
+
+Tests: `python3 -m unittest discover -s scripts -p 'test_*.py'`.
 
 ## License
 
