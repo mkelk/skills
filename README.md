@@ -79,14 +79,18 @@ never passes by default.
 
 ```bash
 git config core.hooksPath hooks     # once per clone: pushes run hooks/pre-push
-scripts/leak-check                  # the tracked files as they are now
-scripts/leak-check --history        # every commit on every ref: lines, messages, authors
+scripts/leak-check                  # the tracked files as they are now: names, lines,
+                                    #   strings inside binary files, symlink targets
+scripts/leak-check --history        # every commit on every ref: the same, plus messages,
+                                    #   authors, ref names and annotated tags
 ```
 
-The hook checks the lines, messages and author names of the commits being pushed, and refuses
-the push on a hit. A hit prints as `file:line: <kind>` and never shows the matched value. A line
-that is reviewed and fine goes in `scripts/leak-allow.txt` as one exact entry (`scripts/leak-check
---entry <file>:<line>` prints it); the file takes exact lines only, never patterns. Tests:
+The hook checks the name of each ref being pushed and the file names, lines, binary files,
+messages and author names of the commits (and any annotated tag) being pushed, and refuses the
+push on a hit. A hit prints as `file:line: <kind>` and never shows the matched value; a file or
+ref name that is itself the hit prints as a hash. A line that is reviewed and fine goes in
+`scripts/leak-allow.txt` as one exact entry (`scripts/leak-check --entry <file>:<line>` prints
+it; a file-name hit prints its own entry); the file takes exact lines only, never patterns. Tests:
 `python3 -m unittest discover -s scripts -p 'test_*.py'`.
 
 ## License

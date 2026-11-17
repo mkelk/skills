@@ -12,14 +12,22 @@ Looks for two kinds of leak:
   purpose. A missing, unreadable or empty deny-list is an error, never a pass.
 
 Modes:
-  leak-check                 the working tree's tracked files (default)
-  leak-check --range ARGS..  added lines, messages and identities of the
-                             commits `git rev-list ARGS` names
-  leak-check --history       the same for every commit reachable from any ref
+  leak-check                 the working tree's tracked files (default): their
+                             names, their lines, the strings inside binary
+                             files and the targets of symlinks
+  leak-check --range ARGS..  added lines, file names, binary blobs, messages
+                             and identities of the commits `git rev-list ARGS`
+                             names, plus any annotated tag among ARGS
+  leak-check --history       the same for every commit reachable from any ref,
+                             plus every ref name and every annotated tag's
+                             message and tagger
+  leak-check --name TEXT..   the given names (the hook passes the ref it pushes)
 
 Known, reviewed lines are listed in scripts/leak-allow.txt as exact
-`path:line` or `path:sha256:<hex of the line>` entries. A hit prints as
-`file:line: <class>`; a matched value is never printed.
+`path:line` or `path:sha256:<hex of the line>` entries; a file name is allowed
+as `@path:...`, a ref name as `@ref:...`, a tag message line as `@tag:...`.
+A hit prints as `file:line: <class>`; a matched value is never printed, and a
+file name that itself matches prints as `<name sha256:...>` instead.
 
 Exit status: 0 no hit, 1 hits, 2 error (no deny-list, not a git repo, ...).
 """
@@ -33,6 +41,9 @@ import sys
 ALLOW_FILE = os.path.join("scripts", "leak-allow.txt")
 MESSAGE_PATH = "@message"   # pseudo-path for a commit message in allow entries
 IDENTITY_PATH = "@identity"
+PATH_PATH = "@path"         # a tracked file's name
+REF_PATH = "@ref"           # a ref name
+TAG_PATH = "@tag"           # an annotated tag's message
 
 GENERIC = [
     ("anthropic-key", re.compile(r"sk-ant-[A-Za-z0-9_-]{16,}")),
@@ -144,45 +155,149 @@ class Scanner:
     def allowed(self, path, text):
         return (path, text) in self.plain or (path, digest(text)) in self.hashed
 
+    def show(self, path):
+        """A file name as it may be printed: masked when the name itself would leak."""
+        if path is None or not (deny_hits(path, self.deny) or generic_hits(path)):
+            return path
+        return f"<name sha256:{digest(path)[:12]}>"
+
     def line(self, where, path, text, generic=True):
         classes = deny_hits(text, self.deny) + (generic_hits(text) if generic else [])
         if classes and not self.allowed(path, text):
             self.hits.append(f"{where}: {', '.join(dict.fromkeys(classes))}")
+
+    def ref(self, where, ref):
+        classes = deny_hits(ref, self.deny) + generic_hits(ref)
+        if classes and not self.allowed(REF_PATH, ref):
+            self.hits.append(f"{where} <ref sha256:{digest(ref)[:12]}>: ref name: "
+                             f"{', '.join(dict.fromkeys(classes))} (allow entry {REF_PATH}:sha256:{digest(ref)})")
+
+    def name(self, prefix, path):
+        """Check a file name; a hit names the entry that would allow it, never the name."""
+        classes = deny_hits(path, self.deny) + generic_hits(path)
+        if classes and not self.allowed(PATH_PATH, path):
+            self.hits.append(f"{prefix}{self.show(path)}: file name: {', '.join(dict.fromkeys(classes))}"
+                             f" (allow entry {PATH_PATH}:sha256:{digest(path)})")
+
+    def binary(self, where, path, data):
+        """Check the strings inside a binary blob, decoded loosely."""
+        classes = []
+        for piece in loose_strings(data):
+            found = deny_hits(piece, self.deny) + generic_hits(piece)
+            if found and not self.allowed(path, piece):
+                classes += found
+        if classes:
+            self.hits.append(f"{where}: binary content: {', '.join(dict.fromkeys(classes))}")
 
 
 def decode(b):
     return b.decode("utf-8", errors="replace")
 
 
+def is_binary(data):
+    return b"\0" in data[:8192]
+
+
+CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f\ufffd]+|\n")
+
+
+def loose_strings(data):
+    """The text a binary blob could carry, read every way that is cheap: as UTF-8, as
+    Latin-1 and as UTF-16 at both byte offsets, split at control bytes."""
+    seen = set()
+    for text in (decode(data), data.decode("latin-1"),
+                 data.decode("utf-16-le", errors="replace"),
+                 data[1:].decode("utf-16-le", errors="replace")):
+        for piece in CONTROL.split(text):
+            if len(piece) >= 2 and piece not in seen:
+                seen.add(piece)
+                yield piece
+
+
+def scan_blob(sc, where, path, data):
+    if is_binary(data):
+        sc.binary(where, path, data)
+        return
+    for n, text in enumerate(decode(data).splitlines(), 1):
+        sc.line(f"{where}:{n}", path, text)
+
+
 def scan_tree(sc):
     files = git("ls-files", "-z", cwd=sc.root).split(b"\0")
     for name in filter(None, files):
         path = decode(name)
+        sc.name("", path)
         full = os.path.join(sc.root, path)
-        if os.path.islink(full) or not os.path.isfile(full):
+        if os.path.islink(full):
+            sc.line(f"{sc.show(path)}: symlink target", path, os.readlink(full))
+            continue
+        if not os.path.isfile(full):
             continue
         with open(full, "rb") as f:
-            data = f.read()
-        if b"\0" in data[:8192]:
-            continue
-        for n, text in enumerate(decode(data).splitlines(), 1):
-            sc.line(f"{path}:{n}", path, text)
+            scan_blob(sc, sc.show(path), path, f.read())
 
 
 HUNK = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
 
+def scan_identity(sc, short, label, value):
+    classes = deny_hits(value, sc.deny)
+    if classes and not sc.allowed(IDENTITY_PATH, value):
+        sc.hits.append(f"{short} {label}: {', '.join(classes)}")
+
+
+def scan_tag(sc, obj):
+    """An annotated tag object: its tagger and its message."""
+    raw = decode(git("cat-file", "tag", obj, cwd=sc.root))
+    head, _, body = raw.partition("\n\n")
+    short = f"tag {obj[:10]}"
+    for h in head.splitlines():
+        if h.startswith("tagger "):
+            who = h[len("tagger "):]
+            name, _, rest = who.partition(" <")
+            scan_identity(sc, short, "tagger name", name)
+            scan_identity(sc, short, "tagger e-mail", rest.partition(">")[0])
+        elif h.startswith("tag "):
+            sc.ref(short, h[4:])
+    for n, text in enumerate(body.splitlines(), 1):
+        sc.line(f"{short} message:{n}", TAG_PATH, text)
+
+
+def changed_blobs(sc, c, parents):
+    """(mode, sha, path) of every entry commit c adds or changes against its first parent."""
+    args = ["diff-tree", "-r", "-z", "--no-renames"]
+    args += [parents[0], c] if parents else ["--root", c]
+    out = git(*args, cwd=sc.root).split(b"\0")
+    if not parents and out and not out[0].startswith(b":"):
+        out = out[1:]          # --root prints the commit id first
+    for i in range(0, len(out) - 1, 2):
+        meta = decode(out[i]).lstrip(":").split()
+        if len(meta) < 5 or meta[4] == "D":
+            continue
+        yield meta[1], meta[3], decode(out[i + 1])
+
+
 def scan_commits(sc, rev_args):
-    commits = decode(git("rev-list", *rev_args, cwd=sc.root)).split()
-    for c in commits:
+    for arg in rev_args:
+        if not arg.startswith("-") and ".." not in arg:
+            p = subprocess.run(["git", "cat-file", "-t", arg], cwd=sc.root, capture_output=True)
+            if p.returncode == 0 and p.stdout.strip() == b"tag":
+                scan_tag(sc, decode(git("rev-parse", arg, cwd=sc.root)).strip())
+    commits = decode(git("rev-list", "--parents", *rev_args, cwd=sc.root)).splitlines()
+    for row in commits:
+        c, *parents = row.split()
         short = c[:10]
+        for mode, sha, path in changed_blobs(sc, c, parents):
+            sc.name(f"{short} ", path)
+            if mode == "100644" or mode == "100755":
+                data = git("cat-file", "blob", sha, cwd=sc.root)
+                if is_binary(data):
+                    sc.binary(f"{short} {sc.show(path)}", path, data)
         meta = decode(git("show", "-s", "--format=%an%x00%ae%x00%cn%x00%ce%x00%B", c, cwd=sc.root))
         an, ae, cn, ce, body = meta.split("\0", 4)
         for label, value in (("author name", an), ("author e-mail", ae),
                              ("committer name", cn), ("committer e-mail", ce)):
-            classes = deny_hits(value, sc.deny)
-            if classes and not sc.allowed(IDENTITY_PATH, value):
-                sc.hits.append(f"{short} {label}: {', '.join(classes)}")
+            scan_identity(sc, short, label, value)
         for n, text in enumerate(body.splitlines(), 1):
             sc.line(f"{short} message:{n}", MESSAGE_PATH, text)
         diff = git("show", "--format=", "-U0", "--no-color", "--no-renames", "--no-ext-diff",
@@ -199,8 +314,18 @@ def scan_commits(sc, rev_args):
                 m = HUNK.match(decode(raw))
                 lineno = int(m.group(1)) if m else 0
             elif not header and raw.startswith(b"+") and path is not None:
-                sc.line(f"{short} {path}:{lineno}", path, decode(raw[1:]))
+                sc.line(f"{short} {sc.show(path)}:{lineno}", path, decode(raw[1:]))
                 lineno += 1
+
+
+def scan_refs(sc):
+    """Every ref's name, and every annotated tag's tagger and message."""
+    out = decode(git("for-each-ref", "--format=%(refname)%00%(objecttype)%00%(objectname)", cwd=sc.root))
+    for row in out.splitlines():
+        ref, kind, obj = row.split("\0")
+        sc.ref("ref", ref)
+        if kind == "tag":
+            scan_tag(sc, obj)
 
 
 def entry(root, spec):
@@ -227,9 +352,14 @@ def main(argv):
         elif args[0] == "--range" and len(args) > 1:
             scan_commits(sc, args[1:])
         elif args == ["--history"]:
+            scan_refs(sc)
             scan_commits(sc, ["--all"])
+        elif args[0] == "--name" and len(args) > 1:
+            for text in args[1:]:
+                sc.ref("name", text)
         else:
-            raise LeakError("usage: leak-check [--tree | --range <rev-list args> | --history | --entry PATH:LINE]")
+            raise LeakError("usage: leak-check [--tree | --range <rev-list args> | --history | --name TEXT.. "
+                            "| --entry PATH:LINE]")
     except LeakError as e:
         print(f"leak-check: ERROR: {e}", file=sys.stderr)
         return 2

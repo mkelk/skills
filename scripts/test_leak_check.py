@@ -123,6 +123,34 @@ class LeakCheckCase(unittest.TestCase):
         self.commit("notes.md", f"{DENIED} is public here, and more\n")
         self.assertEqual(self.check().returncode, 1)
 
+    def test_tree_reads_names_binaries_and_symlinks_without_echoing(self):
+        self.commit(f"docs-{DENIED}.md", "hi\n")
+        with open(os.path.join(self.repo, "blob.bin"), "wb") as f:
+            f.write(b"\x89PNG\0\0" + DENIED.encode() + b"\0\x01\x02")
+        with open(os.path.join(self.repo, "wide.bin"), "wb") as f:
+            f.write(b"\0\0" + "quuxvandal".encode("utf-16-le"))
+        os.symlink(f"/x/{DENIED}", os.path.join(self.repo, "lnk"))
+        self.git(self.repo, "add", "-A")
+        self.git(self.repo, "commit", "-q", "-m", "shapes")
+        p = self.check()
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn("file name: deny-list line 2", p.stdout)
+        self.assertIn("blob.bin: binary content: deny-list line 2", p.stdout)
+        self.assertIn("wide.bin: binary content: deny-list line 3", p.stdout)
+        self.assertIn("lnk: symlink target: deny-list line 2", p.stdout)
+        self.assertNotIn(DENIED, p.stdout + p.stderr)
+
+    def test_file_name_allow_entry_is_exact(self):
+        self.commit(f"{DENIED}.md", "hi\n")
+        p = self.check()
+        entry = p.stdout.split("(allow entry ")[1].split(")")[0]
+        self.write(self.repo, "scripts/leak-allow.txt", entry + "\n")
+        self.git(self.repo, "add", "-A")
+        self.git(self.repo, "commit", "-q", "-m", "allow")
+        self.assertEqual(self.check().returncode, 0)
+        self.commit(f"{DENIED}-2.md", "hi\n")
+        self.assertEqual(self.check().returncode, 1)
+
     # range mode
 
     def test_range_reads_added_lines_only(self):
@@ -158,10 +186,118 @@ class LeakCheckCase(unittest.TestCase):
         self.assertEqual(p.returncode, 1)
         self.assertIn("side.md:1", p.stdout)
 
+    def test_history_reads_names_binaries_symlinks_tags_and_refs(self):
+        self.commit(f"docs-{DENIED}.md", "hi\n")
+        with open(os.path.join(self.repo, "blob.bin"), "wb") as f:
+            f.write(b"\0" + DENIED.encode() + b"\0")
+        os.symlink(f"/x/{DENIED}", os.path.join(self.repo, "lnk"))
+        self.git(self.repo, "add", "-A")
+        self.git(self.repo, "commit", "-q", "-m", "shapes")
+        self.git(self.repo, "tag", "-a", "v1", "-m", f"tag about {DENIED}")
+        env = dict(self.env, GIT_COMMITTER_NAME=f"Q {DENIED}")
+        self.git(self.repo, "tag", "-a", "v2", "-m", "clean tag", env=env)
+        self.git(self.repo, "branch", f"side-{DENIED}")
+        p = self.check("--history")
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn("file name: deny-list line 2", p.stdout)
+        self.assertIn("blob.bin: binary content: deny-list line 2", p.stdout)
+        self.assertIn("lnk:1: deny-list line 2", p.stdout)
+        self.assertIn("message:1: deny-list line 2", p.stdout)       # the tag's message
+        self.assertIn("tagger name: deny-list line 2", p.stdout)
+        self.assertIn("ref name: deny-list line 2", p.stdout)
+        self.assertNotIn(DENIED, p.stdout + p.stderr)
+
+    def test_range_reads_an_annotated_tag_it_is_given(self):
+        self.git(self.repo, "tag", "-a", "v1", "-m", f"about {DENIED}")
+        p = self.check("--range", "v1")
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("message:1: deny-list line 2", p.stdout)
+
+    def test_name_mode(self):
+        self.assertEqual(self.check("--name", "refs/heads/fine").returncode, 0)
+        p = self.check("--name", f"refs/heads/{DENIED}")
+        self.assertEqual(p.returncode, 1)
+        self.assertNotIn(DENIED, p.stdout + p.stderr)
+
     # the hook
 
-    def push(self, branch):
-        return run(["git", "push", "-q", "origin", branch], self.repo, self.env, check=False)
+    def push(self, *refs):
+        return run(["git", "push", "-q", "origin", *refs], self.repo, self.env, check=False)
+
+    def remote(self):
+        remote = os.path.join(self.tmp, "remote.git")
+        run(["git", "init", "-q", "--bare", remote], self.tmp, self.env)
+        self.git(self.repo, "remote", "add", "origin", remote)
+        self.git(self.repo, "config", "core.hooksPath", "hooks")
+        self.assertEqual(self.push("master").returncode, 0)
+        return remote
+
+    def remote_sha(self, remote, ref):
+        return run(["git", "rev-parse", "-q", "--verify", ref], remote, self.env, check=False).stdout.strip()
+
+    def test_hook_new_branch_with_and_without_a_leak(self):
+        remote = self.remote()
+        self.git(self.repo, "checkout", "-q", "-b", "clean")
+        self.commit("a.md", "clean\n")
+        self.assertEqual(self.push("clean").returncode, 0)
+        self.git(self.repo, "checkout", "-q", "-b", "dirty")
+        self.commit("b.md", f"{DENIED}\n")
+        p = self.push("dirty")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("refused refs/heads/dirty", p.stderr)
+        self.assertNotIn(DENIED, p.stdout + p.stderr)
+        self.assertEqual(self.remote_sha(remote, "refs/heads/dirty"), "")
+
+    def test_hook_force_push(self):
+        remote = self.remote()
+        self.commit("a.md", "clean\n")
+        self.assertEqual(self.push("master").returncode, 0)
+        self.git(self.repo, "commit", "-q", "--amend", "-m", f"now about {DENIED}")
+        self.assertNotEqual(self.push("-f", "master").returncode, 0)
+        self.git(self.repo, "commit", "-q", "--amend", "-m", "clean again")
+        self.assertEqual(self.push("-f", "master").returncode, 0)
+        self.assertEqual(self.remote_sha(remote, "refs/heads/master"), self.git(self.repo, "rev-parse", "HEAD"))
+
+    def test_hook_several_refs_one_leaking(self):
+        remote = self.remote()
+        self.git(self.repo, "branch", "two")
+        self.commit("a.md", "clean\n")
+        self.git(self.repo, "checkout", "-q", "two")
+        self.commit("b.md", f"{DENIED}\n")
+        self.git(self.repo, "checkout", "-q", "master")
+        p = self.push("master", "two")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("refused refs/heads/two", p.stderr)
+        self.assertNotIn("refused refs/heads/master", p.stderr)
+        self.assertEqual(self.remote_sha(remote, "refs/heads/two"), "")
+
+    def test_hook_lets_a_branch_delete_through(self):
+        remote = self.remote()
+        self.git(self.repo, "checkout", "-q", "-b", "feat")
+        self.commit("a.md", "clean\n")
+        self.assertEqual(self.push("feat").returncode, 0)
+        self.assertEqual(self.push(":feat").returncode, 0)
+        self.assertEqual(self.remote_sha(remote, "refs/heads/feat"), "")
+
+    def test_hook_push_by_sha(self):
+        remote = self.remote()
+        clean = self.commit("a.md", "clean\n")
+        self.assertEqual(self.push(f"{clean}:refs/heads/by-sha").returncode, 0)
+        dirty = self.commit("b.md", f"{DENIED}\n")
+        self.assertNotEqual(self.push(f"{dirty}:refs/heads/by-sha-2").returncode, 0)
+        self.assertEqual(self.remote_sha(remote, "refs/heads/by-sha-2"), "")
+
+    def test_hook_refuses_a_leaking_ref_name_or_tag(self):
+        remote = self.remote()
+        self.git(self.repo, "branch", f"x-{DENIED}")
+        p = self.push(f"x-{DENIED}")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertNotIn(DENIED, p.stdout + p.stderr)
+        self.git(self.repo, "tag", "-a", "v1", "-m", f"about {DENIED}")
+        self.assertNotEqual(self.push("v1").returncode, 0)
+        self.git(self.repo, "tag", "-a", "v2", "-m", "clean")
+        self.assertEqual(self.push("v2").returncode, 0)
+        self.assertEqual(self.remote_sha(remote, "refs/tags/v1"), "")
 
     def test_hook_refuses_a_leak_and_allows_a_clean_push(self):
         remote = os.path.join(self.tmp, "remote.git")
