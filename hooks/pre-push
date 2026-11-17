@@ -1,0 +1,24 @@
+#!/bin/sh
+# Refuse a push whose new commits carry a leak. Install once per clone:
+#   git config core.hooksPath hooks
+# git passes "<local ref> <local sha> <remote ref> <remote sha>" lines on stdin.
+remote="$1"
+top=$(git rev-parse --show-toplevel) || exit 1
+check="$top/scripts/leak-check"
+status=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+    case "$local_sha" in *[!0]*) ;; *) continue ;; esac   # a delete pushes nothing
+    case "$remote_sha" in
+        *[!0]*) if git cat-file -e "$remote_sha^{commit}" 2>/dev/null; then
+                    set -- "$remote_sha..$local_sha"
+                else
+                    set -- "$local_sha" --not --remotes="$remote"
+                fi ;;
+        *)      set -- "$local_sha" --not --remotes="$remote" ;;   # a new branch
+    esac
+    if ! python3 "$check" --range "$@" </dev/null; then
+        echo "pre-push: refused $local_ref -> $remote_ref: scripts/leak-check found a leak (or could not run)." >&2
+        status=1
+    fi
+done
+exit $status

@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+"""Fail-closed leak check for this repository.
+
+Looks for two kinds of leak:
+
+* generic shapes that never belong in a public repo: API keys and tokens,
+  private-key headers, e-mail addresses (documented example ones aside),
+  IPv4 addresses (loopback and 0.0.0.0 aside) and absolute home paths;
+* the owner's deny-list: one extended regex per line, matched
+  case-insensitively, read from $SKILLS_LEAK_DENY or else
+  ~/.config/skills-leak/deny.txt. The deny-list lives outside the repo on
+  purpose. A missing, unreadable or empty deny-list is an error, never a pass.
+
+Modes:
+  leak-check                 the working tree's tracked files (default)
+  leak-check --range ARGS..  added lines, messages and identities of the
+                             commits `git rev-list ARGS` names
+  leak-check --history       the same for every commit reachable from any ref
+
+Known, reviewed lines are listed in scripts/leak-allow.txt as exact
+`path:line` or `path:sha256:<hex of the line>` entries. A hit prints as
+`file:line: <class>`; a matched value is never printed.
+
+Exit status: 0 no hit, 1 hits, 2 error (no deny-list, not a git repo, ...).
+"""
+
+import hashlib
+import os
+import re
+import subprocess
+import sys
+
+ALLOW_FILE = os.path.join("scripts", "leak-allow.txt")
+MESSAGE_PATH = "@message"   # pseudo-path for a commit message in allow entries
+IDENTITY_PATH = "@identity"
+
+GENERIC = [
+    ("anthropic-key", re.compile(r"sk-ant-[A-Za-z0-9_-]{16,}")),
+    ("github-token", re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{20,})")),
+    ("aws-key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
+    ("aws-secret", re.compile(r"(?i)aws_secret_access_key\s*[=:]\s*['\"]?[A-Za-z0-9/+]{30,}")),
+    ("slack-token", re.compile(r"\bxox[abposr]-[A-Za-z0-9-]{10,}|hooks\.slack\.com/services/[A-Za-z0-9/]+")),
+    ("posthog-key", re.compile(r"\bph[cx]_[A-Za-z0-9]{30,}")),
+    ("jwt", re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}")),
+    ("private-key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+    ("home-path", re.compile(r"(?:/home|/Users)/[A-Za-z0-9._-]+/")),
+]
+EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})")
+EXAMPLE_DOMAINS = {"example.com", "example.org", "example.net", "test.com", "domain.com"}
+IPV4 = re.compile(r"(?<![\d.])(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?![\d.])")
+IP_OK = {"127.0.0.1", "0.0.0.0"}
+
+
+class LeakError(Exception):
+    pass
+
+
+def git(*args, cwd=None):
+    p = subprocess.run(["git", *args], cwd=cwd, capture_output=True)
+    if p.returncode != 0:
+        raise LeakError(f"git {' '.join(args)} failed: {p.stderr.decode(errors='replace').strip()}")
+    return p.stdout
+
+
+def load_deny():
+    path = os.environ.get("SKILLS_LEAK_DENY") or os.path.expanduser("~/.config/skills-leak/deny.txt")
+    try:
+        with open(path, encoding="utf-8") as f:
+            raw = f.read().splitlines()
+    except OSError as e:
+        raise LeakError(f"deny-list {path} cannot be read ({e.strerror}). The check fails closed: "
+                        "put the deny-list there, or point SKILLS_LEAK_DENY at it.")
+    pats = []
+    for n, line in enumerate(raw, 1):
+        s = line.strip()
+        if not s or s.startswith("#"):
+            continue
+        try:
+            pats.append((f"deny-list line {n}", re.compile(s, re.IGNORECASE)))
+        except re.error as e:
+            raise LeakError(f"deny-list {path} line {n} is not a valid regex: {e}")
+    if not pats:
+        raise LeakError(f"deny-list {path} holds no pattern. The check fails closed.")
+    return pats
+
+
+def email_ok(addr_domain, local):
+    d = addr_domain.lower()
+    if d in EXAMPLE_DOMAINS or d.endswith(".example") or d.endswith(".test") or d.endswith(".invalid"):
+        return True
+    lo = local.lower()
+    return lo in ("noreply", "no-reply") or d.endswith("noreply.github.com")
+
+
+def generic_hits(text):
+    hits = [name for name, rx in GENERIC if rx.search(text)]
+    for m in EMAIL.finditer(text):
+        local = text[:m.start(1) - 1]
+        local = re.split(r"[^A-Za-z0-9._%+-]", local)[-1]
+        if not email_ok(m.group(1), local):
+            hits.append("email")
+            break
+    for m in IPV4.finditer(text):
+        if all(int(g) <= 255 for g in m.groups()) and m.group(0) not in IP_OK:
+            hits.append("ipv4")
+            break
+    return hits
+
+
+def deny_hits(text, deny):
+    return [name for name, rx in deny if rx.search(text)]
+
+
+def load_allow(root):
+    path = os.path.join(root, ALLOW_FILE)
+    plain, hashed = set(), set()
+    if not os.path.exists(path):
+        return plain, hashed
+    with open(path, encoding="utf-8") as f:
+        for line in f.read().splitlines():
+            if not line or line.startswith("#"):
+                continue
+            p, sep, rest = line.partition(":")
+            if not sep:
+                raise LeakError(f"{ALLOW_FILE}: entry without a path: {line[:40]!r}")
+            if rest.startswith("sha256:") and re.fullmatch(r"sha256:[0-9a-f]{64}", rest):
+                hashed.add((p, rest[7:]))
+            else:
+                plain.add((p, rest))
+    return plain, hashed
+
+
+def digest(text):
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+class Scanner:
+    def __init__(self, root, deny):
+        self.root = root
+        self.deny = deny
+        self.plain, self.hashed = load_allow(root)
+        self.hits = []
+
+    def allowed(self, path, text):
+        return (path, text) in self.plain or (path, digest(text)) in self.hashed
+
+    def line(self, where, path, text, generic=True):
+        classes = deny_hits(text, self.deny) + (generic_hits(text) if generic else [])
+        if classes and not self.allowed(path, text):
+            self.hits.append(f"{where}: {', '.join(dict.fromkeys(classes))}")
+
+
+def decode(b):
+    return b.decode("utf-8", errors="replace")
+
+
+def scan_tree(sc):
+    files = git("ls-files", "-z", cwd=sc.root).split(b"\0")
+    for name in filter(None, files):
+        path = decode(name)
+        full = os.path.join(sc.root, path)
+        if os.path.islink(full) or not os.path.isfile(full):
+            continue
+        with open(full, "rb") as f:
+            data = f.read()
+        if b"\0" in data[:8192]:
+            continue
+        for n, text in enumerate(decode(data).splitlines(), 1):
+            sc.line(f"{path}:{n}", path, text)
+
+
+HUNK = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+
+
+def scan_commits(sc, rev_args):
+    commits = decode(git("rev-list", *rev_args, cwd=sc.root)).split()
+    for c in commits:
+        short = c[:10]
+        meta = decode(git("show", "-s", "--format=%an%x00%ae%x00%cn%x00%ce%x00%B", c, cwd=sc.root))
+        an, ae, cn, ce, body = meta.split("\0", 4)
+        for label, value in (("author name", an), ("author e-mail", ae),
+                             ("committer name", cn), ("committer e-mail", ce)):
+            classes = deny_hits(value, sc.deny)
+            if classes and not sc.allowed(IDENTITY_PATH, value):
+                sc.hits.append(f"{short} {label}: {', '.join(classes)}")
+        for n, text in enumerate(body.splitlines(), 1):
+            sc.line(f"{short} message:{n}", MESSAGE_PATH, text)
+        diff = git("show", "--format=", "-U0", "--no-color", "--no-renames", "--no-ext-diff",
+                   "--diff-merges=first-parent", c, cwd=sc.root)
+        path, lineno, header = None, 0, False
+        for raw in diff.split(b"\n"):
+            if raw.startswith(b"diff --git "):
+                path, header = None, True
+            elif header and raw.startswith(b"+++ "):
+                t = decode(raw[4:])
+                path = None if t == "/dev/null" else (t[2:] if t.startswith("b/") else t)
+            elif raw.startswith(b"@@"):
+                header = False
+                m = HUNK.match(decode(raw))
+                lineno = int(m.group(1)) if m else 0
+            elif not header and raw.startswith(b"+") and path is not None:
+                sc.line(f"{short} {path}:{lineno}", path, decode(raw[1:]))
+                lineno += 1
+
+
+def entry(root, spec):
+    path, _, n = spec.rpartition(":")
+    with open(os.path.join(root, path), encoding="utf-8") as f:
+        text = f.read().splitlines()[int(n) - 1]
+    return f"{path}:sha256:{digest(text)}"
+
+
+def main(argv):
+    args = argv[1:]
+    if args and args[0] in ("-h", "--help"):
+        print(__doc__.strip())
+        return 0
+    try:
+        root = decode(git("rev-parse", "--show-toplevel")).strip()
+        if args[:1] == ["--entry"]:
+            for spec in args[1:]:
+                print(entry(root, spec))
+            return 0
+        sc = Scanner(root, load_deny())
+        if not args or args == ["--tree"]:
+            scan_tree(sc)
+        elif args[0] == "--range" and len(args) > 1:
+            scan_commits(sc, args[1:])
+        elif args == ["--history"]:
+            scan_commits(sc, ["--all"])
+        else:
+            raise LeakError("usage: leak-check [--tree | --range <rev-list args> | --history | --entry PATH:LINE]")
+    except LeakError as e:
+        print(f"leak-check: ERROR: {e}", file=sys.stderr)
+        return 2
+    for h in sc.hits:
+        print(h)
+    if sc.hits:
+        print(f"leak-check: {len(sc.hits)} hit(s). Fix them, or after review add an exact entry to "
+              f"{ALLOW_FILE} (scripts/leak-check --entry PATH:LINE prints one).", file=sys.stderr)
+        return 1
+    print("leak-check: clean", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

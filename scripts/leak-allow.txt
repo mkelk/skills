@@ -1,0 +1,15 @@
+# Reviewed lines that scripts/leak-check would otherwise flag. One exact entry per line:
+#   <path>:<the line, exactly>          or          <path>:sha256:<sha256 of the line>
+# The hashed form keeps a reviewed line's words out of this file. Print one with
+#   scripts/leak-check --entry <path>:<line number>
+# A commit-message line uses the path @message. Never add a pattern here: only exact lines.
+#
+# The copyright lines of the two MIT licences (the owner's name, public by design).
+LICENSE:sha256:ea020c21a1256304b5fb9a34e627c74e286b232d52c287a5527683fd1e479c4b
+skills/ticks/LICENSE:sha256:ea020c21a1256304b5fb9a34e627c74e286b232d52c287a5527683fd1e479c4b
+# The owner's public fork of the ticks engine, named where the history of the engine is told.
+skills/dmtix/README.md:sha256:c0a1e0aafeed096511ea42b8557579a27501be1c0fb1676e2e719b78e883d9a6
+skills/ticks/references/agent-runner.md:sha256:25dbc267ef10af4ea8fc84e8582b554b2bab729fb5d5b426b81e1e8a5f9157c5
+skills/ticks/references/claude-runner.md:sha256:4f16126d8aa51b37883ba43d48129e8eaf2646aa0ed36d814f9a61a55dcbd55f
+# A test case for e-mail validation (an address shape, no real mailbox).
+skills/ticks/references/tick-patterns.md:sha256:6b99f5d2274191c6be21501e243cbbddb0b7b3308b7e70dfc3f41a26d5518cfc

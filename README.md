@@ -67,6 +67,28 @@ So if a repo on your machine ships its own `.claude/skills/streams` (or any name
 install that skill globally: every session in that repo would get this repo's version instead
 of its own.
 
+## Before you push
+
+This repo is public, so every push goes through a leak check. `scripts/leak-check` looks for
+two things: shapes that never belong in a public repo (API keys and tokens, private-key
+headers, real e-mail addresses, IP addresses, absolute home-directory paths), and the words on
+a private deny-list. The deny-list is one regex per line, read from `$SKILLS_LEAK_DENY` or else
+`~/.config/skills-leak/deny.txt`. It lives outside the repo on purpose: a list of words to keep
+out of a public repo would itself be the leak. Without it the check stops with an error; it
+never passes by default.
+
+```bash
+git config core.hooksPath hooks     # once per clone: pushes run hooks/pre-push
+scripts/leak-check                  # the tracked files as they are now
+scripts/leak-check --history        # every commit on every ref: lines, messages, authors
+```
+
+The hook checks the lines, messages and author names of the commits being pushed, and refuses
+the push on a hit. A hit prints as `file:line: <kind>` and never shows the matched value. A line
+that is reviewed and fine goes in `scripts/leak-allow.txt` as one exact entry (`scripts/leak-check
+--entry <file>:<line>` prints it); the file takes exact lines only, never patterns. Tests:
+`python3 -m unittest discover -s scripts -p 'test_*.py'`.
+
 ## License
 
 MIT — see [LICENSE](LICENSE). `skills/ticks/` carries its own MIT notice, which keeps Peter
