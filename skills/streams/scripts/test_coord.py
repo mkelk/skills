@@ -6,6 +6,7 @@ Every test writes into a temporary COORD_DIR, never into a real repository's coo
 """
 import datetime as dt
 import io
+import json
 import os
 import subprocess
 import tempfile
@@ -285,6 +286,169 @@ class Command(CoordCase):
         code, out, _ = self.run_main("show", "--log", "1")
         self.assertIn("seat: OWED a1 beta: x", out)
         self.assertNotIn("HOLDS", out)
+
+
+class ProjectConfig(CoordCase):
+    """`config` and `init-file` against scratch repositories in the temporary directory."""
+
+    def git(self, *args, cwd=None):
+        return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=cwd,
+                              capture_output=True, text=True, check=True).stdout.strip()
+
+    def repo(self, name="demo", branch="main"):
+        path = os.path.join(self.tmp.name, "work", name)
+        os.makedirs(path)
+        self.git("init", "-q", "-b", branch, path)
+        self.git("commit", "-q", "--allow-empty", "-m", "start", cwd=path)
+        return os.path.realpath(path)
+
+    def write_file(self, repo, text, rel=".devmeta/streams.md"):
+        path = os.path.join(repo, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            f.write(text)
+
+    def run_in(self, cwd, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        here = os.getcwd()
+        os.chdir(cwd)
+        try:
+            with redirect_stdout(out), redirect_stderr(err):
+                code = coord.main(list(argv))
+        finally:
+            os.chdir(here)
+        return code, out.getvalue(), err.getvalue()
+
+    def test_main_without_file_gives_defaults(self):
+        repo = self.repo()
+        facts = coord.config(cwd=repo)
+        self.assertIsNone(facts["file"])
+        self.assertEqual(facts["trunk"]["value"], "main")
+        self.assertIn("detected", facts["trunk"]["source"])
+        self.assertEqual(facts["worktree_root"]["value"], os.path.dirname(repo))
+        self.assertEqual(facts["at_cut"]["value"], "")
+        self.assertEqual(facts["at_landing"]["value"], "")
+        self.assertEqual((facts["resources"], facts["warnings"]), ("", []))
+
+    def test_master_only_and_odd_branch(self):
+        self.assertEqual(coord.config(cwd=self.repo("a", "master"))["trunk"]["value"], "master")
+        odd = coord.config(cwd=self.repo("b", "develop"))["trunk"]
+        self.assertEqual((odd["value"], odd["source"]), ("develop", "detected: the current branch"))
+
+    def test_origin_head_names_the_trunk(self):
+        upstream = self.repo("up", "trunk")
+        clone = os.path.join(self.tmp.name, "work", "clone")
+        self.git("clone", "-q", upstream, clone)
+        self.git("checkout", "-q", "-b", "main", cwd=clone)  # a local main must not win over origin's HEAD
+        facts = coord.config(cwd=clone)
+        self.assertEqual(facts["trunk"]["value"], "trunk")
+        self.assertIn("origin/HEAD", facts["trunk"]["source"])
+
+    def test_file_trunk_wins_over_detection(self):
+        repo = self.repo()
+        self.write_file(repo, "## Project\ntrunk: release   # the branch production builds\n")
+        facts = coord.config(cwd=repo)
+        self.assertEqual(facts["trunk"]["value"], "release")
+        self.assertIn("## Project", facts["trunk"]["source"])
+
+    def test_worktree_root_outside_parent_and_slug(self):
+        repo = self.repo()
+        outside = os.path.join(self.tmp.name, "elsewhere", "trees")
+        self.write_file(repo, f"## Project\nworktree root: {outside}\n")
+        facts = coord.config(cwd=repo, slug="demo")
+        self.assertEqual(facts["worktree_root"]["value"], outside)
+        self.assertEqual(facts["worktree"], os.path.join(outside, "demo-demo"))
+        code, out, _ = self.run_in(repo, "config", "--slug", "demo")
+        self.assertEqual(code, 0)
+        self.assertIn(f"worktree: {os.path.join(outside, 'demo-demo')}", out)
+
+    def test_tilde_root_is_expanded(self):
+        repo = self.repo()
+        self.write_file(repo, "## Project\nworktree root: ~/trees\n")
+        self.assertEqual(coord.config(cwd=repo)["worktree_root"]["value"], os.path.expanduser("~/trees"))
+
+    def test_default_slug_path_is_beside_the_repo(self):
+        repo = self.repo()
+        facts = coord.config(cwd=repo, slug="side")
+        self.assertEqual(facts["worktree"], os.path.join(os.path.dirname(repo), "demo-side"))
+
+    def test_worktree_names_follow_the_main_checkout(self):
+        repo = self.repo()
+        tree = os.path.join(self.tmp.name, "work", "demo-side")
+        self.git("worktree", "add", "-q", "-b", "side", tree, cwd=repo)
+        facts = coord.config(cwd=tree, slug="next")
+        self.assertEqual(facts["worktree"], os.path.join(os.path.dirname(repo), "demo-next"))
+
+    def test_sections_bodies_resources_and_unknown_warning(self):
+        repo = self.repo()
+        self.write_file(repo, "# title\n\n## At cut\nnpm ci\ncp .env.example .env\n\n## At landing\nnpm test\n\n"
+                              "## Resources\nweb: 70k0\n\n## Wishes\nsomething\n")
+        facts = coord.config(cwd=repo)
+        self.assertEqual(facts["at_cut"]["value"], "npm ci\ncp .env.example .env")
+        self.assertEqual(facts["at_landing"]["value"], "npm test")
+        self.assertEqual(facts["resources"], "web: 70k0")
+        [warning] = facts["warnings"]
+        self.assertIn("## Wishes", warning)
+        code, out, _ = self.run_in(repo, "config")
+        self.assertEqual(code, 0)
+        self.assertIn("warning: unknown section '## Wishes'", out)
+
+    def test_at_landing_defaults_to_tick_testing(self):
+        repo = self.repo()
+        self.write_file(repo, "## Testing\n\nmake test\n", rel=".tick/config.md")
+        facts = coord.config(cwd=repo)
+        self.assertIn(".tick/config.md", facts["at_landing"]["value"])
+        self.assertIn("default", facts["at_landing"]["source"])
+
+    def test_json(self):
+        repo = self.repo()
+        code, out, _ = self.run_in(repo, "config", "--json", "--slug", "x")
+        facts = json.loads(out)
+        self.assertEqual((code, facts["trunk"]["value"]), (0, "main"))
+        self.assertTrue(facts["worktree"].endswith("demo-x"))
+
+    def test_outside_a_repository(self):
+        lone = os.path.join(self.tmp.name, "lone")
+        os.makedirs(lone)
+        code, _, err = self.run_in(lone, "config")
+        self.assertEqual(code, 1)
+        self.assertIn("not inside a git repository", err)
+
+    def test_init_file_writes_refuses_and_forces(self):
+        repo = self.repo()
+        code, out, _ = self.run_in(repo, "init-file", "--trunk", "main", "--worktree-root", "~/trees",
+                                   "--at-cut", "uv sync")
+        self.assertEqual(code, 0)
+        path = os.path.join(repo, ".devmeta", "streams.md")
+        with open(path) as f:
+            text = f.read()
+        self.assertIn("## Project\n\ntrunk: main\nworktree root: ~/trees", text)
+        self.assertIn("## At cut\n\nuv sync", text)
+        self.assertNotIn("## At landing", text)  # only the sections that have content
+        self.assertNotIn("## Resources", text)
+        facts = coord.config(cwd=repo)
+        self.assertEqual((facts["at_cut"]["value"], facts["warnings"]), ("uv sync", []))
+
+        code, _, err = self.run_in(repo, "init-file", "--trunk", "other")
+        self.assertEqual(code, 2)
+        self.assertIn("--force", err)
+        with open(path) as f:
+            self.assertEqual(f.read(), text)
+
+        code, _, _ = self.run_in(repo, "init-file", "--trunk", "other", "--at-landing", "make test",
+                                 "--at-landing", "make lint", "--force")
+        self.assertEqual(code, 0)
+        facts = coord.config(cwd=repo)
+        self.assertEqual(facts["trunk"]["value"], "other")
+        self.assertEqual(facts["at_landing"]["value"], "make test\nmake lint")
+        self.assertEqual(facts["at_cut"]["value"], "")
+
+    def test_init_file_with_nothing_writes_a_header_only(self):
+        repo = self.repo()
+        self.assertEqual(self.run_in(repo, "init-file")[0], 0)
+        facts = coord.config(cwd=repo)
+        self.assertIsNotNone(facts["file"])
+        self.assertEqual((facts["trunk"]["value"], facts["warnings"]), ("main", []))
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ reference and follow it exactly.** With no or an unknown argument, show this tab
 
 | Argument | Cadence | Door |
 |---|---|---|
+| `init` | once per repository, before the first `cut` | `references/init.md` — detect the trunk, package manager and test runner, ask the human about resources and the worktree root, write the project file `.devmeta/streams.md` (only the sections with content) with `scripts/coord.py init-file`, then `coord.py init`. `coord.py config` prints what the doors will read. |
 | `status` | whenever the human asks "what is running" | `references/status.md` — one screen from `coord/streams.md`, `coord/log.md`, `tk`, the process list and the panes (herdr, or `ListAgents`); what waits on the human; what has stalled; open holds, what the seat owes, what runs on a clock. |
 | `keep-running` | on a timer, hourly (a cheap scout subagent does the looking: `references/scout.md`) | `references/keep-running.md` — `status`, then **act**: close forgotten windows, answer streams owed an answer, refresh drifted cells, land what is finished, restart what stalled, relay what one stream found. Prints only what the human must act on. |
 | `queue` | whenever something waits on the human; checked every `keep-running` | `references/queue.md` — the list of what waits on the human (`coord/asks.md`, one row each, with the exact thing to type and a why), kept by the seat alone; a go counts only typed in the seat. |

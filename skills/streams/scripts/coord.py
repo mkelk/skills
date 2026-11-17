@@ -27,11 +27,20 @@ Usage:
     coord.py init
     coord.py log "<text>" [--as <who>] [--for 40m | --until HH:MM]
     coord.py show [--holds] [--owed] [--log N]
+    coord.py config [--slug <slug>] [--json] [--file <path>]
+    coord.py init-file [--trunk B] [--worktree-root DIR] [--at-cut L]... [--at-landing L]...
+                       [--resources L]... [--force]
+
+The project file `.devmeta/streams.md` (committed, at the repository's top) holds the project's facts in
+optional sections: `## Project` (`trunk:`, `worktree root:`), `## Resources`, `## At cut`, `## At landing`,
+and the prose sections the doors paste or follow. `config` prints each fact with where it came from: the
+file, or what was detected when the file says nothing.
 
 Python 3 standard library only.
 """
 import argparse
 import datetime as dt
+import json
 import os
 import re
 import subprocess
@@ -478,6 +487,214 @@ def init(directory):
     return created
 
 
+# ------------------------------------------------------------------ the project file
+
+PROJECT_FILE = os.path.join(".devmeta", "streams.md")
+# The sections the doors read. Any other `## ` heading is reported as a warning, never refused.
+KNOWN_SECTIONS = ("Project", "Resources", "At cut", "At landing", "Standing rules", "Heavy runs", "Seams",
+                  "At hotfix")
+SECTION = re.compile(r"^##\s+(.+?)\s*$")
+
+
+def _git(args, cwd=None):
+    """git's stdout, stripped, or None when git is missing or the command fails."""
+    try:
+        out = subprocess.run(["git", *args], capture_output=True, text=True, cwd=cwd)
+    except FileNotFoundError:
+        return None
+    return out.stdout.strip() if out.returncode == 0 else None
+
+
+def repo_top(cwd=None):
+    """The current checkout's top directory; None outside a repository."""
+    top = _git(["rev-parse", "--show-toplevel"], cwd)
+    return top or None
+
+
+def main_checkout(cwd=None):
+    """The repository's main checkout (the one whose `.git` is the common directory); else the current top."""
+    common = _git(["rev-parse", "--path-format=absolute", "--git-common-dir"], cwd)
+    if common and os.path.basename(common.rstrip(os.sep)) == ".git":
+        return os.path.dirname(common.rstrip(os.sep))
+    return repo_top(cwd)
+
+
+def parse_sections(text):
+    """(sections, order): each `## ` heading's body, stripped, in file order. Text before the first is dropped."""
+    sections, order, name, body = {}, [], None, []
+    for line in text.splitlines():
+        m = SECTION.match(line)
+        if m:
+            if name is not None:
+                sections[name] = "\n".join(body).strip()
+            name, body = m.group(1), []
+            if name not in order:
+                order.append(name)
+            continue
+        if name is not None:
+            body.append(line)
+    if name is not None:
+        sections[name] = "\n".join(body).strip()
+    return sections, order
+
+
+def parse_project(body):
+    """`key: value` lines of `## Project`, keys lower case; a ` # comment` after the value is dropped."""
+    facts = {}
+    for line in body.splitlines():
+        line = re.sub(r"\s+#.*$", "", line).strip()
+        m = re.match(r"^[-*]?\s*([A-Za-z][\w -]*?)\s*:\s*(.*)$", line)
+        if m and m.group(2):
+            facts[m.group(1).lower()] = m.group(2).strip()
+    return facts
+
+
+def detect_trunk(cwd=None):
+    """(branch, how): origin's HEAD, else `main` or `master` when one exists, else the current branch."""
+    ref = _git(["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"], cwd)
+    if ref and ref.startswith("refs/remotes/origin/"):
+        return ref[len("refs/remotes/origin/"):], "detected: refs/remotes/origin/HEAD"
+    for name in ("main", "master"):
+        if _git(["rev-parse", "--verify", "--quiet", f"refs/heads/{name}"], cwd) is not None:
+            return name, f"detected: local branch {name} exists"
+    current = _git(["symbolic-ref", "--quiet", "--short", "HEAD"], cwd)
+    if current:
+        return current, "detected: the current branch"
+    return None, "detected: nothing (no origin HEAD, no main or master, detached HEAD)"
+
+
+def config(cwd=None, path=None, slug=None):
+    """The project's facts, each {value, source}, plus `resources`, `warnings` and `file`."""
+    top = repo_top(cwd)
+    if not top:
+        raise CoordError("not inside a git repository: there is no project to read.")
+    rel = path or PROJECT_FILE
+    file_path = rel if os.path.isabs(rel) else os.path.join(top, rel)
+    sections, order, warnings = {}, [], []
+    shown = os.path.relpath(file_path, top) if file_path.startswith(top + os.sep) else file_path
+    if os.path.exists(file_path):
+        with open(file_path, encoding="utf-8") as f:
+            sections, order = parse_sections(f.read())
+        for name in order:
+            if name not in KNOWN_SECTIONS:
+                warnings.append(f"unknown section '## {name}' in {shown}; the doors do not read it")
+    project = parse_project(sections.get("Project", ""))
+    from_file = f"file: {shown} → ## Project"
+
+    if project.get("trunk"):
+        trunk = {"value": project["trunk"], "source": f"{from_file}, trunk:"}
+    else:
+        value, how = detect_trunk(cwd)
+        trunk = {"value": value, "source": how}
+
+    home = main_checkout(cwd) or top
+    repo = os.path.basename(home)
+    if project.get("worktree root"):
+        root = os.path.expanduser(project["worktree root"])
+        if not os.path.isabs(root):
+            root = os.path.join(top, root)
+        worktree_root = {"value": os.path.normpath(root), "source": f"{from_file}, worktree root:"}
+    else:
+        worktree_root = {"value": os.path.dirname(home), "source": "detected: the main checkout's parent directory"}
+
+    if sections.get("At cut"):
+        at_cut = {"value": sections["At cut"], "source": f"file: {shown} → ## At cut"}
+    else:
+        at_cut = {"value": "", "source": "default: nothing to run"}
+
+    if sections.get("At landing"):
+        at_landing = {"value": sections["At landing"], "source": f"file: {shown} → ## At landing"}
+    else:
+        tick = os.path.join(top, ".tick", "config.md")
+        testing = ""
+        if os.path.exists(tick):
+            with open(tick, encoding="utf-8") as f:
+                testing = parse_sections(f.read())[0].get("Testing", "")
+        if testing:
+            at_landing = {"value": "see .tick/config.md → ## Testing",
+                          "source": "default: .tick/config.md has a ## Testing section"}
+        else:
+            at_landing = {"value": "", "source": "default: nothing (no .tick/config.md → ## Testing)"}
+
+    result = {
+        "file": file_path if os.path.exists(file_path) else None,
+        "repo": repo,
+        "trunk": trunk,
+        "worktree_root": worktree_root,
+        "at_cut": at_cut,
+        "at_landing": at_landing,
+        "resources": sections.get("Resources", ""),
+        "warnings": warnings,
+    }
+    if slug is not None:
+        result["worktree"] = os.path.join(worktree_root["value"], f"{repo}-{slug}")
+    return result
+
+
+def show_config(facts):
+    """The text `config` prints."""
+    out = [f"project file: {facts['file'] or '(none; every fact below is detected or a default)'}"]
+    for key in ("trunk", "worktree_root", "at_cut", "at_landing"):
+        fact = facts[key]
+        value = fact["value"] if fact["value"] not in (None, "") else "(nothing)"
+        if "\n" in value:
+            out.append(f"{key}:  ({fact['source']})")
+            out.extend(f"    {line}" for line in value.splitlines())
+        else:
+            out.append(f"{key}: {value}  ({fact['source']})")
+    out.append(f"worktree: {facts['worktree_root']['value']}/{facts['repo']}-<slug>"
+               if "worktree" not in facts else f"worktree: {facts['worktree']}")
+    if facts["resources"]:
+        out.append("resources:")
+        out.extend(f"    {line}" for line in facts["resources"].splitlines())
+    else:
+        out.append("resources: (none; a stream claims nothing)")
+    for w in facts["warnings"]:
+        out.append(f"warning: {w}")
+    return "\n".join(out)
+
+
+def _block(values):
+    """Repeated flag values as one block of lines; literal `\\n` in a value also breaks a line."""
+    if not values:
+        return ""
+    return "\n".join(v.replace("\\n", "\n").strip() for v in values if v and v.strip()).strip()
+
+
+def project_file_text(trunk=None, worktree_root=None, at_cut=None, at_landing=None, resources=None):
+    """The project file with only the sections that have content."""
+    parts = ["# Streams — this project's facts",
+             "",
+             "Read by the streams skill (`coord.py config`). Every section is optional; a missing one is",
+             "detected or left empty."]
+    project = []
+    if trunk:
+        project.append(f"trunk: {trunk}")
+    if worktree_root:
+        project.append(f"worktree root: {worktree_root}")
+    for name, body in (("Project", "\n".join(project)), ("Resources", _block(resources)),
+                       ("At cut", _block(at_cut)), ("At landing", _block(at_landing))):
+        if body:
+            parts += ["", f"## {name}", "", body]
+    return "\n".join(parts) + "\n"
+
+
+def init_file(cwd=None, path=None, force=False, **values):
+    """Write the project file at the repository's top. Returns its path; refuses to overwrite without force."""
+    top = repo_top(cwd)
+    if not top:
+        raise CoordError("not inside a git repository: there is no top directory to write the file in.")
+    rel = path or PROJECT_FILE
+    file_path = rel if os.path.isabs(rel) else os.path.join(top, rel)
+    if os.path.exists(file_path) and not force:
+        raise CoordError(f"{file_path} already exists; nothing written. Edit it by hand, or pass --force "
+                         "to replace it.")
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(project_file_text(**values))
+    return file_path
+
+
 # ------------------------------------------------------------------ show
 
 
@@ -537,7 +754,38 @@ def main(argv=None):
     p_show.add_argument("--holds", action="store_true")
     p_show.add_argument("--owed", action="store_true")
     p_show.add_argument("--log", type=int, metavar="N")
+    p_cfg = sub.add_parser("config", help="the project's facts from .devmeta/streams.md, or detected")
+    p_cfg.add_argument("--file", help="the project file (default .devmeta/streams.md at the top)")
+    p_cfg.add_argument("--slug", help="also print the worktree path for this stream slug")
+    p_cfg.add_argument("--json", action="store_true")
+    p_init = sub.add_parser("init-file", help="write .devmeta/streams.md from flags, only non-empty sections")
+    p_init.add_argument("--file", help="where to write (default .devmeta/streams.md at the top)")
+    p_init.add_argument("--trunk")
+    p_init.add_argument("--worktree-root")
+    p_init.add_argument("--at-cut", action="append", help="a line for ## At cut (repeatable)")
+    p_init.add_argument("--at-landing", action="append", help="a line for ## At landing (repeatable)")
+    p_init.add_argument("--resources", action="append", help="a line for ## Resources (repeatable)")
+    p_init.add_argument("--force", action="store_true", help="replace an existing file")
     a = ap.parse_args(argv)
+
+    if a.command == "config":
+        try:
+            facts = config(path=a.file, slug=a.slug)
+        except CoordError as err:
+            print(f"coord config: {err}", file=sys.stderr)
+            return 1
+        print(json.dumps(facts, indent=2, ensure_ascii=False) if a.json else show_config(facts))
+        return 0
+
+    if a.command == "init-file":
+        try:
+            written = init_file(path=a.file, force=a.force, trunk=a.trunk, worktree_root=a.worktree_root,
+                                at_cut=a.at_cut, at_landing=a.at_landing, resources=a.resources)
+        except CoordError as err:
+            print(f"coord init-file: {err}", file=sys.stderr)
+            return 2
+        print(f"wrote {written}")
+        return 0
 
     directory = coord_dir()
     if not directory:
