@@ -453,10 +453,10 @@ _SCHEDULE_TABLE = """| what | owner | kind | when (UTC) | script / prompt | ends
 
 SCHEDULES_HEADER = f"""# Schedules — what runs on a clock, on this machine
 
-What fires by itself, who owns it, and how to bring it back after herdr, a Claude session, WSL or
-the machine stopped (the streams skill's `restart` door). The seat keeps it; a stream that starts,
-changes or ends anything on a clock edits its own row in the same breath and logs it. `same` in
-the restart column means the row above's. An ended row is struck through (`~~what~~ ended <when>`).
+What fires by itself, who owns it, and how to bring it back after the terminal server (hc or herdr),
+a Claude session, WSL or the machine stopped (the streams skill's `restart` door). The seat keeps
+it; a stream that starts, changes or ends anything on a clock edits its own row in the same breath
+and logs it. `same` in the restart column means the row above's. An ended row is struck through (`~~what~~ ended <when>`).
 
 ## Survives a session stop (system)
 

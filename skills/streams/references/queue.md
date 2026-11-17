@@ -1,9 +1,9 @@
 # queue — the list of what waits on the human
 
-*The human, 2026-11-03: a herdr pane "called queue that keeps track of stuff I need to do right
+*The human, 2026-11-03: a pane in herdr "called queue that keeps track of stuff I need to do right
 now — it tends to get swamped in seat's dialogue with me and seat's statuses".* The list kept;
 the pane did not. **The human, 2026-11-05:** *"A good idea that seat keeps track of it in a file
-- but the separate herdr pane queue does not really work. So keep the accounting and seat's
+-"* but the separate queue pane in herdr *"does not really work. So keep the accounting and seat's
 ability to register/track, but drop the queue tab and its responsibilities."* Since then the
 seat alone keeps the list and talks to the human about it.
 

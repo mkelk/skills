@@ -271,8 +271,9 @@ What a fix has to give, whatever its shape:
 - **Given a worktree, name its session; given a session, name its worktrees.** Both
   directions, from the machine rather than from anyone's memory. Today only the first is
   recoverable — and **it is more recoverable than this section has been admitting**:
-  `herdr api snapshot` answers it directly, giving every agent's `cwd`, `agent_status`,
-  `pane_id` and terminal title, which is worktree → pane → state without asking anyone. On
+  `python3 scripts/term.py ls --json` answers it directly (from hc or herdr, whichever holds
+  the sessions), giving every session's `cwd`, `state`, `id` and label, which is worktree →
+  session → state without asking anyone. On
   2026-09-21 the doors had that answer in hand and still printed `—` for both sessions and
   still ended a cut by asking the human for a name. **The missing half is not the measurement,
   it is the habit of using it.** What is genuinely still missing is the other direction: a

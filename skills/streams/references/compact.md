@@ -25,10 +25,12 @@ full price or more. For a session that mostly waits, the second is the bigger on
   compacted context. No hook can steer what the compaction keeps.
 - **Claude Code has its own idle compaction** ("Compacted while idle, before the prompt cache expired"). It is
   behind a server flag: `"idleCompaction": true` does not turn it on, only `false` turns it off. Don't count on it.
-- **herdr can type into a session's pane** (`herdr agent prompt <pane> "<text>"`), and slash commands work there.
-  It also shows each agent's state (`idle`, `done`, `working`). That is the one way to compact a session from
-  outside, at a moment of the seat's choosing. **Without herdr** there is no way in from outside: the safety net
-  below still holds, and the seat names the large, quiet streams to the human, who types `/compact` in each pane.
+- **The terminal server can type into a session** (`python3 <skill dir>/scripts/term.py send <session>
+  "<text>"`, which goes to hc or herdr, whichever holds the session), and slash commands work there. It also
+  shows each session's state (`term.py ls`: `idle`, `working`, or `unknown` for blocked; the server's own word
+  in `status`). That is the one way to compact a session from outside, at a moment of the seat's choosing.
+  **Without a terminal server** (`term.py which` exits 2) there is no way in from outside: the safety net below
+  still holds, and the seat names the large, quiet streams to the human, who types `/compact` in each pane.
 
 ## The three parts
 
@@ -66,8 +68,8 @@ absolute path, never one relative to the repository.
    7 10,21 * * * ~/.claude/skills/streams/scripts/compact-cron.sh /path/to/main/checkout
    ```
    A session is compacted only when all of these hold. It is a stream's session in the live table
-   (`coord/streams.md`), never the main checkout, so never the seat. herdr shows it `idle` or `done`. Its context
-   is at least 150k (`--min-tokens`, or `COMPACT_MIN_TOKENS`). Its transcript has been quiet for 30 minutes
+   (`coord/streams.md`), never the main checkout, so never the seat. The terminal server (read through
+   `term.py`) shows it idle (`idle` or `done`). Its context is at least 150k (`--min-tokens`, or `COMPACT_MIN_TOKENS`). Its transcript has been quiet for 30 minutes
    (`--quiet-minutes`, or `COMPACT_QUIET_MINUTES`). No unexpired HOLD names it, as what is held or as the holder
    (read from the coord log with the skill's `scripts/coord.py`). Each `/compact` carries instructions on what to
    keep: who it is and its standing rules, the task and next step, what it waits for and from whom (with times),

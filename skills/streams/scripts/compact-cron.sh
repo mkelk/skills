@@ -10,8 +10,8 @@ if [ -z "$repo" ]; then
   echo "usage: compact-cron.sh <main checkout>   (or set STREAMS_REPO)" >&2
   exit 2
 fi
-# cron starts with a bare PATH: add the usual user bin directories (herdr, git, python3), and any
-# extra the crontab line passes as STREAMS_CRON_PATH.
+# cron starts with a bare PATH: add the usual user bin directories (hc or herdr for term.py, git,
+# python3), and any extra the crontab line passes as STREAMS_CRON_PATH.
 export PATH="${STREAMS_CRON_PATH:+$STREAMS_CRON_PATH:}$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 scripts="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$repo" || exit 1
