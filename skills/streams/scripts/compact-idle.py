@@ -3,14 +3,15 @@
 
 The long-running stream sessions build a very large context during long waits, and every call resends it
 (2026-10-27). This finds the stream sessions that are idle, large and quiet, and sends each one `/compact`
-with instructions, through herdr. That is the only route: no session can compact itself (no tool, hook or
-skill can run a built-in slash command). Without herdr there is no way in from outside: the per-worktree
+with instructions, through the terminal server the session runs in (hc or herdr, by this directory's
+term.py). That is the only route: no session can compact itself (no tool, hook or skill can run a
+built-in slash command). Without a terminal server there is no way in from outside: the per-worktree
 `autoCompactWindow` is the safety net, and the human can type `/compact` in a pane.
 
 A session is compacted only when ALL of these hold:
-  - herdr shows a claude agent whose cwd is a stream's worktree in the live table (never the main checkout,
-    so never the seat);
-  - herdr says it is `idle` or `done` (not `working`, not waiting on a permission);
+  - the terminal server shows a claude session whose cwd is a stream's worktree in the live table (never
+    the main checkout, so never the seat);
+  - the server says it is idle (`idle` or `done`; not `working`, not blocked on a permission);
   - its context (the last call's input + cache tokens in its newest transcript) is at least --min-tokens;
   - its transcript has not moved for at least --quiet-minutes (nothing in flight);
   - no unexpired HOLD in the coord log names the stream, its worktree, or its pane, as what is held or
@@ -33,6 +34,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import coord  # noqa: E402  (the skill's own helper, beside this file)
+import term  # noqa: E402  (the door to the terminal server, beside this file)
 
 MIN_TOKENS = int(os.environ.get("COMPACT_MIN_TOKENS", "150000"))
 QUIET_MINUTES = int(os.environ.get("COMPACT_QUIET_MINUTES", "30"))
@@ -87,16 +89,12 @@ def streams_from_table(directory):
     return rows
 
 
-def herdr_agents():
+def terminal_sessions():
     try:
-        out = sh(["herdr", "agent", "list"])
-    except FileNotFoundError:
-        sys.exit("herdr is not installed: no way to send /compact from outside. The per-worktree "
-                 "autoCompactWindow still holds; the human can type /compact in a quiet stream's pane.")
-    if out.returncode != 0:
-        sys.exit(f"herdr agent list failed ({out.stderr.strip() or out.stdout.strip()}): is herdr running? "
-                 "Without it nothing can be compacted from outside; the per-worktree autoCompactWindow still holds.")
-    return json.loads(out.stdout)["result"]["agents"]
+        return term.sessions()[1]
+    except term.TermError as err:
+        sys.exit(f"{err}: no way to send /compact from outside. The per-worktree autoCompactWindow still "
+                 "holds; the human can type /compact in a quiet stream's pane.")
 
 
 def transcript_state(cwd):
@@ -152,7 +150,7 @@ def main():
     seat_checkout = main_checkout()
     held = held_names(directory)
     sent = seen = 0
-    for ag in herdr_agents():
+    for ag in terminal_sessions():
         if ag.get("agent") != "claude":
             continue
         cwd = os.path.realpath(ag.get("cwd", ""))
@@ -168,33 +166,34 @@ def main():
             continue
         tokens, quiet, _ = state
         reasons = []
-        if ag.get("agent_status") not in ("idle", "done"):
-            reasons.append(f"herdr says {ag.get('agent_status')}")
+        if ag["state"] != "idle":
+            reasons.append(f"{ag['server']} says {ag.get('status') or ag['state']}")
         if tokens < a.min_tokens:
             reasons.append(f"context {tokens // 1000}k < {a.min_tokens // 1000}k")
         if quiet < a.quiet_minutes:
             reasons.append(f"active {quiet:.0f} min ago")
-        mine = {name.lower(), os.path.basename(cwd).lower(), str(ag.get("pane_id", "")).lower()}
+        mine = {name.lower(), os.path.basename(cwd).lower(), str(ag["id"]).lower()}
         if mine & held:
             reasons.append("an unexpired HOLD names it")
         if reasons:
             print(f"{name:10} skip: {'; '.join(reasons)}")
             continue
         verb = "compact" if a.apply else "would compact"
-        print(f"{name:10} {verb}: context {tokens // 1000}k, quiet {quiet:.0f} min, pane {ag['pane_id']}")
+        print(f"{name:10} {verb}: context {tokens // 1000}k, quiet {quiet:.0f} min, {ag['server']} {ag['id']}")
         if a.apply:
-            r = sh(["herdr", "agent", "prompt", ag["pane_id"], COMPACT_INSTRUCTIONS])
-            if r.returncode != 0:
-                print(f"{name:10} send failed: {r.stderr.strip() or r.stdout.strip()}")
+            try:
+                term.send(ag["id"], COMPACT_INSTRUCTIONS, ag["server"])
+            except term.TermError as err:
+                print(f"{name:10} send failed: {err}")
                 continue
             sent += 1
             try:
                 coord.write(directory, f"compacted {name} (idle, context {tokens // 1000}k, quiet "
-                                       f"{quiet:.0f} min) via herdr /compact", "seat")
+                                       f"{quiet:.0f} min) via {ag['server']} /compact", "seat")
             except coord.CoordError as err:
                 print(f"{name:10} sent, but the coord line was refused: {err}")
     if not seen:
-        print("no stream session found in herdr (a claude agent whose cwd is a worktree in coord/streams.md)")
+        print("no stream session found in hc or herdr (a claude session whose cwd is a worktree in coord/streams.md)")
     if a.apply:
         print(f"sent {sent}")
 

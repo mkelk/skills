@@ -1,7 +1,7 @@
 ## Purpose
 
-Bring back what runs on a clock after herdr, a Claude session, WSL or the machine stopped. The human, 2026-10-28:
-*"keep a list of cronned tasks etc, that is running in the stream complex and in which streams - so we can restart, if
+Bring back what runs on a clock after the terminal server (hc or herdr), a Claude session, WSL or the machine
+stopped. The human, 2026-10-28: *"keep a list of cronned tasks etc, that is running in the stream complex and in which streams - so we can restart, if
 herdr/claude has been stopped"*.
 
 The list is `<git common dir>/coord/schedules.md`, beside `streams.md` and `log.md`: shared by every worktree, never
@@ -42,8 +42,8 @@ For each session-bound row:
   (`readlink /proc/<pid>/cwd`). Running → nothing to do.
 - **A session cron or `/loop`:** invisible from outside the session. Ask the owner (`SendMessage`), or, when its
   session is gone, treat it as missing.
-- **The owner's session is gone** (not in `ListAgents`, no agent in its worktree in herdr, or with herdr not
-  running, no `claude` process whose cwd is its worktree): every row it owns is missing.
+- **The owner's session is gone** (not in `ListAgents`, no session in its worktree in `scripts/term.py ls`, or with
+  no terminal server answering, no `claude` process whose cwd is its worktree): every row it owns is missing.
 
 Has the row's **when** already passed today? Its restart says whether to run it at once or wait for the next one.
 

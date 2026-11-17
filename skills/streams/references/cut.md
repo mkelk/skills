@@ -245,43 +245,42 @@ exist yet. A method that picks its own id leaves two ids for one increment, and 
 quietly wrong rather than loudly.
 
 **Do not end by asking the human for the session's name.** *The human should not be the
-index* — that is the SKILL's own requirement, and herdr already answers half of it: once the
-pane is open, `herdr api snapshot` gives an agent at that worktree with its `agent_status`,
-`pane_id` and terminal title, and `status` resolves the driver from the worktree without
-anyone being asked. Ask for a name only when herdr is not running (`~/.config/herdr/herdr.sock`
-absent), and say that is why. The door still does not message the new session: it does not
+index* — that is the SKILL's own requirement, and the terminal server already answers half of
+it: once the session is open, `python3 <skill dir>/scripts/term.py ls --json` gives a session at
+that worktree with its state, id and label, and `status` resolves the driver from the worktree
+without anyone being asked. Ask for a name only when no terminal server answers (term.py exits
+2), and say that is why. The door still does not message the new session: it does not
 exist yet.
 
 ### Or start it yourself, when the human says so
 
 When the human has asked the seat to start the stream (2026-11-05: *"cut a stream … and then
-start it when it is the right time"*), open it through herdr instead of printing the block
-above. Four steps, each checked before the next:
+start it when it is the right time"*), open it through the terminal server instead of printing
+the block above. Every command goes through the skill's `scripts/term.py` (below, `term.py` is
+`python3 <skill dir>/scripts/term.py`), which talks to hc when hc holds sessions and to herdr
+0.9.5 otherwise; `term.py which` says which. Three steps, each checked before the next:
 
 ```bash
-# 1. A workspace of its own, in the worktree. Never a tab in the seat's workspace: the human
-#    looks for each stream as its own workspace, and opens a second pane on the same tree
-#    when it is not there.
-#    Open it as the repository's worktree, so herdr nests it under the repository's workspace
-#    beside the other streams; `herdr workspace create --cwd` makes a top-level workspace with
-#    no repository link instead.
-herdr worktree open --workspace <the seat's workspace id> --path ~/git/<repo>-<slug> --label <slug> --no-focus   # note the root pane id
-# 2. Claude in that pane.
-herdr agent start <slug> --kind claude --pane <pane id>
-# 3. The name first, ALONE. Wait until the pane shows "Session renamed to: <slug>" before step 4.
-herdr agent prompt <pane id> '/rename <slug>'
-herdr pane read <pane id>          # repeat until the rename line is there
-# 4. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
+# 1. Claude in a place of its own, in the worktree. Never a tab in the seat's place: the human
+#    looks for each stream as its own space (hc: a herdr-app space named <slug>; herdr: a
+#    workspace), and opens a second pane on the same tree when it is not there.
+#    On herdr pass --workspace <the seat's workspace id>: it opens the tree as the repository's
+#    worktree, nested beside the other streams, not a top-level workspace with no repository link.
+term.py start ~/git/<repo>-<slug> <slug> [--workspace <the seat's workspace id>] -- claude   # note the session id
+# 2. The name first, ALONE. Wait until the session shows "Session renamed to: <slug>" before step 3.
+term.py send <session> '/rename <slug>'
+term.py read <session>          # repeat until the rename line is there
+# 3. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
 #    and bring the draft epics to the seat before any build.
-herdr agent prompt <pane id> 'You are the <slug> side stream (increment <id>) ...'
+term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
 ```
 
-Then check on the machine: `herdr api snapshot` shows exactly one agent whose `cwd` is the
+Then check on the machine: `term.py ls --json` shows exactly one session whose `cwd` is the
 worktree, `working`, and `/proc/<pid>/cwd` agrees. Set the row's session to `<slug>` in
 `coord/streams.md`, and write the cut as one line in `coord/log.md` (the skill's
 `scripts/coord.py log "CUT <slug> (<id>): …"`).
 
-**When herdr is not running** (`~/.config/herdr/herdr.sock` absent), the seat has no pane to
+**When no terminal server answers** (`term.py which` exits 2), the seat has no pane to
 open: print the block above, say that is why, and stop. Once the human has opened it, the
 process list (a `claude` whose `/proc/<pid>/cwd` is the worktree) or `ListAgents` shows the
 session, and the row's session is set from that.
@@ -290,18 +289,20 @@ session, and the row's session is set from that.
   the start prompt back to back; the second was typed into the first, the session was named
   `<slug>You are the <slug> side stream…`, and the start prompt never ran. A second `/rename`
   and a resend fixed it.
-- **Use `herdr worktree open`, not `herdr workspace create --cwd`.** On 2026-11-05 the seat
-  opened a stream with `workspace create`; it showed as its own top-level space, not under the
-  repository with the other streams, and the human asked for it there. `herdr worktree open
-  --workspace <seat ws> --path ~/git/<repo>-<slug> --label <slug>` on the running workspace
-  linked it in place (`already_open: true`), the session untouched.
+- **On herdr, open it as a worktree (`term.py start --workspace`), not a new workspace.** On
+  2026-11-05 the seat opened a stream as a plain workspace; it showed as its own top-level
+  space, not under the repository with the other streams, and the human asked for it there.
+  herdr's own worktree-open command, given the seat's workspace and the stream's path, linked it
+  in place on the running workspace (`already_open: true`), the session untouched. That is what
+  `term.py start --workspace` runs.
 - **A stream started in the seat's workspace can be moved while it runs.** The same day the seat
   opened another stream as a tab in its own workspace; the human looked for that stream's
   workspace, found none, and opened an empty one on the same worktree. The fix kept the session
-  alive: `herdr pane move <old pane> --tab <new workspace's tab> --split right`, then
-  `herdr pane close <the empty shell pane>`, then `herdr workspace rename <ws> <slug>`. herdr
-  closes the emptied tab by itself, and the moved pane gets a new id. Never start a second
-  Claude in the other pane instead: that is two drivers on one tree.
+  alive, with herdr's own layout commands (term.py does not wrap them): pane move (the old pane
+  to the new workspace's tab, split right), then pane close (the empty shell pane), then
+  workspace rename (to `<slug>`). herdr closes the emptied tab by itself, and the moved pane
+  gets a new id. Never start a second Claude in the other pane instead: that is two drivers on
+  one tree.
 
 ## Corrections from real runs
 
@@ -319,7 +320,8 @@ session, and the row's session is set from that.
   the main checkout holding the old table as a staged modification, and the status command
   printed an empty table over two live streams — Step 3 now realigns, and `status.md` now
   reads the ref (the row has since moved to `coord/streams.md`). **(3)** Step 5 ended by asking the human for the session name, which is the
-  indexing job the SKILL says must not be his; herdr already knows who sits in a worktree.
+  indexing job the SKILL says must not be his; the terminal server already knows who sits in a
+  worktree.
   All three were invisible until the door was walked end to end on a machine whose shape it
   did not anticipate.
 

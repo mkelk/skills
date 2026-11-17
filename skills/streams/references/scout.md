@@ -37,7 +37,7 @@ flowchart LR
 
 You are the scout for the seat of the repository you were given. You **read only**: never send
 a message, never edit, commit, kill, or run anything that writes (no `coord.py log` or `init`,
-no `tk` writes, no `git` writes, no `herdr agent prompt`). Never print a secret: do not `cat`
+no `tk` writes, no `git` writes, no `term.py send`). Never print a secret: do not `cat`
 any `.env`. Times in the report in UTC.
 
 `<common>` below is `git -C <main checkout> rev-parse --path-format=absolute --git-common-dir`;
@@ -61,12 +61,14 @@ Run these, in order, and note what each shows:
    a Later row whose time has come.
 6. **Every stream's pane, not only the idle ones.** The status STATE column lags: on 2026-11-06
    it said `done` for a stream running its last epic's gate. Read the pane and believe the pane
-   over the column: `herdr pane read <pane> 2>/dev/null | grep -v '^\s*$' | tail -15` (the pane
-   id from `herdr api snapshot`, matched by the row's worktree as `cwd`; skip the seat's own pane
-   and a stream with no pane). Say what it says it is waiting on. **When herdr is not running**
-   (no `~/.config/herdr/herdr.sock`) there are no panes to read: write `panes: not read (no
-   herdr)`, read each stream's processes instead (`ps -eo pid,etime,args` with cwd under its
-   worktree), and leave the sessions to the seat, which can see them with `ListAgents`.
+   over the column: `python3 <skill dir>/scripts/term.py read <session> --lines 15 | grep -v
+   '^\s*$' | tail -15` (the session id from `python3 <skill dir>/scripts/term.py ls --json`,
+   matched by the row's worktree as `cwd`; skip the seat's own session and a stream with none).
+   Say what it says it is waiting on. term.py reads whichever terminal server holds the session
+   (hc first, herdr 0.9.5 as the fallback). **When no terminal server answers** (term.py exits 2)
+   there are no panes to read: write `panes: not read (no terminal server)`, read each stream's
+   processes instead (`ps -eo pid,etime,args` with cwd under its worktree), and leave the
+   sessions to the seat, which can see them with `ListAgents`.
 7. **Self-matching waits.** `ps -eo pid,etime,args | grep '[p]grep -f'` — a shell looping on
    `pgrep -f` that may match its own command line. For each:
    `tr '\0' ' ' < /proc/<pid>/cmdline | grep -o "eval .*" | cut -c1-200` — the pattern it waits
