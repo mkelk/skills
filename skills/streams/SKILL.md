@@ -42,7 +42,7 @@ Principles, binding for every door:
   | What runs on a clock, with its owner and how to restart it | `coord/schedules.md` |
   | What waits on the human | `coord/asks.md` |
   | A roadmap's live state (the `roadmap` skill) | `coord/roadmaps/<name>.md` |
-  | The project's facts, the rules for streams, and landed streams' history | `.devmeta/streams.md`, in git |
+  | The project's facts and the rules for streams (what landed: git history and `coord/log.md`) | `.devmeta/streams.md`, in git |
 
   The seat edits `coord/streams.md` in place at a cut, a landing or a correction — no commit,
   no announcement for a row change — after copying it to the scratchpad, by exact match, and

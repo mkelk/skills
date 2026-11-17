@@ -34,7 +34,7 @@ Usage:
 The project file `.devmeta/streams.md` (committed, at the repository's top) holds the project's facts in
 optional sections: `## Project` (`trunk:`, `worktree root:`), `## Resources`, `## At cut`, `## At landing`,
 and the prose sections the doors paste or follow (`## Heavy runs`, `## Standing rules`, `## Seams`,
-`## At hotfix`). `config` prints each fact with where it came from: the file, or what was detected when
+`## At hotfix`, `## Scout`). `config` prints each fact with where it came from: the file, or what was detected when
 the file says nothing; `config --get <fact>` prints one fact's bare value, for a command line.
 
 Python 3 standard library only.
@@ -411,8 +411,8 @@ STREAMS_HEADER = """# Streams — the live table
 
 The running streams **on this machine**. It lives in git's common directory, so every worktree
 reads the same file and nothing here is committed: the seat edits it in place, and it is current
-for everyone at once. The rules for streams, and landed streams' history, stay in git, in
-`.devmeta/streams.md`.
+for everyone at once. The rules for streams stay in git, in `.devmeta/streams.md`; what landed is in
+git history and `coord/log.md`.
 
 | stream | increment | session | branch | worktree | ports | host | epics | status |
 |---|---|---|---|---|---|---|---|---|
@@ -493,13 +493,14 @@ def init(directory):
 PROJECT_FILE = os.path.join(".devmeta", "streams.md")
 # The sections the doors read. Any other `## ` heading is reported as a warning, never refused.
 KNOWN_SECTIONS = ("Project", "Resources", "At cut", "At landing", "Standing rules", "Heavy runs", "Seams",
-                  "At hotfix")
+                  "At hotfix", "Scout")
 SECTION = re.compile(r"^##\s+(.+?)\s*$")
-# The sections the doors follow as written; `config` passes them through untouched.
-PROSE_SECTIONS = ("Heavy runs", "Standing rules", "Seams", "At hotfix")
+# The sections the doors follow as written; `config` passes them through untouched. `Standing rules`
+# is pasted into every brief; `Scout` is read only by the hourly scout (references/scout.md), never a brief.
+PROSE_SECTIONS = ("Heavy runs", "Standing rules", "Seams", "At hotfix", "Scout")
 # `config --get <fact>`: one fact's bare value, for a command line such as `git show "$(... --get trunk)":<path>`.
 GET_FACTS = ("trunk", "worktree-root", "worktree", "repo", "file", "at-cut", "at-landing", "resources",
-             "heavy-runs", "standing-rules", "seams", "at-hotfix")
+             "heavy-runs", "standing-rules", "seams", "at-hotfix", "scout")
 
 
 def _git(args, cwd=None):
@@ -679,7 +680,7 @@ def show_config(facts):
         out.append("resources: (none; a stream claims nothing)")
     present = [name for name in PROSE_SECTIONS if facts["sections"].get(name)]
     out.append(f"sections: {', '.join('## ' + n for n in present)}" if present
-               else "sections: (no ## Heavy runs, ## Standing rules, ## Seams or ## At hotfix)")
+               else "sections: (no ## Heavy runs, ## Standing rules, ## Seams, ## At hotfix or ## Scout)")
     for w in facts["warnings"]:
         out.append(f"warning: {w}")
     return "\n".join(out)

@@ -39,7 +39,7 @@ HERDR_SNAP = {"result": {"snapshot": {
     "panes": [{"pane_id": "w6:p1", "workspace_id": "w6", "cwd": "/w/repo-b", "agent": "claude",
                "agent_status": "done", "agent_session": {"value": "uuid-1"}, "foreground_cwd": "/w/repo-b/x"},
               {"pane_id": "w6:p2", "workspace_id": "w6", "cwd": "/w/repo-c", "agent": "claude",
-               "agent_status": "blocked"}],
+               "agent_status": "blocked", "terminal_title_stripped": "stream c"}],
     "agents": []}}}
 HERDR_EMPTY = {"result": {"snapshot": {"workspaces": [], "panes": [], "agents": []}}}
 
@@ -116,6 +116,7 @@ class TermTest(unittest.TestCase):
         self.assertEqual(by_id["w6:p1"]["session"], "uuid-1")
         self.assertEqual(by_id["w6:p1"]["label"], "b")
         self.assertEqual(by_id["w6:p1"]["foreground_cwd"], "/w/repo-b/x")
+        self.assertEqual(by_id["w6:p2"]["label"], "stream c")  # the pane's title wins over the workspace's label
         self.assertEqual(by_id["w6:p2"]["state"], "blocked")  # blocked is never idle, nor unknown
         self.assertEqual(by_id["w6:p2"]["status"], "blocked")
         self.assertEqual(by_id["w6:p2"]["foreground_cwd"], "")

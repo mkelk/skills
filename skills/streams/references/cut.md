@@ -133,7 +133,7 @@ new session cannot see:
 3. Its neighbours, from `coord/streams.md`: each stream's session, worktree, resources, and the
    files it owns — so a tick that wants one of them stops and asks.
 4. The project's `## Standing rules` and `## Seams`, pasted as they are (`coord.py config --get
-   standing-rules`, `--get seams`); its `## Heavy runs` rules if it has them; and where
+   standing-rules`, `--get seams`; never `## Scout`, which is the seat's); its `## Heavy runs` rules if it has them; and where
    coordination state lives: holds, deploys and hand-offs as lines in `coord/log.md` through
    `coord.py log` (a `HOLD` needs `--for` or `--until`); landing is the seat's.
 5. Anything on a clock goes in `coord/schedules.md`, one row each, before it first fires, with

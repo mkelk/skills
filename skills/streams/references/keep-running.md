@@ -18,7 +18,8 @@ list; run all of it every pass.
 
 **On the timer (since 2026-11-06, hourly):** the looking in Steps 1 and 2 is done by a scout
 subagent on the cheapest model the harness offers, so the seat's context keeps only its report:
-follow `references/scout.md`, then act here from Step 2. Run the door yourself only when the
+follow `references/scout.md` (its last step runs the project file's `## Scout` checks, if any), then act
+here from Step 2. Run the door yourself only when the
 human asks for a pass, or when the scout's report cannot be trusted (it failed, or contradicts
 itself).
 

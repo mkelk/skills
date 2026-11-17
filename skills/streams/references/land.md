@@ -64,8 +64,10 @@ is anything finished and unlanded?
      clean. **Landing one epic early turns this round**: the stream's next sync takes the
      trunk's header clean, so tell it to restore its own Active line after that sync.
      (2026-09-29) a stream caught it by reading the file.
-   - The stream's row: it leaves `coord/streams.md` (edited in place, read back) and joins the
-     landed streams in `.devmeta/streams.md` as `landed <sha>`, in the merge.
+   - The stream's row: it leaves `coord/streams.md` (edited in place, read back). If the project
+     file keeps a list of landed streams (its `## At landing` says so), add the row there as
+     `landed <sha>`, in the merge; otherwise add nothing: git history and `coord/log.md` are
+     the record of what landed.
    - **Verify keep-both by parsing, never by eye.** A conflict boundary inside a structure (an
      object literal, a comment block) makes keep-both drop an opening or closing token while git
      reports success. Run the typecheck or any command that reads the file before believing a

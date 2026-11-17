@@ -447,6 +447,24 @@ class ProjectConfig(CoordCase):
         self.assertEqual((code, out.strip()), (0, os.path.join(os.path.dirname(repo), "demo-demo")))
         self.assertIn("## Heavy runs", self.run_in(repo, "config")[1])
 
+    def test_scout_section_is_known_and_kept_apart_from_standing_rules(self):
+        repo = self.repo()
+        self.write_file(repo, "## Standing rules\nrun the suite before READY\n\n"
+                              "## Scout\ncheck the job queue for failures\n")
+        facts = coord.config(cwd=repo)
+        self.assertEqual(facts["warnings"], [])
+        self.assertEqual(facts["sections"]["Scout"], "check the job queue for failures")
+        self.assertNotIn("job queue", facts["sections"]["Standing rules"])
+        self.assertEqual(self.run_in(repo, "config", "--get", "scout"), (0, "check the job queue for failures\n", ""))
+        self.assertEqual(self.run_in(repo, "config", "--get", "standing-rules")[1], "run the suite before READY\n")
+        self.assertEqual(json.loads(self.run_in(repo, "config", "--json")[1])["sections"]["Scout"],
+                         "check the job queue for failures")
+        self.assertIn("## Scout", self.run_in(repo, "config")[1])
+
+    def test_get_scout_is_empty_without_the_section(self):
+        repo = self.repo()
+        self.assertEqual(self.run_in(repo, "config", "--get", "scout"), (0, "", ""))
+
     def test_get_refuses_unknown_fact_and_worktree_without_slug(self):
         repo = self.repo()
         code, _, err = self.run_in(repo, "config", "--get", "branch")

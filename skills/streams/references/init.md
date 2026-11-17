@@ -18,6 +18,7 @@ writes only the sections that have content:
 | `## At landing` | the checks run on the merged tree | `land` |
 | `## Heavy runs` | the runs too heavy for two at once (a browser test tier, say): how to see one running (a `pgrep` pattern), and the project's rules for them; `references/recipes/` has worked ones to point at | `status`, `land` |
 | `## Standing rules`, `## Seams`, `## At hotfix` | prose: rules pasted into a brief, files two branches both edit and how each resolves, a hotfix's verify and hand-off | `cut`, `land`, `hotfix` |
+| `## Scout` | prose: the project's own checks for the hourly scout (a job queue, a report box); seat-only, so never pasted into a brief | `keep-running`, through `references/scout.md` |
 
 Only the first five are written by this door; add the prose sections by hand when the project
 has something to say in them.

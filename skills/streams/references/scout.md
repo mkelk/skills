@@ -79,6 +79,11 @@ Run these, in order, and note what each shows:
 9. **Orphans.** `ls -l /proc/*/cwd 2>/dev/null | grep -c '(deleted)'`.
 10. **Roadmaps.** For each file in `<common>/coord/roadmaps/`, the `roadmap` skill's read-only
     status: the hand-offs ready, and any piece it says is unreadable.
+11. **The project's own checks.** `python3 <skill dir>/scripts/coord.py config --get scout`, run
+    in the main checkout: the project file's `## Scout` lines, the checks this project names for
+    its hourly pass. Run or read each as it says, read-only as above, and report what it finds.
+    Nothing printed means the project names none: nothing to do. (`## Standing rules` is what goes
+    into every stream's brief; `## Scout` is for this pass only and never goes into a brief.)
 
 Report in this shape and nothing else, **25 lines at most**, each line one fact with its
 evidence (a pid, a time, a log line's start):

@@ -163,7 +163,8 @@ def _herdr_session(p, spaces):
         "id": p["pane_id"],
         "cwd": p.get("cwd") or "",
         "foreground_cwd": p.get("foreground_cwd") or "",
-        "label": spaces.get(p.get("workspace_id")) or p.get("terminal_title_stripped") or "",
+        # The pane's own title first: several panes can share one workspace, and its label alone tells them apart.
+        "label": p.get("terminal_title_stripped") or spaces.get(p.get("workspace_id")) or "",
         "agent": p.get("agent") or "",
         "state": _state(word),
         "status": word,
