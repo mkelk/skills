@@ -1,20 +1,10 @@
 # queue — the list of what waits on the human
 
-*The human, 2026-11-03: a pane in herdr "called queue that keeps track of stuff I need to do right
-now — it tends to get swamped in seat's dialogue with me and seat's statuses".* The list kept;
-the pane did not. **The human, 2026-11-05:** *"A good idea that seat keeps track of it in a file
--"* but the separate queue pane in herdr *"does not really work. So keep the accounting and seat's
-ability to register/track, but drop the queue tab and its responsibilities."* Since then the
-seat alone keeps the list and talks to the human about it.
-
-**The seat alone holds the list, because a second session holding it did not work.** From
-2026-11-03 to 2026-11-05 a separate pane beside the seat, a Claude session on a cheaper model
-named `queue`, read `asks.md`, showed the human only that, logged their answers word for word as
-`ANSWER q<n>: <their exact words>` lines in `coord/log.md`, and messaged the seat. A go typed
-there counted, but only through that log line, and the seat acted on the line, never on the
-pane's summary of it. It was dropped after two days, in the human's words above because the
-pane "does not really work"; the file and the seat's accounting were the part worth keeping,
-and with the pane gone a go again counts only where the human types it to the seat.
+What waits on the human gets swamped in the seat's dialogue and statuses, so it is kept in a file.
+**The seat alone holds the list and talks to the human about it.** The human, 2026-11-05: *"keep the
+accounting and seat's ability to register/track, but drop the queue tab and its responsibilities."*
+(2026-11-03) a separate cheaper `queue` pane beside the seat, logging answers as `ANSWER q<n>:` lines,
+was dropped after two days because it "does not really work" — the file was the part worth keeping.
 
 ## What it is
 
@@ -53,6 +43,6 @@ flowchart LR
 
 ## Where a go counts
 
-A go counts only typed by the human in the seat (an AskUserQuestion answer there counts). The
-queue pane's `ANSWER q<n>` log lines from 2026-11-03 to 2026-11-05 stay in `coord/log.md` as
-history; no new ones are written, and no other session's message carries a go.
+A go counts only typed by the human in the seat (an AskUserQuestion answer there counts). Old
+`ANSWER q<n>` log lines stay as history; no new ones are written, and no other session's message
+carries a go.

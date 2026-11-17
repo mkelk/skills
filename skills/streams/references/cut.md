@@ -3,226 +3,160 @@
 Set a new side stream up so its session can start from files alone. Everything the seat used
 to do by hand, and the brief it used to write from memory.
 
-Arguments: `cut <slug> [--from mainline|master] [--scope "<task>"]`. `slug` names
-the branch and the worktree (`<repo>-<slug>` beside the main checkout).
+Arguments: `cut <slug> [--from mainline|trunk] [--scope "<task>"]`. `slug` names the branch and
+the worktree. The project's facts come from `coord.py config` (the trunk, the worktree place,
+`## Resources`, `## At cut`, `## Standing rules`, `## Seams`); a fact the project file does not
+name has the detected default `config` prints, and a section it does not have means nothing to
+do.
 
 **One name per stream (2026-09-23):** the slug *is* the stream's name — a short lowercase word
-said in chat — and it **leads every label** the stream carries: the branch, the worktree
-(`<repo>-<slug>`, no `side-`), the session (`/rename <slug>` in its pane), its row in
-`coord/streams.md`, and whatever the project's issue tracker groups the stream's tasks under (a
-milestone `<slug> — <title> (<id>)`, say). The increment id follows the name, never replaces it:
-*<slug> (<id>)*. The places names are read — the herdr sidebar, `git worktree list`, a pane
-title, a milestone list — cut them off from the right, the same reason the branch rule below
-gives. Streams cut before the rule keep their branches and worktrees (renaming a live branch
-moves every tick's base-branch stamp) but take the name in chat and in their session.
+said in chat — and it **leads every label** the stream carries: the branch, the worktree (no
+`side-`), the session (`/rename <slug>` in its pane), its row in `coord/streams.md`, and
+whatever the project's issue tracker groups the stream's tasks under (a milestone `<slug> —
+<title> (<id>)`, say). The increment id follows the name, never replaces it: *<slug> (<id>)*.
+Streams cut before the rule keep their branches (renaming a live branch moves every tick's
+base-branch stamp) but take the name in chat and in their session.
 
-**Branch names put the slug first and the date last: `<slug>-<YYYY-MM-DD>`.** A mainline's
-slug is `inc<NN>`. So `prod-2026-09-21`, `todos-2026-09-21`, `inc09-2026-09-21` — never
-`2026-09-21-side-prod`. **The date-first form is unreadable in every narrow list**, which is
-where branch names are actually read: the human's herdr sidebar on 2026-09-21 showed three
-streams as `2026-09-21-side-…`, `2026-09-21-incre…` and `2026-09-21-side-…`, identical for
-eleven characters and truncated exactly where they started to differ. A name is for telling
-things apart, and a shared prefix is the one place that cannot happen. Several streams cut on
-one day is the normal case, not the exception, so the date is the least distinguishing part
-of the name and belongs at the end, where it still sorts and still says when. Default `--from mainline`: cut from the mainline's branch tip so the stream has the
-current tree; `--from master` when the stream must not carry the mainline's unfinished work.
+**Branch names put the slug first and the date last: `<slug>-<YYYY-MM-DD>`.** A mainline's slug
+is `inc<NN>`. So `search-2026-09-21`, `inc09-2026-09-21` — never `2026-09-21-search`. Narrow
+lists (a sidebar, `git worktree list`, a pane title) cut names off from the right, and several
+streams cut on one day is normal, so the date is the least distinguishing part. (2026-09-21)
+three date-first branches were identical for eleven characters in a sidebar that truncated
+there — existing streams were not renamed; the convention changed for the next cut.
+
+Default `--from mainline`: cut from the mainline's branch tip so the stream has the current
+tree; `--from trunk` (the trunk, `coord.py config --get trunk`) when the stream must not carry
+the mainline's unfinished work.
 
 ## Step 0 — Is this a side stream at all?
 
-The door's name and every default in it assume a mainline is already running and this is a
-stream *beside* it. **When the table has no mainline row, stop and ask the human which this
-is**, because the answer changes four things at once and none of them is cheap to change
-afterwards: the port block (the mainline's or a side stream's), whether it may touch the deploy host, the
-increment id's form, and whether the Active line may say "beside the mainline" at all.
+**When the table has no mainline row, stop and ask the human which this is**, because the
+answer changes four things at once: the resources (the mainline's or a side stream's), whether
+it may touch a deploy host, the increment id's form, and whether the Active line may say
+"beside the mainline". Do not infer it from the argument. (2026-09-21) "a worktree to work
+through the issues" on an empty machine meant the mainline, which the defaults would have made
+a side stream.
 
-Two shapes, both legitimate:
+- **The mainline, in a worktree of its own.** Id `<NN>-<xxx>`; the mainline's resources; it owns
+  any deploy host. The main checkout then stays on the trunk driving nothing. Say that in the
+  table's header — **a session sitting in the main checkout is the thing a seat will mistake for
+  the mainline**, and the mistake is silent.
+- **A side stream.** Id `<NN>s<k>-<xxx>`; the lowest free side-stream share of each resource;
+  no host.
 
-- **The mainline, in a worktree of its own.** Id `<NN>-<xxx>`; the mainline's port block, dev services included; it owns the deploy host and may deploy. The main checkout then stays on `master`
-  driving nothing. Say that in the table's header in as many words — **a session sitting in
-  the main checkout is the thing a seat will mistake for the mainline**, and the mistake is
-  silent.
-- **A side stream.** Id `<NN>s<k>-<xxx>`; the lowest free side-stream port block; no host, `DEPLOY_HOST`
-  commented out.
+## Step 1 — Read the table, claim what the project names
 
-Do not infer it from the argument. On 2026-09-21 the human asked for "a worktree to work
-through the GitHub issues" on an empty machine; either reading was defensible, and the one he
-wanted (the mainline, in a worktree) was the one the door's defaults would have got wrong.
-
-## Step 1 — Read the table, claim a block
-
-From `<git common dir>/coord/streams.md` (`git rev-parse --path-format=absolute
---git-common-dir`): the mainline's branch and host, and every port block in use. The
-new block is the **lowest** side-stream block no *live* row holds — a landed stream's block
-is free again (once one was free while a higher one looked next; the first cut nearly took
-the higher one). Refuse if none is free — say which rows hold what.
+From `<git common dir>/coord/streams.md`: the mainline's branch and host, and what each live row
+claims. Then `coord.py config --get resources`: **a stream claims what `## Resources` names, and
+nothing when it is absent.** Each line names a resource and its share for stream `k` (`web:
+70k0`, `schema: app_s<k>`, `host: one at a time, held with a coord HOLD`). The new stream takes
+the **lowest** `k` no *live* row holds — a landed stream's share is free again. Refuse if none is
+free, saying which rows hold what. (2026-09-20) "next free" was read as "after the highest"
+while the lowest was a landed stream's — lowest, not next.
 
 ## Step 2 — Branch and worktree
 
 From the main checkout (read-only; never `git checkout` there):
 
 ```bash
-git worktree add -b <slug>-<date> ../<repo>-<slug> <from-branch>
+tree=$(coord.py config --slug <slug> --get worktree)
+git worktree add -b <slug>-<date> "$tree" <from-branch>
 ```
 
-**A mainline in a worktree is named after its increment, not after a slug:** branch
-`inc<NN>-<date>`, worktree `<repo>-increment-<NN>`. The worktree's name is the only
-label a human reads in `git worktree list`, in a pane title and in `/proc/<pid>/cwd`, so it
-should say which branch lives there — that is one cheap half of the mapping problem the
-SKILL names, paid for at the cut.
+**A mainline in a worktree is named after its increment:** branch `inc<NN>-<date>`, worktree
+`coord.py config --slug increment-<NN> --get worktree`. The worktree's name is the only label a
+human reads in `git worktree list`, a pane title and `/proc/<pid>/cwd`.
 
-Then in the worktree: copy the main checkout's `.env`, set `WEB_PORT` and
-`WORKER_PORT` to the first two ports of its block, and comment `DEPLOY_HOST` out with a line saying the stream has no host
-and the mainline owns the deploy host. Install deps (`pnpm install --frozen-lockfile`). Write
-the worktree's compact settings per `references/compact.md`: a `.claude/settings.local.json`
-with the auto-compact window for the stream's kind (a build stream's is smaller than a
-discussion stream's) and the after-compaction hook. If `--from master`, `git merge <mainline
-branch>` and resolve the diary/todo seams keep-both.
+Then in the worktree:
+- **Resources.** Write the stream's share of each claimed resource where the project's
+  `## Resources` says it goes (an env file's keys, say), and leave any resource the stream does
+  not hold (a deploy host) unset with a line saying who holds it.
+- **`## At cut`.** Run its lines in order (`coord.py config --get at-cut`): an install, an env
+  file copied from the main checkout or its example. Absent, nothing.
+- **Compact settings** per `references/compact.md`: `.claude/settings.local.json` with the
+  auto-compact window for the stream's kind and the after-compaction hook.
+- If `--from trunk`, `git merge <mainline branch>` and resolve by `## Seams` (an end-of-file
+  record or a list file: keep both).
 
 ## Step 3 — Records
 
 - **Active line.** Rewrite the block above `## Streams` in `.devmeta/current-increment.md` on
-  the new branch: `**Active:** <increment id> — <title> (side stream beside the mainline
-  <id>)`, overview path, status `NOT STARTED`, branch and worktree and ports, and the
-  sentence "This Active line is this branch's only: at landing keep the mainline's."
-- **Increment id.** `<NN>s<k>-<xxx>`: `NN` the mainline's number, `k` the next side index in
-  the table, `xxx` three random lowercase letters. **A mainline's is `<NN>-<xxx>`** — no `s`,
-  no index — whether or not it runs in the main checkout.
+  the new branch: `**Active:** <increment id> — <title> (side stream beside the mainline <id>)`,
+  overview path, status `NOT STARTED`, branch, worktree and claimed resources, and the sentence
+  "This Active line is this branch's only: at landing keep the mainline's."
+- **Increment id.** `<NN>s<k>-<xxx>`: `NN` the mainline's number, `k` the next side index in the
+  table, `xxx` three random lowercase letters. A mainline's is `<NN>-<xxx>`.
 - **If `--scope` names a task in the project's issue tracker: claim it with the project's own
-  claim mechanism** (a label plus a claim comment naming the increment, say), refused when the
-  task is already claimed; nothing is written on `master` for it. The overview names the tasks
-  by number under `## Taken from the issues`. This is the same rule as the file-based one below
-  — mark, do not move; check the claim before taking it — with the tracker as the one home; a
-  project moved its tasks from a file in git to the tracker on 2026-09-23, and the file-based
-  rule is kept for its reasoning and for projects that still keep their tasks in a file.
-- **If `--scope` names a todo entry in a file: MARK it on `master`, do not move it.** (The
-  human, 2026-09-21; the rule lived in the project's `CLAUDE.md` → *Todo, one home per task*.)
-  On `master`, in a commit made through a scratch worktree and `git update-ref` (never a
-  `git checkout` in the main checkout), change the entry's index line from
-  `- [ ]` to `- [~] … — **<increment>**, taken <date>`. **Nothing is deleted and nothing is
-  copied.** The new `.devmeta/increments/increment-<id>/_overview.md` **names** the entries
-  under a `## Taken from the todo` heading, **each head-noted with what has aged** — the text
-  stays in the todo file (`todo.md`), which every worktree already has.
-  **Before marking, check the entry is not already `[~]` on `master`.** That is the whole
-  prevention: a stream that syncs forward sees a claim before it scopes. Marking on the
-  stream's branch instead buys only late detection, and moving buys none at all — two streams
-  scoping one entry used to write the *same delete*, which git merges cleanly.
-  **The delete happens once, at the landing**, by the stream that finished it, into
-  the done file (`todo.done.md`) with the date and where it landed.
-  **Transitional, until the streams cut before 2026-09-21 have landed:** those streams still
-  carry deletes on their branches while `master` carries the mark. At their landing the
-  resolution is the same either way — the entry is done, so it moves to `todo.done.md` — but
-  expect a conflict there rather than a clean delete, and resolve it as *done*, not as *keep*.
-  Then write the overview's skeleton (Goal, Produces, Not
-  included, Roadmap, Definitions of done, Exit criteria, How to run) from it, and create the
-  tk project and one epic with `tk create`, stamping `--base-branch` on the epic. Otherwise, if
-  the seat already knows the scope well (it was designed in conversation and nothing is in the
-  todo), write the overview directly — complete, with definitions of done — and create the tk
-  project and epic; that is what the first cut did for the streams CLI. Only leave scoping to
-  `/dmtix start` when the scope is genuinely open.
-- **The Streams row.** In `<git common dir>/coord/streams.md`, **in place**: add the row
-  (session `<slug>` once its pane is open and renamed, `—` until then; status `cut, not
-  started`). No commit, no `update-ref`, no merge into the new branch and no announcement: the
-  file is one file for every worktree of the repository on this machine, so the new stream's
-  tree already sees its own row. Copy the file to the session scratchpad first, edit by exact
-  match (never by line number), and **read the row back**. (Since 2026-09-23. Until then the row
-  was committed on `master` through a scratch worktree and `git update-ref`, and the seat then
-  merged `master` into the new branch so it carried its own row — the one merge into a
-  stream's branch the seat ever did, safe only because it happened at the cut, before any
-  session held the tree. A day on which the table churned through a commit per row is what
-  moved it out of git.)
-- **Any commit the seat makes on `master` at a cut** — the todo mark above, in a project that
-  keeps one — still goes through a scratch worktree and `update-ref`, and the two faults that
-  procedure produced on 2026-09-21, when the row itself was committed that way, apply to every
-  such commit.
-  **Never let a failed edit reach a commit.** Between editing and committing, assert that
-  something is actually staged and stop if not:
+  claim mechanism** (a label plus a claim comment naming the increment, say), refused when it is
+  already claimed; nothing is written on the trunk for it. The overview names the tasks by
+  number under `## Taken from the issues`.
+- **If `--scope` names an entry in a task file: MARK it on the trunk, do not move it** (the
+  human, 2026-09-21). Through a scratch worktree and `git update-ref` (never a `git checkout` in
+  the main checkout), change its index line from `- [ ]` to `- [~] … — **<increment>**, taken
+  <date>`. Nothing is deleted or copied; the overview **names** it under `## Taken from the
+  todo`, **head-noted with what has aged** (below). **Before marking, check the entry is not
+  already `[~]` on the trunk** — that is the whole prevention. The delete happens once, at the
+  landing, into the done file with the date and where it landed. (2026-09-21) two streams
+  scoping one entry wrote the same delete, which git merges cleanly — so mark, do not move.
+- **The overview.** If the seat knows the scope well (designed in conversation), write the
+  overview directly — Goal, Produces, Not included, Roadmap, Definitions of done, Exit criteria,
+  How to run — and create the tk project and one epic with `tk create`, stamping
+  `--base-branch` on the epic. Leave scoping to `/dmtix start` only when the scope is open.
+- **The Streams row.** In `<git common dir>/coord/streams.md`, **in place**: add the row (session
+  `<slug>` once its pane is open and renamed, `—` until then; status `cut, not started`;
+  resources as claimed). No commit, no announcement: every worktree sees the file at once. Copy
+  it to the scratchpad first, edit by exact match (never by line number), and **read the row
+  back**.
+- **Any commit the seat makes on the trunk at a cut** (a task-file mark) goes through a scratch
+  worktree and `update-ref`. **Never let a failed edit reach a commit**:
   ```bash
   test -n "$(git diff --cached --name-only)" || { echo "nothing staged"; exit 1; }
   ```
-  On 2026-09-21 the seat pushed **two** hollow commits this way — `8759931` and `fa9ec93` —
-  each carrying a message describing a row it did not contain. A failed assertion in the edit
-  script aborted the write, and the commit-and-push chain after it ran anyway on an unchanged
-  tree. Both times a stream was live on disk with **no row**, which is the state this skill
-  names first: invisible, not merely miscounted. The push output says `master -> master` and
-  looks exactly like success. **Verify the change is on master by reading it back** — a push that
-  succeeded is not evidence that a change was made. Do not rewrite the bad commits afterwards:
-  with streams running and possibly fetched, a force-push to tidy a message is the worse trade,
-  and the history is more honest with the mistake and its correction both visible.
-
-  **Then put the main checkout back in line, in the same breath:**
+  and verify on the trunk by reading the change back — a successful push is not evidence a
+  change was made. Do not force-push to tidy a bad commit afterwards. Then put the main checkout
+  back in line in the same breath, since `update-ref` touches no working tree:
   ```bash
   git -C <main checkout> restore --source=HEAD --staged --worktree <the files the commit changed>
   ```
-  `update-ref` moves the ref and touches no working tree, so the main checkout is left holding
-  the *old* file — and, worse, holding it as a staged modification it never made. Any door that
-  reads the table from disk there then answers about a machine that no longer exists. On
-  2026-09-21 the seat wrote two rows, pushed them, and its own status command printed an
-  empty table with both streams live; `--json` returned `[]`. That is the SKILL's own named
-  failure — *a stream missing from the table is invisible, not merely miscounted* — produced
-  by this door's own procedure. The durable half of the fix was to read the ref, not the
-  disk, and the row's move to `coord/streams.md` has since removed the stale copy altogether;
-  this line is the half that still keeps the checkout clean, for any file an `update-ref`
-  commit touches, for whoever takes it next.
+  (2026-09-21) an aborted edit with a chained commit-and-push put two hollow commits on the
+  trunk while a stream ran with no row.
 
 ## Step 4 — The brief
 
-Write `docs/thoughts/<date>-<slug>-brief.md` on the new branch, then commit. It carries what
-the new session cannot see:
+Write `docs/thoughts/<date>-<slug>-brief.md` on the new branch, then commit. It carries what the
+new session cannot see:
 
-1. Where it is: worktree, branch, cut point, ports, `DEPLOY_HOST` unset on purpose.
+1. Where it is: worktree, branch, cut point, the resources it holds, and what it does not hold
+   (a deploy host) on purpose.
 2. What to read first: its overview (or "run `/dmtix start` with the id `<id>` set by hand").
-3. Its neighbours, from `coord/streams.md`: each stream's session name, worktree, ports, and
-   the files it owns — so a tick that wants one of them stops and asks.
-4. The standing rules, copied from `.devmeta/streams.md`'s footer (Playwright, seams, sync
-   forward, landing is the seat's, tiers, the two rules), and where coordination state lives:
-   holds, deploys and hand-offs as lines in `coord/log.md` through the skill's
-   `scripts/coord.py log` (a `HOLD` needs `--for` or `--until`).
-5. Anything on a clock goes in `<git common dir>/coord/schedules.md`, one row each, before it
-   first fires, with its restart line; its script lives in the worktree, never only under
-   `/tmp` (`references/restart.md`).
+3. Its neighbours, from `coord/streams.md`: each stream's session, worktree, resources, and the
+   files it owns — so a tick that wants one of them stops and asks.
+4. The project's `## Standing rules` and `## Seams`, pasted as they are (`coord.py config --get
+   standing-rules`, `--get seams`); its `## Heavy runs` rules if it has them; and where
+   coordination state lives: holds, deploys and hand-offs as lines in `coord/log.md` through
+   `coord.py log` (a `HOLD` needs `--for` or `--until`); landing is the seat's.
+5. Anything on a clock goes in `coord/schedules.md`, one row each, before it first fires, with
+   its restart line; its script lives in the worktree, never only under `/tmp`
+   (`references/restart.md`).
 6. Anything specific the seat knows: a decision already made, a trap already found, a file the
    mainline has also touched.
 
-**Every fact in a brief is a copy, and the seat must know which copy it took.** A brief is
-written fast, from the todo, the diary, a completion report and the seat's own memory — all
-of which were true when written and none of which is checked at the moment of copying. So
-**cite the source for anything a stream will act on**, and when a stream later measures one
-of them false, the brief is the *least* important copy to fix: find where the claim came from
-and check that too.
+**Every fact in a brief is a copy, and the seat must know which copy it took.** **Cite the
+source for anything a stream will act on**, and when a stream measures one false, the brief is
+the *least* important copy to fix: find where the claim came from and fix that too — the living
+documentation may not age. (2026-09-21) a brief called a host's runner inert, quoting a
+two-day-old task entry; it had been live for two days, and the same sentence was in the docs.
 
-On 2026-09-21 a brief told a production stream that the host's model runner was the inert
-default and one command remained. The stream measured the box: the runner had been live for
-two days. The seat had quoted a todo entry written 48 hours earlier and reported it as the
-state now. Correcting the brief would have closed the incident and left the fault in place —
-**the same false sentence was in the project's page on its hosts**, the living documentation,
-the copy that has to be true. A brief is dated exploration and may age; the living
-documentation may not.
+**An entry moved into an overview gets a head-note, as a matter of course**: at the **head** of
+its section, what has been overruled, what was measured since, and the date — for every entry
+moved. (2026-09-21) a moved entry led with a fix the human had just rejected, the note further
+down.
 
-**An entry moved into an overview gets a head-note, as a matter of course.** A todo entry is
-written as if it were current — that is what makes it readable and what makes it dangerous a
-week later. One moved on 2026-09-21 carried three claims that had aged in two days, including
-a *prescribed fix the human had just rejected*; the note saying so was put further down, where a
-reader meets the rejected plan first. So: when `--scope` moves an entry, put the note at the
-**head** of its section — what has been overruled, what was measured since, and the date — and
-do it for every entry moved, not only the ones already known to be stale. The entry's own
-prose cannot warn anyone; only the head-note can.
-
-**A todo entry is not the state of the code, and this is the mistake the seat keeps making.**
-On 2026-09-21 two briefs passed a stale entry to a stream as current fact: one said a host's
-model runner was inert when it had been live for two days, and one described a chat's failure
-mode from an entry's prose — quoting a refusal sentence **that is not in the code**, for a case
-that **does not refuse at all** (the runner is built outside the try, the constructor throws,
-the component awaits with no catch, and the visitor's message sits in the transcript with
-nothing after it). Both were caught by streams reading the tree instead of the brief. An entry
-is a record of what someone observed *when they wrote it*, and the fresher the entry looks the
-more dangerous it is. **Quote code from code; cite the entry as the reason to look, never as
-the thing seen.**
-
-The check that was missing, and that belongs in any brief touching a host: **a chosen value
-and a running value are different things.** `grep` the host's `.env` for what somebody set;
-`docker exec … printenv` for what the process actually has. A value can be live by derivation
-with nothing in the file at all, which is exactly how a runner ran for two days while three
-documents said it was inert.
+**A task entry is not the state of the code.** Quote code from code; cite the entry as the
+reason to look, never as the thing seen. And **a chosen value and a running value are different
+things**: `grep` a host's env file for what somebody set, `docker exec … printenv` for what the
+process has. (2026-09-21) a brief quoted a refusal sentence that is not in the code, for a case
+that does not refuse.
 
 Commit as `side(<slug>): cut from <from-branch> at <sha>; brief`.
 
@@ -232,42 +166,34 @@ Print, and stop:
 
 ```
 Stream <id> cut. Open a terminal:
-  cd ~/git/<repo>-<slug>
+  cd <the worktree>
   claude
 then: /rename <slug>
 then: /dmtix go          (or /dmtix start with the id <id> given by hand, if not scoped)
 The brief is docs/thoughts/<date>-<slug>-brief.md; tell the session to read it first.
 ```
 
-**Say "give `/dmtix start` the id by hand" whenever the stream is unscoped**, and say why: the
-Active line and the row already name that id and point at an `_overview.md` that does not
-exist yet. A method that picks its own id leaves two ids for one increment, and the records go
-quietly wrong rather than loudly.
+**Say "give `/dmtix start` the id by hand" whenever the stream is unscoped**, and why: the
+Active line and the row already name that id, and a method that picks its own leaves two ids
+for one increment.
 
-**Do not end by asking the human for the session's name.** *The human should not be the
-index* — that is the SKILL's own requirement, and the terminal server already answers half of
-it: once the session is open, `python3 <skill dir>/scripts/term.py ls --json` gives a session at
-that worktree with its state, id and label, and `status` resolves the driver from the worktree
-without anyone being asked. Ask for a name only when no terminal server answers (term.py exits
-2), and say that is why. The door still does not message the new session: it does not
-exist yet.
+**Do not end by asking the human for the session's name** — the human should not be the index.
+Once the session is open, `term.py ls --json` gives a session at that worktree with its state,
+id and label. Ask for a name only when no terminal server answers (`term.py` exits 2), and say
+that is why.
 
 ### Or start it yourself, when the human says so
 
 When the human has asked the seat to start the stream (2026-11-05: *"cut a stream … and then
-start it when it is the right time"*), open it through the terminal server instead of printing
-the block above. Every command goes through the skill's `scripts/term.py` (below, `term.py` is
-`python3 <skill dir>/scripts/term.py`), which talks to hc when hc holds sessions and to herdr
-0.9.5 otherwise; `term.py which` says which. Three steps, each checked before the next:
+start it when it is the right time"*), open it through `term.py` (hc when hc holds sessions,
+herdr otherwise; `term.py which` says which). Three steps, each checked before the next:
 
 ```bash
-# 1. Claude in a place of its own, in the worktree. Never a tab in the seat's place: the human
-#    looks for each stream as its own space (hc: a herdr-app space named <slug>; herdr: a
-#    workspace), and opens a second pane on the same tree when it is not there.
-#    On herdr pass --workspace <the seat's workspace id>: it opens the tree as the repository's
-#    worktree, nested beside the other streams, not a top-level workspace with no repository link.
-term.py start ~/git/<repo>-<slug> <slug> [--workspace <the seat's workspace id>] -- claude   # note the session id
-# 2. The name first, ALONE. Wait until the session shows "Session renamed to: <slug>" before step 3.
+# 1. Claude in a place of its own, in the worktree — never a tab in the seat's place: the human
+#    looks for each stream as its own space. On herdr pass --workspace <the seat's workspace id>
+#    so it opens as the repository's worktree, nested beside the other streams.
+term.py start <the worktree> <slug> [--workspace <the seat's workspace id>] -- claude   # note the session id
+# 2. The name first, ALONE. Wait until the session shows "Session renamed to: <slug>".
 term.py send <session> '/rename <slug>'
 term.py read <session>          # repeat until the rename line is there
 # 3. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
@@ -276,58 +202,21 @@ term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
 ```
 
 Then check on the machine: `term.py ls --json` shows exactly one session whose `cwd` is the
-worktree, `working`, and `/proc/<pid>/cwd` agrees. Set the row's session to `<slug>` in
-`coord/streams.md`, and write the cut as one line in `coord/log.md` (the skill's
-`scripts/coord.py log "CUT <slug> (<id>): …"`).
+worktree, `working`, and `/proc/<pid>/cwd` agrees. Set the row's session to `<slug>`, and log the
+cut: `coord.py log "CUT <slug> (<id>): …"`. **When no terminal server answers**, print the block
+above, say that is why, and stop.
 
-**When no terminal server answers** (`term.py which` exits 2), the seat has no pane to
-open: print the block above, say that is why, and stop. Once the human has opened it, the
-process list (a `claude` whose `/proc/<pid>/cwd` is the worktree) or `ListAgents` shows the
-session, and the row's session is set from that.
+- (2026-11-05) the rename and the start prompt sent back to back named the session `<slug>You
+  are…` and the prompt never ran — send the rename alone and wait for it.
+- (2026-11-05) a stream opened as a plain herdr workspace showed top-level, not under the
+  repository — `term.py start --workspace` opens it as a worktree.
+- (2026-11-05) a stream opened as a tab in the seat's workspace was moved while it ran, with the
+  server's own pane-move, pane-close and rename commands — never start a second Claude in the
+  other pane instead: that is two drivers on one tree.
 
-- **Send the rename alone and wait for it.** On 2026-11-05 the seat sent `/rename <slug>` and
-  the start prompt back to back; the second was typed into the first, the session was named
-  `<slug>You are the <slug> side stream…`, and the start prompt never ran. A second `/rename`
-  and a resend fixed it.
-- **On herdr, open it as a worktree (`term.py start --workspace`), not a new workspace.** On
-  2026-11-05 the seat opened a stream as a plain workspace; it showed as its own top-level
-  space, not under the repository with the other streams, and the human asked for it there.
-  herdr's own worktree-open command, given the seat's workspace and the stream's path, linked it
-  in place on the running workspace (`already_open: true`), the session untouched. That is what
-  `term.py start --workspace` runs.
-- **A stream started in the seat's workspace can be moved while it runs.** The same day the seat
-  opened another stream as a tab in its own workspace; the human looked for that stream's
-  workspace, found none, and opened an empty one on the same worktree. The fix kept the session
-  alive, with herdr's own layout commands (term.py does not wrap them): pane move (the old pane
-  to the new workspace's tab, split right), then pane close (the empty shell pane), then
-  workspace rename (to `<slug>`). herdr closes the emptied tab by itself, and the moved pane
-  gets a new id. Never start a second Claude in the other pane instead: that is two drivers on
-  one tree.
+## Field notes
 
-## Corrections from real runs
-
-- 2026-09-21: **branch names were date-first and therefore unreadable where they are read.**
-  Three streams cut on one day gave `2026-09-21-side-prod`, `2026-09-21-side-todos` and
-  `2026-09-21-increment-09` — identical for eleven characters, and a narrow sidebar truncates
-  precisely where they begin to differ. Slug first, date last. **Existing running streams are
-  not renamed for this**: a branch rename moves the worktree's head, the `--base-branch` stamp
-  every provisioned tick carries, and any implementer worktree already cut from it. The
-  convention changes for the next cut; the cost of applying it backwards is paid by whoever is
-  mid-wave.
-- 2026-09-21, cutting two streams onto an empty machine: three faults, all in this
-  door. **(1)** It had no answer for "there is no mainline yet" and its defaults would have
-  made the human's mainline into a side stream — Step 0 now asks. **(2)** `update-ref` left
-  the main checkout holding the old table as a staged modification, and the status command
-  printed an empty table over two live streams — Step 3 now realigns, and `status.md` now
-  reads the ref (the row has since moved to `coord/streams.md`). **(3)** Step 5 ended by asking the human for the session name, which is the
-  indexing job the SKILL says must not be his; the terminal server already knows who sits in a
-  worktree.
-  All three were invisible until the door was walked end to end on a machine whose shape it
-  did not anticipate.
-
-- 2026-09-20, first cut (for the streams CLI): the port rule said "next free" and the seat
-  read it as "after the highest" — the lowest free block was a landed stream's. Reworded.
-  No todo entry existed for a scope designed in conversation; the door now says to write the
-  overview directly in that case. Step 3's "merge master into the new branch" conflicts on the
-  Active line (keep the stream's) and the todo (keep both) when master has moved since the cut
-  point — expected, not a defect.
+- (2026-09-21) the door's three faults on an empty machine were invisible until it was walked end
+  to end — walk a door on a machine whose shape it did not anticipate.
+- (2026-09-20) a sync-forward at the cut conflicts on the Active line (keep the stream's) and on
+  list files (keep both) when the trunk has moved — expected, not a defect.
