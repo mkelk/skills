@@ -27,4 +27,9 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         status=1
     fi
 done
+# The size budgets, on the working tree (the files an agent loads whole must stay small).
+if ! python3 "$top/scripts/size-check" </dev/null; then
+    echo "pre-push: refused: scripts/size-check failed (a file over its budget, or nothing to check)." >&2
+    status=1
+fi
 exit $status

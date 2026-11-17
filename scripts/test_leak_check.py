@@ -13,6 +13,7 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 CHECK = os.path.join(HERE, "leak-check")
 HOOK = os.path.join(os.path.dirname(HERE), "hooks", "pre-push")
+SIZE = os.path.join(HERE, "size-check")
 
 DENIED = "zorbleflux"          # made up; the temporary deny-list's only word
 DENY_TEXT = "# test deny-list\n\\bzorble[a-z]*\\b\nquux-?vandal\n"
@@ -46,9 +47,12 @@ class LeakCheckCase(unittest.TestCase):
         self.git(path, "init", "-q", "-b", "master")
         os.makedirs(os.path.join(path, "scripts"))
         shutil.copy(CHECK, os.path.join(path, "scripts", "leak-check"))
+        shutil.copy(SIZE, os.path.join(path, "scripts", "size-check"))  # the hook runs it too
         os.makedirs(os.path.join(path, "hooks"))
         shutil.copy(HOOK, os.path.join(path, "hooks", "pre-push"))
         self.write(path, "README.md", "a clean line\n")
+        os.makedirs(os.path.join(path, "skills", "streams"))
+        self.write(path, "skills/streams/SKILL.md", "a clean line\n")  # something for size-check
         self.git(path, "add", "-A")
         self.git(path, "commit", "-q", "-m", "start")
         return path
@@ -315,6 +319,17 @@ class LeakCheckCase(unittest.TestCase):
         self.git(self.repo, "checkout", "-q", "-b", "fresh")   # new branch carrying the leak
         self.assertNotEqual(self.push("fresh").returncode, 0)
         self.assertEqual(run(["git", "branch", "--list", "fresh"], remote, self.env).stdout.strip(), "")
+
+
+    def test_hook_refuses_a_skill_over_its_size_budget(self):
+        remote = os.path.join(self.tmp, "remote.git")
+        run(["git", "init", "-q", "--bare", remote], self.tmp, self.env)
+        self.git(self.repo, "remote", "add", "origin", remote)
+        self.git(self.repo, "config", "core.hooksPath", "hooks")
+        self.commit("skills/streams/SKILL.md", "a clean line\n" * 1400)  # over 16 KB
+        p = self.push("master")
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("size-check", p.stderr)
 
 
 if __name__ == "__main__":

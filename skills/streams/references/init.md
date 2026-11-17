@@ -23,7 +23,10 @@ Only the first five are written by this door; add the prose sections by hand whe
 has something to say in them.
 
 `coord.py` below means `python3 <skill dir>/scripts/coord.py`. `coord.py config --get <fact>`
-prints one bare value (`trunk`, `worktree --slug <s>`, `at-cut`, `heavy-runs`, …) for a command line.
+prints one bare value (`trunk`, `worktree --slug <s>`, `at-cut`, `heavy-runs`, …) for a command line:
+`at-landing` prints commands only (nothing when the checks live in `.tick/config.md`), and `trunk`
+fails when nothing names or detects one. `config` reads the main checkout's file from any worktree.
+Section bodies are plain lines; a body that is one code fence is read as the lines inside it.
 
 ## Step 1 — Is there a file already?
 
@@ -67,8 +70,8 @@ Two questions, in one message, each with what was detected as the proposed answe
 
 1. **Resources.** "What may two streams not share at once? Ports (which block per stream),
    a database or a schema, a queue, a deploy host?" Write each as a line a person can read,
-   with `k` for the stream's number: `web: 70k0`, `schema: app_s<k>`, `host: one at a time,
-   held with a coord HOLD`. "Nothing" is a fine answer; then the section is left out.
+   with `k` for the stream's number: `api port: 8000 + 10×k`, `redis db: k`, `staging: one at
+   a time, held with a coord HOLD`. "Nothing" is a fine answer; then the section is left out.
 2. **Worktree root.** The default puts a stream's worktree beside the main checkout
    (`<parent>/<repo>-<slug>`). Ask only when that is wrong: the repository is a submodule (its
    parent is another working tree), or the parent is a directory the human keeps clean. Then
@@ -80,11 +83,14 @@ One command, with only the flags that have a value; each `--at-cut`, `--at-landi
 `--resources` is one line and may repeat:
 
 ```bash
-coord.py init-file --trunk main --worktree-root ~/trees \
+coord.py init-file --trunk main --worktree-root '~/trees' \
   --at-cut "uv sync" --at-cut "cp .env.example .env" \
   --at-landing "pytest" \
-  --resources "web: 70k0"
+  --resources "api port: 8000 + 10×k"
 ```
+
+Quote `'~/trees'` so the file keeps `~` and stays the same for everyone; an expanded home path is
+written back as `~/...` anyway.
 
 Leave `--trunk` out when detection found it from origin's `HEAD` (the file then follows the
 remote if it changes); give it when the human confirmed a guess. It refuses an existing file

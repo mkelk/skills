@@ -21,7 +21,7 @@ full price or more. For a session that mostly waits, the second is the bigger on
   behind a server flag: `"idleCompaction": true` does not turn it on, only `false` turns it off. Don't count on it.
 - **The terminal server can type into a session** (`python3 <skill dir>/scripts/term.py send <session>
   "<text>"`, which goes to hc or herdr, whichever holds the session), and slash commands work there. It also
-  shows each session's state (`term.py ls`: `idle`, `working`, or `unknown` for blocked; the server's own word
+  shows each session's state (`term.py ls`: `idle`, `working`, `blocked` or `unknown`; the server's own word
   in `status`). That is the one way to compact a session from outside, at a moment of the seat's choosing.
   **Without a terminal server** (`term.py which` exits 2) there is no way in from outside: the safety net below
   still holds, and the seat names the large, quiet streams to the human, who types `/compact` in each pane.

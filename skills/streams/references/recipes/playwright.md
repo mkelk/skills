@@ -62,26 +62,26 @@ commit. Under `changed` the delete is load-bearing; under `all` it is ceremony.
 
 ### Field notes
 
-- (2026-09-21) a three-sentence caption added 40 px at desktop and 100 px at phone and failed an
-  admin page at 0.03–0.05 against a 0.01 cap — the tick had reasoned about its area and forgot
+- (2026-09-21) a three-sentence caption added 40 px at desktop and 100 px at phone and failed a
+  settings page at 0.03–0.05 against a 0.01 cap — the tick had reasoned about its area and forgot
   its height.
-- (2026-09-21) one app-bar link changed 27 captures and only the two shortest went red — whether
+- (2026-09-21) one navigation link changed about thirty captures and only the two shortest went red — whether
   a picture notices an in-place change depends on the page's length.
-- (2026-09-21) a changed `Select` option on an admin page stayed green under tolerance and the
+- (2026-09-21) a changed `Select` option on a settings page stayed green under tolerance and the
   tick reported "passed unchanged" — true of the test, false of the page.
-- (2026-09-21) a header change left a phone baseline untouched because a chat drawer covered the
+- (2026-09-21) a header change left a phone baseline untouched because an overlay covered the
   header — not in frame, not under tolerance.
 - (2026-09-21) the seat wrote that a forced pass stops at a test's first missing shot; the source
   said it continues — read the source before telling a stream how a mode behaves.
 - (2026-09-21) a three-bucket mtime/hash manifest had a bucket that cannot occur under `all` — a
   manifest gives per-file hashes to revert against, not proof a picture was examined.
-- (2026-09-21) two forced passes, checked by sha256 rather than exit code: 171 rewritten, 146
-  kept with a named cause, 25 reverted, and the verification pass wrote nothing.
+- (2026-09-21) two forced passes, checked by sha256 rather than exit code: about 200 rewritten,
+  most kept with a named cause, a few dozen reverted, and the verification pass wrote nothing.
 - (2026-09-21) a forced pass rewrote twelve-plus files from three earlier partial sweeps — a
   regenerating stream names which rewritten files are its own and which it inherited.
 - (2026-09-21) two streams measured `--update-snapshots` from outside and disagreed; it was three
   modes, answered by one `--help`.
 - (2026-09-21) a "single test" re-run through a wrapper's literal `--` ran all four projects for
   fifteen minutes.
-- (2026-11-04) eight full tiers, two at once: 0 of 246 pictures over tolerance — contention makes
+- (2026-11-04) eight full tiers, two at once: none of a few hundred pictures over tolerance — contention makes
   false failures, not false passes, so a landing's tier takes no machine-wide hold.

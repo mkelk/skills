@@ -5,7 +5,7 @@ one session that sees them all.
 
 ```mermaid
 flowchart LR
-  H((the human)) -- asks, gos, decisions --> SEAT[seat<br/>main checkout, on the trunk]
+  H((the human)) -- asks, approvals, decisions --> SEAT[seat<br/>main checkout, on the trunk]
   SEAT -- cut: branch, worktree, brief --> S1
   SEAT -- cut --> S2
   SEAT -- cut --> S3
@@ -27,9 +27,14 @@ flowchart LR
 
 ## What it is
 
+- **The trunk** is the branch every stream lands on, usually `main`
+  (`coord.py config --get trunk` prints it).
 - **A stream** is one piece of planned work (a dmtix increment) on its own branch, in its own
   git worktree, driven by its own Claude session. It holds its own share of anything two
-  streams may not share, such as a block of ports.
+  streams may not share, such as a block of ports. Inside it, [dmtix](../dmtix/) splits the
+  increment into **epics** (one stage each) and each epic into **ticks** (one task each, run by
+  an implementer agent in its own worktree, several at once in a **wave**); a **checkpoint** is where a stream stops for the
+  human.
 - **The seat** is the one session that sees every stream. It sits in the main checkout, talks to
   you, cuts new streams, reads their state, relays what one stream found that another needs, and
   lands a stream when it is done. It never writes code on a stream's branch.
@@ -54,8 +59,10 @@ does not.
    three, and the `tk` tracker binary they use (see the [repo README](../../README.md#install)):
 
    ```bash
-   npx skills add mkelk/skills --skill streams --skill dmtix --skill ticks
+   npx skills add mkelk/skills --skill streams --skill dmtix --skill ticks -g -a claude-code
    ```
+
+   `-g` installs for every project; see the repo README's Install section for when not to.
 
 2. **`/streams init`**, once, in the main checkout on the trunk. It detects the trunk, the
    package manager and the test runner, asks you two questions (what may two streams not share,
@@ -69,7 +76,8 @@ Each stream's own session then runs `/dmtix go`. The seat does not run increment
 
 ## Seven examples
 
-All names, ports and times below are invented.
+All names, ports and times below are invented. The repository is `/src/app`, so worktrees sit
+beside it as `../app-<name>`; the stack is Python with `uv` and `pytest`.
 
 ### 1. A day with three streams: the status screen
 
@@ -87,14 +95,14 @@ STALLED / UNKNOWN DRIVER
   docs   idle 95 min, 2 ticks left, no commit since 12:31
 
 STREAM    SESSION   STATE     EPICS   ~%   AT              IN FLIGHT              LAST    WHAT NOW              RESOURCES
-search    search    idle      ●●◑○    62   E3 of 4 · 3/6   clean                  9m      waits on you (k2v)    web 7000 · host-a
-billing   billing   working   ●◔○     38   E2 of 3 · 1/5   2 implementers, 140    2m      a wave running        web 7010
+search    search    idle      ●●◑○    62   E3 of 4 · 3/6   clean                  9m      waits on you (k2v)    api 8000 · staging
+billing   billing   working   ●◔○     38   E2 of 3 · 1/5   2 implementers, 140    2m      a wave running        api 8010
 docs      docs      idle      ◑       25   E1 of 1 · 2/4   clean                  1h39m   idle, 2 ticks left    —
 
 HEAVY RUNS  free
 
 HOLDS
-  host-a   13:52   until 14:32, 22 min left   billing
+  staging  13:52   until 14:32, 22 min left   billing
 
 OWED
   a3   docs   1h10m   which page layout to keep
@@ -105,7 +113,7 @@ SCHEDULES
   after the terminal server or Claude stops: /streams restart (each row says how)
 
 LOG  (the newest lines of coord/log.md)
-  2026-03-05 13:52 UTC billing: HOLD host-a: schema migration test until 2026-03-05 14:32 UTC
+  2026-03-05 13:52 UTC billing: HOLD staging: schema migration test until 2026-03-05 14:32 UTC
   2026-03-05 13:40 UTC search: READY E3 checkpoint, k2v waits on the human
 ```
 
@@ -120,10 +128,10 @@ increment. See [references/status.md](references/status.md).
 > /streams cut docs --scope "#41"
 
 Side stream or mainline? The table has a mainline (search), so: side stream.
-Claimed: web 7020 (k=2, lowest free).
+Claimed: api 8020 and redis db 2 (k=2, lowest free).
 Worktree ../app-docs on docs-2026-03-05, from search-2026-03-02 at 4f1c2aa.
-At cut: pnpm install --frozen-lockfile ✓  cp .env.example .env ✓  WEB_PORT=7020 ✓
-Records: Active line 07s2-ghi, issue #41 claimed, row added to coord/streams.md (read back).
+At cut: uv sync --frozen ✓  cp .env.example .env ✓  API_PORT=8020 ✓
+Records: the trunk's list of running increments names 07s2-ghi, issue #41 claimed, row added to coord/streams.md (read back).
 Brief: docs/thoughts/2026-03-05-docs-brief.md, committed.
 
 Stream 07s2-ghi cut. Open a terminal:
@@ -136,7 +144,7 @@ The brief is docs/thoughts/2026-03-05-docs-brief.md; tell the session to read it
 
 The brief tells the new session where it is, what it holds and what it does not (no deploy host),
 who its neighbours are and which files they own, and the project's standing rules. Say *"start
-it yourself"* and the seat opens the session through `term.py` instead.
+it yourself"* and the seat opens the session through `term.py` (example 7) instead.
 See [references/cut.md](references/cut.md).
 
 ### 3. A hold with an end, and its release
@@ -145,18 +153,18 @@ Hold only what cannot be shared: a run that **writes** to one shared thing. Ever
 end, so a forgotten one shows up instead of blocking the machine for good.
 
 ```text
-$ coord.py log "HOLD host-a: schema migration test" --for 40m --as billing
-2026-03-05 13:52 UTC billing: HOLD host-a: schema migration test until 2026-03-05 14:32 UTC
+$ coord.py log "HOLD staging: schema migration test" --for 40m --as billing
+2026-03-05 13:52 UTC billing: HOLD staging: schema migration test until 2026-03-05 14:32 UTC
 
-$ coord.py log "HOLD host-a: quick check"
+$ coord.py log "HOLD staging: quick check"
 coord log: A hold needs an end. Add --for 40m (a length) or --until 07:30 (the human's local time).
 
 $ coord.py show --holds
 HOLDS
-  host-a  by billing since 13:52, until 14:32 (17m left): HOLD host-a: schema migration test …
+  staging  by billing since 13:52, until 14:32 (17m left): HOLD staging: schema migration test …
 
-$ coord.py log "RELEASE host-a" --as billing
-2026-03-05 14:21 UTC billing: RELEASE host-a
+$ coord.py log "RELEASE staging" --as billing
+2026-03-05 14:21 UTC billing: RELEASE staging
 ```
 
 A hold past its end prints under EXPIRED HOLDS and under NEEDS YOU in `status`: release it, or
@@ -166,17 +174,17 @@ hold it again with a new end. A debt works the same way: `OWED <stream>: <what>`
 ### 4. A landing
 
 ```text
-search: READY at 9be20d1 — E4 closed, completion.md written, k2v closed by the human.
+search: READY at 9be20d1 — last stage closed, its completion report written, k2v closed by the human.
 
 > /streams land search
-1  quiet point: no tick in progress, checkout clean, no heavy run (pgrep), worktrees match rows
-2  done: project tick open, completion.md present, hand-over read
-2b your close first: "ship it" recorded on the branch, before the merge
+1  quiet point: no task running, checkout clean, no heavy run (pgrep), worktrees match the rows
+2  done: the stream says it is finished, its completion report is there, its notes to the seat read
+2b your sign-off first: "ship it" recorded on the branch, before the merge
 3  merge search-2026-03-02 into the trunk, in the main checkout
-4  seams: diary keep-both in date order; tracker files by tk's merge driver; Active line the trunk's
-5  overview's At landing: one registry row added, named in the merge message
-6  gate on the merged tree: pnpm test ✓  (one run over the union with billing's last landing)
-7  is-ancestor 9be20d1 origin/main ✓; trunk's records say what shipped ✓
+4  files both sides changed, merged by the project's rules (the diary keeps both, in date order)
+5  the stream's own landing step: the one line it asked for, named in the merge message
+6  the checks on the merged tree: uv run pytest ✓  (one run over this and billing's last landing)
+7  is-ancestor 9be20d1 origin/main ✓; the trunk's records say what shipped ✓
 8  pushed main 3d70e55; worktree and branch removed; row moved to .devmeta/streams.md as landed
 9  close the "search" session now; billing and docs: the trunk moved, sync when it suits you
 ```
@@ -199,7 +207,7 @@ FOR THE SEAT
 FOR THE HUMAN
 - search: READY since 13:40, landing waits on your close of k2v — evidence: asks.md q4
 QUIET
-- billing: working, wave 2 of E2, 2 implementers
+- billing: working, second batch of tasks in its second stage, 2 implementers
 ```
 
 The seat confirms one fact before acting on each line (a scout is a lead, not a measurement),
@@ -218,72 +226,80 @@ close."* See [references/keep-running.md](references/keep-running.md) and
 ## Project
 
 trunk: main
-worktree root: ~/trees
 
 ## Resources
 
-web: 70k0
-schema: app_s<k>
-host: one at a time, held with a coord HOLD
+api port: 8000 + 10×k
+redis db: k
+staging: one at a time, held with a coord HOLD
 
 ## At cut
 
-pnpm install --frozen-lockfile
+uv sync --frozen
 cp .env.example .env
 
 ## At landing
 
-pnpm typecheck
-pnpm test
+uv run ruff check
+uv run pytest
 
 ## Heavy runs
 
-- Browser UI tier: `pgrep -f "playwright tes[t]"`; one at a time.
-- Recipe: references/recipes/playwright.md (the streams skill).
+- Integration tier (containers): `pgrep -f "pytest -m integratio[n]"`; one at a time.
 ```
 
-`k` is the stream's number: stream 1 gets web port 7010 and schema `app_s1`. Check what the doors
-will read:
+`k` is the stream's number: stream 1 gets api port 8010 and redis db 1. With no `worktree root:`,
+worktrees go beside the main checkout. Check what the doors will read:
 
 ```text
 $ coord.py config --slug docs
+project file: /src/app/.devmeta/streams.md
 trunk: main  (file: .devmeta/streams.md → ## Project, trunk:)
-worktree: ~/trees/app-docs
+worktree_root: /src  (detected: the main checkout's parent directory)
 at_cut:  (file: .devmeta/streams.md → ## At cut)
-    pnpm install --frozen-lockfile
+    uv sync --frozen
     cp .env.example .env
-at_landing: pnpm typecheck  (file: .devmeta/streams.md → ## At landing)
+at_landing:  (file: .devmeta/streams.md → ## At landing)
+    uv run ruff check
+    uv run pytest
+worktree: /src/app-docs
 resources:
-    web: 70k0
-    …
+    api port: 8000 + 10×k
+    redis db: k
+    staging: one at a time, held with a coord HOLD
+sections: ## Heavy runs
 ```
 
-See [references/init.md](references/init.md). Worked heavy-run rules live in
-[references/recipes/](references/recipes/).
+See [references/init.md](references/init.md). Worked heavy-run rules (a browser UI tier, for one)
+live in [references/recipes/](references/recipes/).
 
 ### 7. The terminal adapter
 
 The seat finds each stream's session by asking the terminal server, not by remembering a name.
-`term.py` is the only file that talks to it. It tries `hc` (the server behind the herdr-app
-window) first and herdr as the fallback, so moving sessions from one to the other changes
-nothing else.
+`term.py` is the only file that talks to it, and the one place to adapt for another server. It
+tries [herdr-core](https://github.com/herdrdev/herdr-core) (`hc`, the server behind the
+[herdr-app](https://github.com/herdrdev/herdr-app) window) first and
+[herdr](https://github.com/herdrdev/herdr) as the fallback, so moving sessions from one to the
+other changes nothing else. The skill works without either: you open the sessions yourself.
 
 ```text
 $ term.py which
 hc
 
 $ term.py ls
-hc  t1  idle     claude  seat     ~/trees/app
-hc  t4  idle     claude  search   ~/trees/app-search
-hc  t5  working  claude  billing  ~/trees/app-billing
-hc  t7  idle     claude  docs     ~/trees/app-docs
+hc    t1           idle     claude   seat                     /src/app
+hc    t4           idle     claude   search                   /src/app-search
+hc    t5           working  claude   billing                  /src/app-billing
+hc    t7           idle     claude   docs                     /src/app-docs
 
 $ term.py read t7 --lines 15        # what the docs session shows
 $ term.py send t7 'the trunk moved to 3d70e55; sync when it suits you'
 ```
 
-The `cwd` column maps a worktree to its session without asking anyone. With `--json`, each
-session carries `server`, `id`, `cwd`, `label` and `state`. When neither server answers,
+The `cwd` column maps a worktree to its session without asking anyone. The state is `working`,
+`idle`, `blocked` (waiting on a prompt in its pane) or `unknown`. With `--json`, each session
+carries `server`, `id`, `cwd`, `foreground_cwd`, `label`, `agent`, `state`, the server's own word
+as `status`, and the agent's `session` id. When neither server answers,
 `term.py` exits 2 and the seat falls back to printing what you should open.
 
 ## The doors

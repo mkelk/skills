@@ -48,8 +48,8 @@ a side stream.
 
 From `<git common dir>/coord/streams.md`: the mainline's branch and host, and what each live row
 claims. Then `coord.py config --get resources`: **a stream claims what `## Resources` names, and
-nothing when it is absent.** Each line names a resource and its share for stream `k` (`web:
-70k0`, `schema: app_s<k>`, `host: one at a time, held with a coord HOLD`). The new stream takes
+nothing when it is absent.** Each line names a resource and its share for stream `k` (`api
+port: 8000 + 10×k`, `redis db: k`, `staging: one at a time, held with a coord HOLD`). The new stream takes
 the **lowest** `k` no *live* row holds — a landed stream's share is free again. Refuse if none is
 free, saying which rows hold what. (2026-09-20) "next free" was read as "after the highest"
 while the lowest was a landed stream's — lowest, not next.
@@ -64,7 +64,7 @@ git worktree add -b <slug>-<date> "$tree" <from-branch>
 ```
 
 **A mainline in a worktree is named after its increment:** branch `inc<NN>-<date>`, worktree
-`coord.py config --slug increment-<NN> --get worktree`. The worktree's name is the only label a
+`coord.py config --slug inc<NN> --get worktree`, so its slug `inc<NN>` leads both labels too. The worktree's name is the only label a
 human reads in `git worktree list`, a pane title and `/proc/<pid>/cwd`.
 
 Then in the worktree:
@@ -75,8 +75,9 @@ Then in the worktree:
   file copied from the main checkout or its example. Absent, nothing.
 - **Compact settings** per `references/compact.md`: `.claude/settings.local.json` with the
   auto-compact window for the stream's kind and the after-compaction hook.
-- If `--from trunk`, `git merge <mainline branch>` and resolve by `## Seams` (an end-of-file
-  record or a list file: keep both).
+- If `--from mainline`, `git merge <trunk>` so the cut also carries what landed on the trunk since
+  the mainline last synced, and resolve by `## Seams` (an end-of-file record or a list file: keep
+  both).
 
 ## Step 3 — Records
 
@@ -184,9 +185,10 @@ that is why.
 
 ### Or start it yourself, when the human says so
 
-When the human has asked the seat to start the stream (2026-11-05: *"cut a stream … and then
-start it when it is the right time"*), open it through `term.py` (hc when hc holds sessions,
-herdr otherwise; `term.py which` says which). Three steps, each checked before the next:
+When the human has asked the seat to start the stream, now or when the time is right (the human,
+2026-11-05), open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr otherwise
+(`term.py which` says which; links in the README's example 7). With neither, `term.py` exits 2:
+print what to open, as above. Three steps, each checked before the next:
 
 ```bash
 # 1. Claude in a place of its own, in the worktree — never a tab in the seat's place: the human

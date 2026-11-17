@@ -18,11 +18,11 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   own skill is now tracker-only, so install this one, not that.
 
 - **[streams](skills/streams/)** — the seat that sees every stream. For the one session that
-  coordinates several dmtix increments running side by side: `/streams status` (what is
-  running, what waits on the human, what has stalled — from files), `/streams keep-running`
-  (the hourly pass that acts on it), `/streams queue` (what waits on the human), `/streams cut
-  <slug>` (a new side stream: branch, worktree, ports, records, a brief), and `compact`,
-  `restart`, `hotfix`, `land`. Live state lives in git's common directory (`coord/`), shared
+  coordinates several dmtix increments running side by side: `/streams init` (the project
+  file, once), `/streams status` (what is running, what waits on the human, what has stalled —
+  from files), `/streams keep-running` (the hourly pass that acts on it), `/streams queue` (what
+  waits on the human), `/streams cut <slug>` (a new side stream: branch, worktree, the resources
+  the project names, records, a brief), and `compact`, `restart`, `hotfix`, `land`. Live state lives in git's common directory (`coord/`), shared
   by every worktree and never committed; `scripts/coord.py` writes its log and enforces holds
   with an end. Landing is a checklist until two hand landings confirm it.
   New to it? Start at **[skills/streams/README.md](skills/streams/README.md)**: what the seat
@@ -97,7 +97,7 @@ it; a file-name hit prints its own entry); the file takes exact lines only, neve
 Beside it, `scripts/size-check` holds the skills an agent loads whole to a size budget: each
 `SKILL.md`, `README.md` and `references/*.md` (recipes too) of `streams` and `roadmap` under 16 KB,
 `streams/references/status.md` under 24 KB. A file over budget prints with its size and the check
-fails; `--top 3` also prints the largest. Run both before you push:
+fails; `--top 3` also prints the largest. The pre-push hook runs both; to run them by hand:
 
 ```bash
 python3 -I scripts/leak-check && python3 scripts/size-check

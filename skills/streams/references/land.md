@@ -37,7 +37,7 @@ is anything finished and unlanded?
    made — and deleting the branch makes that permanent. If the human is not available, **the
    branch is not finished when the merge lands**: say so, leave it alive, and fold its close
    commits into the next merge.
-3. **Merge** the stream's branch into the mainline's, in the main checkout.
+3. **Merge** the stream's branch into the trunk, in the main checkout (which stays on the trunk).
 4. **Resolve by rule, never by hand.** The project's `## Seams` names its shared files and how
    each resolves; follow it first. The rules below hold wherever it is silent:
    - `.tick/issues/*.json`, `activity.jsonl`: the tk merge drivers; never edit.

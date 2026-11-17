@@ -1,8 +1,8 @@
 ## Purpose
 
 Bring back what runs on a clock after the terminal server (hc or herdr), a Claude session, WSL or the machine
-stopped. The human, 2026-10-28: *"keep a list of cronned tasks etc, that is running in the stream complex and in
-which streams - so we can restart"*.
+stopped. Everything that runs on a clock, and in which stream, is kept on one list so it can be
+restarted (the human, 2026-10-28).
 
 The list is `<git common dir>/coord/schedules.md`, beside `streams.md` and `log.md`: shared by every worktree, never
 committed, kept by the seat (the skill's `scripts/coord.py init` creates it with its three sections). The rule that

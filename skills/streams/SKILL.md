@@ -91,8 +91,8 @@ Principles, binding for every door:
 - **The seat is never a load-bearing part of operations.** A seat is an interactive session
   that may be asleep or gone next week, so when a default needs an executor and the honest
   answer is "the seat, by remembering", the default is wrong and the right answer is a guard
-  that trips. The human, 2026-09-21: *"better that prod hits the ceiling and sends error
-  reports than you being a 'shadow' part of ops."*
+  that trips: a visible failure with an error report beats the seat as a hidden part of
+  operations (the human, 2026-09-21).
 - **A guard is a claim until someone has watched it fire — and its stated guarantee is a
   second claim.** Test the sentence the guard makes about itself against the case that
   sentence names, and say any gap aloud; a guard that over-promises is believed, and its promise
@@ -106,8 +106,8 @@ Principles, binding for every door:
   fault as a green: quote the failing message and check it names your line. (2026-09-21)
   `Waiting` → `NotWaiting` passed a substring role match; with exact matching it failed.
 - **A written rule whose evidence has expired is followed without being read.** When a rule
-  cites a measurement, date the measurement, not the rule (*"30.5 GiB, measured 2026-09-19"*
-  invites a re-measure; *"as of 2026-09-19, two tiers do not fit"* is obeyed as fact). A finding
+  cites a measurement, date the measurement, not the rule (*"16 GiB, measured 2026-03-01"*
+  invites a re-measure; *"as of 2026-03-01, two tiers do not fit"* is obeyed as fact). A finding
   that is not re-read gets rediscovered, so a protocol's *re-read before planning* is worth
   obeying mechanically. When measurement and record disagree, the measurement wins and is folded
   into the record, not set beside it. (2026-09-21) four streams obeyed a memory limit the
@@ -139,13 +139,13 @@ Principles, binding for every door:
   one holder at a time, closed with `RELEASE <what>` — so a passed end shows under NEEDS YOU
   instead of holding the machine forever. Read-only verification runs alongside; a project that
   isolates its writing runs (a per-checkout build database, say) takes no hold for them. The
-  finding-and-telling earns its cost; the stop-the-world does not. The human, 2026-09-21: *"i
-  think maybe we are organizing too conservatively here"* — the seat had held four suites on a
+  finding-and-telling earns its cost; the stop-the-world does not. Organising too
+  cautiously is a fault too (the human, 2026-09-21): the seat had held four suites on a
   measurement the machine had outgrown.
 
 ## Open problem: worktrees, sessions and panes are three things with no mapping
 
-The human, 2026-09-21: *"we need much better alignment between worktrees, sessions, panes."*
+Worktrees, sessions and panes must line up far better than they do (the human, 2026-09-21).
 Not solved. Each of these happened on one night of five parallel streams: a session drove a
 stream under a name that said nothing about its branch; a stream was cut without a row and was
 invisible; a session renamed itself mid-life (a send to a stale name that silently succeeds is

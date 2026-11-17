@@ -1,10 +1,10 @@
 # queue — the list of what waits on the human
 
 What waits on the human gets swamped in the seat's dialogue and statuses, so it is kept in a file.
-**The seat alone holds the list and talks to the human about it.** The human, 2026-11-05: *"keep the
-accounting and seat's ability to register/track, but drop the queue tab and its responsibilities."*
-(2026-11-03) a separate cheaper `queue` pane beside the seat, logging answers as `ANSWER q<n>:` lines,
-was dropped after two days because it "does not really work" — the file was the part worth keeping.
+**The seat alone holds the list and talks to the human about it**: the seat keeps registering and
+tracking what waits, and no separate pane does (the human, 2026-11-05). (2026-11-03) a separate
+cheaper `queue` pane beside the seat, logging answers as `ANSWER q<n>:` lines, was dropped after two
+days because it did not work in practice — the file was the part worth keeping.
 
 ## What it is
 

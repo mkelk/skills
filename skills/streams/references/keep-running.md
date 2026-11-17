@@ -9,7 +9,7 @@ nobody is looking**, and on 2026-09-21 every one of the failures below happened 
 was paying attention.
 
 **The seat is the human's representative for keeping things moving** (the human, 2026-11-01:
-they "very often" asked the seat to look for stuck work, and it nearly always found some). So
+asked to look for stuck work, which was often, the seat nearly always found some). So
 the default on every pass is to **go looking for work that should be moving and isn't, and move
 it** — not to wait to be asked, and not to report it and stop. Step 2's *Stuck hunt* is the
 list; run all of it every pass.
