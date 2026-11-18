@@ -34,8 +34,10 @@ this discussion is organized. Do not decide it for them. Say what you see, then 
    - **Development:** the outcome is known, so it can be specified, built and tested
      against checkable criteria. This is what `/dmtix start` and `go` are made for.
    - **Research / exploration:** the output is knowledge, a decision, or a go/no-go, and
-     "done" is not a shipped feature. It tends to run best as a number of loops, each
-     one learning something and improving on the last, and not as one pass to a fixed spec.
+     "done" is not a shipped feature. Its shape varies: sometimes one focused pass to an
+     answer, sometimes a number of loops that each learn something and build on the last.
+     Don't assume loops; find out which fits this question, and don't force a fixed spec
+     onto it.
    Many projects are a mix; say which parts are which.
 2. **How should we organize this discussion?** Offer the shape that fits, e.g. a short
    talk-through to a spec, or a longer discussion with research notes kept in the thought
