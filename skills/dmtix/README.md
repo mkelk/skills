@@ -9,13 +9,14 @@ on top of ticks' parallel-agent execution.
 
 **Doors, not engines.** dmtix holds only the interactive/ergonomic surface; all execution
 process lives in the ticks skill and the tk structure. `SKILL.md` routes on an argument to one
-of three doors in `references/`.
+of four doors in `references/`.
 
 ## Invocation
 
 | `/dmtix <arg>` | Cadence | Does |
 |---|---|---|
 | `bootstrap` | once per project, and again after an engine update | installs the method into a ticks project: verifies the ticks skill resolves, `tk init`, injects `.tick/config.md` lifecycle sections (additive — never overwrites), scaffolds `.devmeta/`. On an existing project it is the upgrade check: offers what a newer engine needs, each change shown first. Idempotent. |
+| `discuss-project` | before `start`, when a project isn't clear enough to spec | Claude-led open discussion: asks what the project is, orients in the repo and the org's habits, hunts unknowns (missing knowledge, undecided architecture), and periodically plays the outline back to challenge your intuition. Keeps a dated document — `docs/thoughts/YYYY-MM-DD-<slug>.md`, or a directory of that name when it grows images or other artifacts — and ends with a verdict: ready for `start`, not ready, or dropped. No ticks, no code. |
 | `start` | once per increment | interactive scoping — engine-drafted / human-ratified epic partition, goal-compatible definitions of done — then writes the records tree and the tk roadmap. Setup only; never executes. |
 | `go` | per session | starts **or resumes** the active increment's run; thin wrapper over the ticks skill; stops at the project checkpoint. Integration ends at the increment's base branch — merging to `main` is the human's act. |
 
