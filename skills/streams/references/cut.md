@@ -161,9 +161,41 @@ that does not refuse.
 
 Commit as `side(<slug>): cut from <from-branch> at <sha>; brief`.
 
-## Step 5 — Say what to open
+## Step 5 — Open the stream's session
 
-Print, and stop:
+**The default is to open it** (the human, 2026-11-20: *"make it default in the skill"*). A cut
+that only prints what to open leaves the human looking for a pane that is not there. Print the
+block below instead only when the human said not to start it yet, or when no terminal server
+answers (`term.py` exits 2); say which of the two it was.
+
+Open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr otherwise
+(`term.py which` says which; links in the README's example 7). Three steps, each checked before
+the next:
+
+```bash
+# 1. Claude in a place of its own, in the worktree — never a tab in the seat's place: the human
+#    looks for each stream as its own space. On herdr pass --workspace <the seat's workspace id>
+#    so it opens as the repository's worktree, nested beside the other streams.
+term.py start <the worktree> <slug> [--workspace <the seat's workspace id>] -- claude   # note the session id
+term.py wait --timeout 60 <session>   # until Claude's prompt is up, before typing anything
+# 2. The name. On hc, skip it: `start`'s label is the pane's name, and `hc send` wraps text in
+#    <hc from="…">, so a slash command arrives as chat and never runs. Check the label with
+#    `term.py ls --json`. On herdr, send the rename ALONE and wait for "Session renamed to: <slug>".
+term.py send <session> '/rename <slug>'   # herdr only
+term.py read <session>          # repeat until the rename line is there
+# 3. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
+#    and bring the draft epics to the seat before any build.
+term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
+```
+
+**Say "give `/dmtix start` the id by hand" in the start prompt whenever the stream is
+unscoped**, and why: the Active line and the row already name that id, and a method that picks
+its own leaves two ids for one increment.
+
+**Do not end by asking the human for the session's name** — the human should not be the index.
+`term.py ls --json` gives the session at that worktree with its state, id and label.
+
+The block to print when the session is not opened:
 
 ```
 Stream <id> cut. Open a terminal:
@@ -174,40 +206,15 @@ then: /dmtix go          (or /dmtix start with the id <id> given by hand, if not
 The brief is docs/thoughts/<date>-<slug>-brief.md; tell the session to read it first.
 ```
 
-**Say "give `/dmtix start` the id by hand" whenever the stream is unscoped**, and why: the
-Active line and the row already name that id, and a method that picks its own leaves two ids
-for one increment.
-
-**Do not end by asking the human for the session's name** — the human should not be the index.
-Once the session is open, `term.py ls --json` gives a session at that worktree with its state,
-id and label. Ask for a name only when no terminal server answers (`term.py` exits 2), and say
-that is why.
-
-### Or start it yourself, when the human says so
-
-When the human has asked the seat to start the stream, now or when the time is right (the human,
-2026-11-05), open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr otherwise
-(`term.py which` says which; links in the README's example 7). With neither, `term.py` exits 2:
-print what to open, as above. Three steps, each checked before the next:
-
-```bash
-# 1. Claude in a place of its own, in the worktree — never a tab in the seat's place: the human
-#    looks for each stream as its own space. On herdr pass --workspace <the seat's workspace id>
-#    so it opens as the repository's worktree, nested beside the other streams.
-term.py start <the worktree> <slug> [--workspace <the seat's workspace id>] -- claude   # note the session id
-# 2. The name first, ALONE. Wait until the session shows "Session renamed to: <slug>".
-term.py send <session> '/rename <slug>'
-term.py read <session>          # repeat until the rename line is there
-# 3. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
-#    and bring the draft epics to the seat before any build.
-term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
-```
-
 Then check on the machine: `term.py ls --json` shows exactly one session whose `cwd` is the
 worktree, `working`, and `/proc/<pid>/cwd` agrees. Set the row's session to `<slug>`, and log the
-cut: `coord.py log "CUT <slug> (<id>): …"`. **When no terminal server answers**, print the block
-above, say that is why, and stop.
+cut: `coord.py log "CUT <slug> (<id>): …"`, naming the session id.
 
+- (2026-11-20) a cut that printed what to open, by the old default, left the human asking where
+  the pane was — opening the session became the default.
+- (2026-11-20) `/rename` sent through hc was answered as a chat message ("a built-in command, I
+  can't run it"): `hc send` delivers `<hc from="t5">/rename replay</hc>`, so no slash command
+  runs that way. The label from `start` already named the pane.
 - (2026-11-05) the rename and the start prompt sent back to back named the session `<slug>You
   are…` and the prompt never ran — send the rename alone and wait for it.
 - (2026-11-05) a stream opened as a plain herdr workspace showed top-level, not under the
