@@ -137,7 +137,6 @@ Brief: docs/thoughts/2026-03-05-docs-brief.md, committed.
 Stream 07s2-ghi cut. Open a terminal:
   cd ../app-docs
   claude
-then: /rename docs
 then: /dmtix start with the id 07s2-ghi given by hand
 The brief is docs/thoughts/2026-03-05-docs-brief.md; tell the session to read it first.
 ```

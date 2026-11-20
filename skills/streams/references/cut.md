@@ -11,7 +11,7 @@ do.
 
 **One name per stream (2026-09-23):** the slug *is* the stream's name — a short lowercase word
 said in chat — and it **leads every label** the stream carries: the branch, the worktree (no
-`side-`), the session (`/rename <slug>` in its pane), its row in `coord/streams.md`, and
+`side-`), the session's pane (named by `term.py start <worktree> <slug>`; no `/rename`), its row in `coord/streams.md`, and
 whatever the project's issue tracker groups the stream's tasks under (a milestone `<slug> —
 <title> (<id>)`, say). The increment id follows the name, never replaces it: *<slug> (<id>)*.
 Streams cut before the rule keep their branches (renaming a live branch moves every tick's
@@ -104,7 +104,7 @@ Then in the worktree:
   How to run — and create the tk project and one epic with `tk create`, stamping
   `--base-branch` on the epic. Leave scoping to `/dmtix start` only when the scope is open.
 - **The Streams row.** In `<git common dir>/coord/streams.md`, **in place**: add the row (session
-  `<slug>` once its pane is open and renamed, `—` until then; status `cut, not started`;
+  `<slug>` once its pane is open, `—` until then; status `cut, not started`;
   resources as claimed). No commit, no announcement: every worktree sees the file at once. Copy
   it to the scratchpad first, edit by exact match (never by line number), and **read the row
   back**.
@@ -178,11 +178,7 @@ the next:
 #    so it opens as the repository's worktree, nested beside the other streams.
 term.py start <the worktree> <slug> [--workspace <the seat's workspace id>] -- claude   # note the session id
 term.py wait --timeout 60 <session>   # until Claude's prompt is up, before typing anything
-# 2. The name. On hc, skip it: `start`'s label is the pane's name, and `hc send` wraps text in
-#    <hc from="…">, so a slash command arrives as chat and never runs. Check the label with
-#    `term.py ls --json`. On herdr, send the rename ALONE and wait for "Session renamed to: <slug>".
-term.py send <session> '/rename <slug>'   # herdr only
-term.py read <session>          # repeat until the rename line is there
+# 2. No /rename: `start`'s label already names the pane (check it with `term.py ls --json`).
 # 3. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
 #    and bring the draft epics to the seat before any build.
 term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
@@ -201,7 +197,6 @@ The block to print when the session is not opened:
 Stream <id> cut. Open a terminal:
   cd <the worktree>
   claude
-then: /rename <slug>
 then: /dmtix go          (or /dmtix start with the id <id> given by hand, if not scoped)
 The brief is docs/thoughts/<date>-<slug>-brief.md; tell the session to read it first.
 ```
@@ -215,8 +210,9 @@ cut: `coord.py log "CUT <slug> (<id>): …"`, naming the session id.
 - (2026-11-20) `/rename` sent through hc was answered as a chat message ("a built-in command, I
   can't run it"): `hc send` delivers `<hc from="t5">/rename replay</hc>`, so no slash command
   runs that way. The label from `start` already named the pane.
-- (2026-11-05) the rename and the start prompt sent back to back named the session `<slug>You
-  are…` and the prompt never ran — send the rename alone and wait for it.
+- (2026-11-20) the rename step was dropped (the human: the panes are named well, *"let's drop the
+  internal rename"*); it had also failed on 11-05, when the rename and the start prompt sent back
+  to back named the session `<slug>You are…` and the prompt never ran.
 - (2026-11-05) a stream opened as a plain herdr workspace showed top-level, not under the
   repository — `term.py start --workspace` opens it as a worktree.
 - (2026-11-05) a stream opened as a tab in the seat's workspace was moved while it ran, with the
