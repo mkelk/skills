@@ -57,14 +57,17 @@ ends by explaining what was set up and why.
 | Keys, hidden references, known answers, grader briefs, scoring sheets | `<kept>/research/<slug>/ruler/` and `scores/`, **outside git and every worktree** | a file in the repository is in every worktree and in history for good |
 | Bulk data, captures, job output | `<kept>/research/<slug>/data/`, or an ignored data folder, with a manifest in git | too big or too private for git; the manifest says what exists |
 | A mechanical ruler (script, test, reference outputs, the control) | in git, every file's hash in `ruler/hashes.txt` and that file's hash in the charter | the lead runs it and cannot quietly change it |
-| The guard that hides the keys | `.claude/settings.local.json` in the lead's worktree only | the holder must still read its own keys |
-| What the seat must see while it runs | the status box of `program.md`, read from the lead's worktree; three lines per loop in `coord/log.md` | the seat reads files, it does not ask |
+| The guard that hides the keys | `.claude/settings.local.json` in the lead's worktree only, written by the holder (the seat, at the cut): `Read` denies, and the hook `scripts/guard-hook.py` for shell reads | the holder must still read its own keys, and a lead does not build its own fence |
+| What the lead may read from the holder: inputs, a tuning set, check pages | `<kept>/research/<slug>/data/` | the one place the two roles pass files |
+| What the seat must see while it runs | the status box of `program.md`, read from the lead's worktree; three lines per loop in `coord/log.md`, delivered to the seat's terminal by `coord.py` | the seat reads files, it does not ask; a log line alone wakes nobody |
 
 The lead never reads the kept ruler. The holder never writes on the lead's branch.
 
 ## With streams and dmtix
 
-- **Cutting.** The seat cuts a stream for the program (`/streams cut <slug>`). In the stream:
+- **Cutting.** The seat cuts a stream for the program (`/streams cut <slug>`, with the
+  streams skill's `references/cut-research.md`: no increment, the guard written before the
+  session starts, a brief that names the data, the hidden part and suggested charter answers). In the stream:
   `/dmtix discuss-project` if the question is not sharp yet, then `/research-loop charter
   <slug>`, then `go`. The stream's row has no epics; its state is the program page.
 - **The seat is the holder**: it builds keys, scores, dispatches the independent check and

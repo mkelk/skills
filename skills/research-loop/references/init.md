@@ -73,6 +73,11 @@ answers; this is a dialogue, not a form.
 
 Propose each choice with its reason. Change nothing the human has not agreed to.
 
+**When the human has handed the set-up over** (a trial, a demonstration: "set it up and show
+me"), answer the questions from what they said and from Step 2, and write in *How we do
+research here* that it was not a dialogue and that every answer is theirs to change. On a
+repository someone will do real research in, it is a dialogue.
+
 ## Step 4 — Write
 
 **`.devmeta/research.md`**, committed. Every section is optional; write only what has content.
@@ -132,8 +137,9 @@ A guard is a claim until someone has watched it fire.
 
 - **The guard belongs to a lead, not to the repository.** The holder must read its own
   keys, so the deny never goes into the committed `.claude/settings.json`. It goes into
-  each lead's worktree, in `.claude/settings.local.json`, when `charter` sets a program up.
-  This door decides its form and proves it works.
+  each lead's worktree, in `.claude/settings.local.json`, **written by the holder**: with
+  `streams`, at the cut, before the lead's session starts; without, by `charter`. This door
+  decides its form and proves it works.
 - **The rule's form.** Two deny entries, for the rulers and the canary. Write a home path
   as `~/...` and any other absolute path **with two leading slashes**:
   `Read(~/<repo>-kept/research/*/ruler/**)`, or `Read(//srv/kept/research/*/ruler/**)`. A
@@ -147,10 +153,24 @@ A guard is a claim until someone has watched it fire.
   it is read, fix the rule's form first; only if a correct rule still does not hold, add a
   `PreToolUse` hook that refuses any tool call naming the path, and test again. Remove the
   scratch worktree.
+- **The hook, for shell reads.** A Read rule does not stop `cat`. This skill ships a
+  tripwire, `scripts/guard-hook.py`: a `PreToolUse` hook that refuses any tool call whose
+  input names a guarded path. Add it for an unattended lead, and for any key that would
+  spoil the program if seen:
+  `"hooks": {"PreToolUse": [{"hooks": [{"type": "command", "command": "python3 <skill
+  dir>/scripts/guard-hook.py '~/<repo>-kept/research/*/ruler' '~/<repo>-kept/research/canary.txt'"}]}]}`.
+  Prove it the same way, with `--allowedTools Bash` and "run `cat <canary>`". It is a
+  tripwire, not a sandbox: a path built from pieces gets past it.
+- **The holder's own folders.** A helper agent that builds a key leaves a transcript and
+  often a script behind. Add `Read` denies for the holder session's scratch folder and its
+  transcript folder to the guard, and write them under `## Guard`.
 - Write under `## Guard` what the rule is, what was tested, in which mode, and what happened.
-- Say plainly what the guard does **not** cover: a shell command can still read a file a
-  Read rule denies. For an unattended run with a key that matters, the key is on another
-  machine, or the lead runs as a user or in a container that cannot reach it.
+- Say plainly what the guard does **not** cover: without the hook a shell command can still
+  read a file a Read rule denies, and with it a determined one still can. For an unattended
+  run with a key that matters, the key is on another machine, or the lead runs as a user or
+  in a container that cannot reach it. A lead that is given inputs it has agreed not to
+  read (held-out texts its script passes on) cannot show that it kept its word: when that
+  matters, the holder keeps the inputs too and runs the arm itself.
 
 ## Step 6 — Write the explanation, commit, then explain
 

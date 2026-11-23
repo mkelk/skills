@@ -182,5 +182,30 @@ the skeleton offered (and whether it was taken), plus one line per upgrade-check
 it: `chore(dmtix): bootstrap devmeta adaptation (skill, config sections, records scaffold)`,
 or `chore(dmtix): upgrade to the current engine (<what changed>)` for step 6.
 
+### 8. Explain what was set up, and why
+
+The report above says what was created. This step says what it means, in plain sentences
+the human could repeat to a colleague. A human who cannot say how their method is set up
+cannot steer it or change it. `bootstrap` ends with it; `/dmtix explain` runs this step
+alone, from the files as they now stand, and writes nothing.
+
+1. **What the method is, in four lines.** Work is scoped as an increment (`start`), split
+   into epics and ticks in the tracker, run by the engine without waiting for the human
+   (`go`), and stopped at a checkpoint the human reviews.
+2. **Each thing in this project, and why it is so:** where the engine resolves from; the
+   tracker (`.tick/`) and what lives there; each lifecycle section of `.tick/config.md`,
+   what it makes a run do and when; `## Testing`, its gates and why each command sits
+   where it does (or that it is absent, and what a run then does not check); the records
+   in `.devmeta/` and who writes them.
+3. **What was adapted to this repository**, each with its reason, and what is still the
+   generic default.
+4. **What the human does:** agree the scope, read the checkpoint, decide what only they
+   can decide.
+5. **What would make them change it**, and where: `.tick/config.md` is the method, edited
+   on purpose; per-increment facts are not put there.
+
+End with one question: *"Is any of this not how you want it to work?"* An answer that
+changes a fact is an edit to the config, shown first and made on their word.
+
 **Do not start an increment or a run.** Next steps for the user:
 `/dmtix start` to scope work, `/dmtix go` to run it.

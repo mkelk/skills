@@ -107,11 +107,28 @@ coord.py init
 coord.py config --slug demo
 ```
 
+Then `coord.py seat --here`, in this pane: it records which terminal the seat is, so a
+stream's `OWED` line is delivered here and not only written to a log nobody is reading.
+
 `init` creates `coord/` in git's common directory and its files, and writes nothing that is
 already there. `config` must print the trunk, the worktree path for `demo` and the sections
 just written, each with `file:` as its source, and no `warning:` line.
 
 ## Step 6 — Commit and report
 
-Commit `.devmeta/streams.md` on the trunk (only that path), and tell the human, in a few
-lines: the file's facts, what was detected and what they chose, and that `cut` is next.
+Commit `.devmeta/streams.md` on the trunk (only that path). Then **explain what was set up
+and why**, in plain sentences the human could repeat to a colleague. A human who cannot say
+how their streams are set up cannot steer them.
+
+1. What streams does here, in three lines: one seat, each piece of work in its own worktree
+   and session, live state in `coord/` on this machine.
+2. Each fact in the file: its value, whether it was detected or chosen, and why it is so
+   (the trunk and what follows from it; where worktrees go; what a new worktree needs; what
+   two streams may not share).
+3. What was left empty, and what that means in practice.
+4. What would make them change it, and how (`init --force` keeps the rest).
+5. What to type next: `cut <slug>`.
+
+End with one question: *"Is any of this not how you want it to work?"* An answer that
+changes a fact is a change to the file, made on their word. Asked for again later
+(`/streams explain`), say the same from the file as it now stands; it writes nothing.

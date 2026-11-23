@@ -53,14 +53,19 @@ end instead, it goes into the status box and no loop file is made.
 
 **The first assessment of a program** also proposes the bar if the charter left it open,
 and **measures the floor**: the unchanged arm run again on each ruler that can vary (twice
-at least, three times for a timing). That is not a loop and needs no freeze. Write the
-spread in the status box's **Floor** line and commit `research(<slug>): floor`.
+at least, three times for a timing or a cheap run). That is not a loop and needs no freeze.
+Building the first version of the thing being improved belongs here too: there is no
+unchanged arm without it. Probe the model call once (`subcall.md`). With an answer key or a
+grader, each run goes to the holder as its own line: `OWED <slug>: score floor run <n> at
+<path>`. Write the spread in the status box's **Floor** line and commit `research(<slug>):
+floor`. Two runs give a weak floor: say so wherever a verdict leans on it.
 
 ### 2. Pick the next activity
 
 **First check the charter's end conditions**, honestly: answered; learned no more (two
 loops not shown on one question: change approach once, then end); a decision only the human
-can make; allowance or clock. At one of them, go to Step 9. Otherwise pick the activity
+can make; allowance or clock. A broken or confounded loop counts toward the loop cap and
+the allowance, and toward nothing else. At one of them, go to Step 9. Otherwise pick the activity
 with the most learning per cost.
 
 ### 3. Freeze, and commit it before anything runs
@@ -91,10 +96,12 @@ with the most learning per cost.
 ```
 
 Commit `research(<slug>): freeze loop <NNN>`: this commit holds the loop file and nothing
-else. If the charter says the holder reads freezes, log `OWED <slug>: read freeze <NNN>`
-and start the parts of the run the reading cannot change; if it says nobody does, go on. A
-change the holder asks for **before the run** is a second freeze commit that says what
-changed and why; once the run has started, a change is a new loop.
+else. If the charter says the holder reads freezes, log `OWED <slug>: read freeze <NNN>`,
+and do what the charter's *Reviews* says the reading gates. **The run:** wait for the
+answer. **The score:** run now, but ask for no score until the reading is paid; the holder
+scores no loop whose freeze it has not read. **Nothing:** go on. A change the holder asks
+for **before the run** is a second freeze commit that says what changed and why; once the
+run has started, a change is a new loop.
 
 ### 4. Run
 
@@ -105,11 +112,18 @@ changed and why; once the run has started, a change is a new loop.
 - **An arm's code lives in the program's folder**, `<records>/<slug>/arms/<NNN>-<name>/`, as
   a copy or a patch, written now and committed with the verdict. A loop does not change the
   product's own files on the branch, so the control stays the control and a lost arm costs
-  nothing to drop. A shown arm reaches the product through the report.
+  nothing to drop. That holds for a fix too: when a broken loop's cause is in the thing
+  being improved, the fixed copy goes in the next arm's folder, and the freeze says how it
+  differs. A shown arm reaches the product through the report.
+- **A measured call is a clean call** (`subcall.md`): an arm that is a prompt or a model
+  runs with nothing but the arm and the item.
 - **Raw output** goes to `<kept>/research/<slug>/data/loop-<NNN>/` (or the repository's
   ignored data folder), with `loops/<NNN>-<short>.manifest.md` in git: what was made, by
   which model, at what cost, where it is.
-- **The stop rule is live**: check it between parts, not at the end.
+- **The stop rule is live**: check it between parts, not at the end. **One part, one
+  command**: never chain the parts of a staged run in one script or one shell line. Run a
+  part, check the stop rule, then start the next. (2026-11-23) two loops ran their second
+  run after the first had failed, because both runs were one command.
 - An arm that could not run as frozen is **broken**. Say why, fix the cause, freeze again as
   a new loop. Do not quietly run something nearby and score it.
 
@@ -117,7 +131,8 @@ changed and why; once the run has started, a change is a new loop.
 
 **The scores go in their own file**, `loops/<NNN>-<short>.scores.md`: the ruler's output
 as it came, with no reading of it. The loop file's *Scores* links to it. An independent
-check is given that file and never the loop file.
+check is given that file and never the loop file. A broken loop's scores file holds the
+mechanical ruler's output, pasted, and nothing else.
 
 - **Mechanical:** run the ruler as it is. Paste its output, not a summary of it.
 - **Answer key:** hand the outputs to the holder (`OWED <slug>: score loop <NNN> at <path>`).
@@ -153,9 +168,11 @@ something easier? If easier, the verdict says which, in its sentence.
    the page says is older than its Updated line.
 3. Commit `research(<slug>): loop <NNN> <verdict>`.
 4. **Three lines to the holder**, at every loop: *tried / numbers / next*, with the spend so
-   far. With `streams`: `coord.py log "<slug> loop <NNN> <verdict>: <tried> / <numbers> /
-   <next>"`, and a message to the seat if a session is listening. A log line survives its
-   session; a message does not.
+   far. With `streams`: `coord.py log --tell seat "<slug> loop <NNN> <verdict>: <tried> /
+   <numbers> / <next>"`. The log line survives the session, and `--tell seat` puts it in the
+   seat's terminal. An `OWED` line reaches the seat by itself, and its `PAID` comes back to
+   this session the same way: a log line alone wakes nobody. If `coord.py` says the line
+   was not delivered, tell the human in this pane.
 
 ### 8. Back to 1
 
@@ -179,3 +196,6 @@ review and independent check before the report`. Then run the `report` door
   transcript.
 - With `streams`, the seat's hourly pass reads the status box. An Updated line that stops
   moving while the session works is what it looks for.
+- An unattended lead that needs a score waits for the seat's next pass. Freeze and run what
+  does not need it meanwhile, and write the request so the pass can pay it without a
+  question.

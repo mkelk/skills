@@ -28,6 +28,10 @@ Default `--from mainline`: cut from the mainline's branch tip so the stream has 
 tree; `--from trunk` (the trunk, `coord.py config --get trunk`) when the stream must not carry
 the mainline's unfinished work.
 
+**A research stream** (its session leads a program under `research-loop`) has no increment
+and a guard of its own: read `references/cut-research.md` after this file and follow its
+differences.
+
 ## Step 0 — Is this a side stream at all?
 
 **When the table has no mainline row, stop and ask the human which this is**, because the
@@ -169,8 +173,11 @@ block below instead only when the human said not to start it yet, or when no ter
 answers (`term.py` exits 2); say which of the two it was.
 
 Open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr otherwise
-(`term.py which` says which; links in the README's example 7). Three steps, each checked before
-the next:
+(`term.py which` says which; links in the README's example 7). First `coord.py seat`: it must
+name this pane (`coord.py seat --here`), or a stream's `OWED` line reaches nobody. With `hc`
+and the herdr-app window, give no `--workspace`: a space opened on a worktree nests by itself
+under the space whose first terminal sits in the main checkout. Three steps, each checked
+before the next:
 
 ```bash
 # 1. Claude in a place of its own, in the worktree — never a tab in the seat's place: the human

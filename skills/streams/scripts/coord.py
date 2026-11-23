@@ -13,6 +13,8 @@ goes to the project's issue tracker. `COORD_DIR` overrides the directory (the te
 - `coord/schedules.md` what runs on a clock, with owner and how to restart it (the `restart` door).
 - `coord/asks.md`      what waits on the human (the `queue` door).
 - `coord/roadmaps/`    a roadmap's live state (the `roadmap` skill).
+- `coord/seat.json`    the seat's terminal (session id, when it was set in UTC): where `log` sends what
+                       the seat must hear. Written by `seat --here`, in the seat's pane.
 
 Lines with a meaning in the log:
 
@@ -21,12 +23,28 @@ Lines with a meaning in the log:
   a HOLD on something another holder has until an end that has not come is refused. The same holder
   moves the end with a new HOLD. Nothing releases on its own; a hold past its end may be taken by anyone.
 - `RELEASE <what>: <why>` closes the hold; anyone may release a gone holder's hold.
-- `OWED <stream>: <what>` gets an id (`OWED a7 <stream>: <what>`); `PAID a7` closes it.
+- `OWED <stream>: <what>` gets an id (`OWED a7 <stream>: <what>`); `PAID a7` closes it, and so does
+  `PAID a7: <note>`.
+
+A line in the log wakes nobody, so `log` also tells a terminal, through `term.py send`, once the line is
+written:
+
+- an `OWED` line goes to the registered seat, as `<who>: <the text>`;
+- a `PAID <id>` line goes to the stream that wrote the OWED line (to the stream the OWED line names when
+  the payer wrote it itself), as `PAID <id>: <what was owed>`, then ` -- <note>` when the line has one.
+  The stream's worktree is the one named like the writer (`git worktree list`), its session the one whose
+  cwd is in that worktree (`term.py ls`);
+- any other line goes nowhere unless `--tell seat` or `--tell <stream slug or session id>` says so;
+- `--no-tell` tells nobody, and the terminal the command runs in (`$HC_TERMINAL_ID`) is never told.
+
+A relay that fails never fails the log: the line is written, stderr says in one line why it was not
+delivered, and the exit code is 0. A delivered relay prints `told <session>`.
 
 Usage:
     coord.py init
-    coord.py log "<text>" [--as <who>] [--for 40m | --until HH:MM]
+    coord.py log "<text>" [--as <who>] [--for 40m | --until HH:MM] [--tell seat|<stream>|<session> | --no-tell]
     coord.py show [--holds] [--owed] [--log N]
+    coord.py seat [--here | --set <session> | --clear]
     coord.py config [--slug <slug>] [--json | --get <fact>] [--file <path>]
     coord.py init-file [--trunk B] [--worktree-root DIR] [--at-cut L]... [--at-landing L]...
                        [--resources L]... [--force]
@@ -55,10 +73,16 @@ LOG = "log.md"
 ASKS = "asks.md"
 SCHEDULES = "schedules.md"
 ROADMAPS = "roadmaps"
+SEAT = "seat.json"
+TERM_TIMEOUT = 60  # seconds for one term.py call; `hc send` waits while a person has a draft in the terminal
 
 
 class CoordError(Exception):
     """A line coord refuses to write; the message says what to do instead."""
+
+
+class NotTold(Exception):
+    """A relay that reached no terminal; the message says why. It never fails the log."""
 
 
 # ------------------------------------------------------------------ where coord lives
@@ -367,7 +391,7 @@ def _prepare_owed_paid(text, lines):
     if re.match(r"^PAID(\s|:|$)", text):
         m = PAID_LINE.match(text)
         if not m:
-            raise CoordError('PAID names the id of an OWED line: "PAID a7".')
+            raise CoordError('PAID names the id of an OWED line: "PAID a7", or "PAID a7: <note>".')
         owed, paid = _owed_entries(lines)
         oid = m.group(1)
         if oid not in owed:
@@ -753,6 +777,167 @@ def init_file(cwd=None, path=None, force=False, **values):
     return file_path
 
 
+# ------------------------------------------------------------------ the seat's terminal, and telling one
+
+
+def read_seat(directory):
+    """The registered seat, {session, set}; None when none is registered or the file does not read."""
+    try:
+        with open(os.path.join(directory, SEAT), encoding="utf-8") as f:
+            seat = json.load(f)
+    except (OSError, ValueError):
+        return None
+    if isinstance(seat, dict) and isinstance(seat.get("session"), str) and seat["session"]:
+        return seat
+    return None
+
+
+def set_seat(directory, session, now=None):
+    """Register `session` as the seat's terminal. Returns what was written."""
+    session = (session or "").strip()
+    if not session or re.search(r"\s", session):
+        raise CoordError(f"{session!r} is not a session id; `term.py ls` lists them (hc: t7, herdr: a pane id).")
+    os.makedirs(directory, exist_ok=True)
+    seat = {"session": session, "set": f"{stamp(now or dt.datetime.now(UTC))} UTC"}
+    with open(os.path.join(directory, SEAT), "w", encoding="utf-8") as f:
+        f.write(json.dumps(seat) + "\n")
+    return seat
+
+
+def clear_seat(directory):
+    """Remove the registration. Returns the seat that was registered, or None."""
+    seat = read_seat(directory)
+    path = os.path.join(directory, SEAT)
+    if os.path.exists(path):
+        os.remove(path)
+    return seat
+
+
+def seat_line(directory):
+    """`seat: t17 (set 2026-01-15 10:00 UTC)`, or `seat: not registered`."""
+    seat = read_seat(directory)
+    if not seat:
+        return "seat: not registered"
+    return f"seat: {seat['session']} (set {seat.get('set') or 'at an unknown time'})"
+
+
+def term(args, timeout=TERM_TIMEOUT):
+    """Run term.py (the file beside this one) with `args`: (exit code, stdout, stderr). The tests replace it."""
+    script = os.path.join(os.path.dirname(os.path.realpath(__file__)), "term.py")
+    try:
+        out = subprocess.run([sys.executable or "python3", script, *args], capture_output=True, text=True,
+                             timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return 124, "", f"term.py did not answer in {timeout}s"
+    except OSError as err:
+        return 127, "", f"term.py did not start: {err}"
+    return out.returncode, out.stdout, out.stderr
+
+
+def _last_line(*texts):
+    for text in texts:
+        lines = (text or "").strip().splitlines()
+        if lines:
+            return lines[-1]
+    return "it printed nothing"
+
+
+def worktrees(cwd=None):
+    """The directory of every worktree of the repository at `cwd`, the main checkout first; [] outside one."""
+    out = _git(["worktree", "list", "--porcelain"], cwd) or ""
+    return [os.path.realpath(line[len("worktree "):]) for line in out.splitlines() if line.startswith("worktree ")]
+
+
+def stream_worktree(name, trees):
+    """The worktree a log writer or a stream slug names: the directory `name`, else `<repo>-<name>`, else
+    the only one ending in `-<name>`. None when there is none."""
+    wanted = [name, f"{os.path.basename(trees[0])}-{name}"] if trees else []
+    for base in wanted:
+        for tree in trees:
+            if os.path.basename(tree) == base:
+                return tree
+    ending = [tree for tree in trees if os.path.basename(tree).endswith(f"-{name}")]
+    return ending[0] if len(ending) == 1 else None
+
+
+def stream_session(tree, trees, sessions):
+    """The id of the session working in `tree`: its cwd (else its foreground program's) is the worktree or
+    under it, and under no worktree nested deeper. A Claude session wins over a shell. None when there is none."""
+    def home(path):
+        path = os.path.realpath(path) if path else ""
+        inside = [t for t in trees if path == t or path.startswith(t.rstrip(os.sep) + os.sep)]
+        return max(inside, key=len) if inside else None
+
+    for key in ("cwd", "foreground_cwd"):
+        found = [s for s in sessions if isinstance(s, dict) and s.get("id") and home(s.get(key)) == tree]
+        if found:
+            found.sort(key=lambda s: "claude" not in (s.get("agent") or ""))
+            return found[0]["id"]
+    return None
+
+
+def tell_target(directory, name, cwd=None, or_session=False):
+    """The session id for `seat` or for a stream (its name in the log, or its slug); NotTold says why there
+    is none. With `or_session`, a name no worktree carries is taken as a session id."""
+    if name == "seat":
+        seat = read_seat(directory)
+        if not seat:
+            raise NotTold(f"no seat is registered; `{_self_command()} seat --here` in the seat's pane fixes it")
+        return seat["session"]
+    trees = worktrees(cwd)
+    tree = stream_worktree(name, trees)
+    if not tree:
+        if or_session:
+            return name
+        raise NotTold(f"no session found for the stream {name}: no worktree of this repository is named for it")
+    code, out, err = term(["ls", "--json"])
+    if code != 0:
+        raise NotTold(f"no session found for the stream {name}: term.py ls exited {code}: {_last_line(err, out)}")
+    try:
+        listed = json.loads(out).get("sessions") or []
+    except (ValueError, AttributeError):
+        raise NotTold(f"no session found for the stream {name}: term.py ls printed no session list")
+    session = stream_session(tree, trees, listed)
+    if not session:
+        raise NotTold(f"no session found for the stream {name}: no terminal has its cwd in {tree}")
+    return session
+
+
+def relay(directory, line, tell=None, cwd=None):
+    """Tell a terminal about the line `log` just wrote. Returns the session told; None when the line is for
+    nobody, or for the terminal this command runs in. Raises NotTold when it could not be delivered.
+
+    `tell` names who (`seat`, a stream, a session id). Without it an OWED line goes to the seat, a PAID line
+    to the stream that wrote the OWED line, and any other line to nobody.
+    """
+    parsed = parse_line(line)
+    if not parsed:
+        return None
+    _, who, text = parsed
+    target, message = tell, f"{who}: {text}"
+    paid = PAID_LINE.match(text)
+    if OWED_LINE.match(text):
+        target = target or "seat"
+    elif paid:
+        entry = _owed_entries(read_lines(directory))[0].get(paid.group(1))
+        if entry:
+            note = re.sub(r"^[\s:,.;–—-]+", "", text[paid.end():]).strip()
+            message = f"PAID {entry['id']}: {entry['what']}" + (f" -- {note}" if note else "")
+            # The payer wrote the OWED line itself (the seat's own list): the stream it names is the one to tell.
+            target = target or (entry["stream"] if entry["who"] == who else entry["who"])
+    if not target:
+        return None
+    session = tell_target(directory, target, cwd, or_session=bool(tell))
+    if session == os.environ.get("HC_TERMINAL_ID"):
+        return None
+    code, out, err = term(["send", session, message])
+    if code != 0:
+        # After a timeout the server's own send can still be waiting on a draft in that terminal.
+        late = "; the text may still arrive" if code == 124 else ""
+        raise NotTold(f"term.py send {session} exited {code}: {_last_line(err, out)}{late}")
+    return session
+
+
 # ------------------------------------------------------------------ show
 
 
@@ -763,6 +948,8 @@ def show(directory, holds=False, owed=False, log=None, now=None, zone=None):
     everything = not holds and not owed and log is None
     lines = read_lines(directory)
     out = [f"coord: {directory}"]
+    if everything or owed:
+        out.append(seat_line(directory))
     if everything or holds:
         current = open_holds(lines)
         live = [h for h in current if h["end"] > now]
@@ -803,15 +990,34 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog="coord.py", description="The streams skill's coordination state.")
     sub = ap.add_subparsers(dest="command", required=True)
     sub.add_parser("init", help="create coord/ and its files")
-    p_log = sub.add_parser("log", help="append one line to coord/log.md")
+    p_log = sub.add_parser("log", help="append one line to coord/log.md, and tell the terminal it concerns",
+                           description="Append one line to coord/log.md. Once it is written, an OWED line is typed "
+                                       "into the seat's terminal and a PAID line into the terminal of the stream "
+                                       "that wrote the OWED line. A relay that fails is reported on stderr and "
+                                       "never fails the log.")
     p_log.add_argument("text", nargs="+")
     p_log.add_argument("--as", dest="who")
     p_log.add_argument("--for", dest="for_")
     p_log.add_argument("--until")
-    p_show = sub.add_parser("show", help="open holds, expired holds, unpaid OWED, newest log lines")
+    g_tell = p_log.add_mutually_exclusive_group()
+    g_tell.add_argument("--tell", metavar="WHO",
+                      help="also type the line into a terminal: seat (the registered one), a stream (its name in "
+                           "the log, or its slug) or a session id. Without it an OWED line goes to the seat and a "
+                           "PAID line to the stream that wrote the OWED line")
+    g_tell.add_argument("--no-tell", action="store_true", help="tell no terminal, also for an OWED or PAID line")
+    p_show = sub.add_parser("show", help="the seat's terminal, open holds, expired holds, unpaid OWED, newest "
+                                         "log lines")
     p_show.add_argument("--holds", action="store_true")
     p_show.add_argument("--owed", action="store_true")
     p_show.add_argument("--log", type=int, metavar="N")
+    p_seat = sub.add_parser("seat", help="print the seat's registered terminal (coord/seat.json), or change it",
+                            description="The terminal `log` tells about an OWED line and a `--tell seat` line. "
+                                        "With no flag: print it.")
+    g_seat = p_seat.add_mutually_exclusive_group()
+    g_seat.add_argument("--here", action="store_true",
+                       help="register the terminal this command runs in ($HC_TERMINAL_ID, set by herdr-core)")
+    g_seat.add_argument("--set", dest="session", metavar="SESSION", help="register this session id")
+    g_seat.add_argument("--clear", action="store_true", help="remove the registration")
     p_cfg = sub.add_parser("config", help="the project's facts from .devmeta/streams.md, or detected")
     p_cfg.add_argument("--file", help="the project file (default .devmeta/streams.md at the top)")
     p_cfg.add_argument("--slug", help="also print the worktree path for this stream slug")
@@ -882,6 +1088,39 @@ def main(argv=None):
         m = re.search(r": OWED (a\d+) ", line)
         if m:
             print(f'  owed {m.group(1)}: close it with {_self_command()} log "PAID {m.group(1)}"')
+        if not a.no_tell:
+            try:
+                told = relay(directory, line, tell=a.tell)
+                if told:
+                    print(f"told {told}")
+            except NotTold as err:
+                print(f"coord log: written, not delivered: {err}", file=sys.stderr)
+            except Exception as err:  # the line is written: no relay failure may fail the log
+                print(f"coord log: written, not delivered: {type(err).__name__}: {err}", file=sys.stderr)
+        return 0
+
+    if a.command == "seat":
+        if a.clear:
+            was = clear_seat(directory)
+            print(f"seat: cleared (was {was['session']})" if was else "seat: not registered; nothing to clear")
+            return 0
+        if a.here or a.session is not None:
+            session = a.session
+            if a.here:
+                session = os.environ.get("HC_TERMINAL_ID", "").strip()
+                if not session:
+                    print(f"coord seat: HC_TERMINAL_ID is not set, so this is not a herdr-core (hc) terminal. Name "
+                          f"the session: {_self_command()} seat --set <session> (`term.py ls` lists them).",
+                          file=sys.stderr)
+                    return 2
+            try:
+                set_seat(directory, session)
+            except CoordError as err:
+                print(f"coord seat: {err}", file=sys.stderr)
+                return 2
+        print(seat_line(directory))
+        if not read_seat(directory):
+            print(f"  register it in the seat's pane: {_self_command()} seat --here")
         return 0
 
     print(show(directory, holds=a.holds, owed=a.owed, log=a.log))

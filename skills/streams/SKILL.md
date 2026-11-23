@@ -17,6 +17,7 @@ reference and follow it exactly.** With no or an unknown argument, show this tab
 | `keep-running` | on a timer, hourly (a cheap scout subagent does the looking: `references/scout.md`) | `references/keep-running.md` — `status`, then **act**: close forgotten windows, answer streams owed an answer, refresh drifted cells, land what is finished, restart what stalled, relay what one stream found. Prints only what the human must act on. |
 | `queue` | whenever something waits on the human; checked every `keep-running` | `references/queue.md` — the list of what waits on the human (`coord/asks.md`, one row each, with the exact thing to type and a why), kept by the seat alone; a go counts only typed in the seat. |
 | `compact` | twice a day at quiet times, or inside `keep-running` | `references/compact.md` — the long-running sessions' context: a larger auto-compact window and an after-compaction hook in each stream's worktree, and the idle tidy (`scripts/compact-idle.py`) that sends `/compact` to a stream that is idle, large, quiet and holds nothing. Never the seat. |
+| `explain` | whenever asked | `references/init.md` → Step 6: what is set up here and why; writes nothing. |
 | `cut <slug>` | once per new stream | `references/cut.md` — asks first whether it is a side stream or the mainline in a worktree, then: the resources the project names, a branch and worktree, the project's `## At cut`, the records, a brief file the new session reads, and opens that session in its own pane (`term.py`) unless the human says not yet. |
 | `restart` | after the terminal server, a Claude session, WSL or the machine stopped | `references/restart.md` — read `coord/schedules.md` (every crontab line, timer, session cron and background loop, with owner and how to restart it), find what is no longer running, and have each owner bring its own back. |
 | `hotfix <slug>` | when a host is blocked on a running stream's gated fix | `references/hotfix.md` — merge one stream's branch to the trunk **without landing it**: the stream is unfinished and stays alive. Needs the human's go, a conflict-free merge, the project's checks on the merged tree, and the SHA handed to whoever owns the host. |
@@ -48,7 +49,7 @@ Principles, binding for every door:
   no announcement for a row change — after copying it to the scratchpad, by exact match, and
   reads the change back. Any session writes a log line when it takes or releases a hold,
   deploys, or hands something to another stream, **in addition to** any message: a message is
-  gone with its session, a log line is not. Write log lines with `coord.py log`, which
+  gone with its session, a log line is not. Write log lines with `coord.py log` (it delivers `OWED` to the seat and `PAID` back), which
   enforces the hold rules; `coord.py init` creates the directory on first use. **It is per
   machine**: anything that must cross machines goes to the project's issue tracker.
   (2026-09-23) a committed streams table churned a commit per row change and the facts streams

@@ -1,8 +1,10 @@
-"""Tests for coord.py: holds and their ends, refusals, OWED/PAID, local time across DST.
+"""Tests for coord.py: holds and their ends, refusals, OWED/PAID, local time across DST, the seat's
+terminal and what `log` tells it.
 
     cd scripts && python3 -m unittest -v test_coord
 
-Every test writes into a temporary COORD_DIR, never into a real repository's coord/.
+Every test writes into a temporary COORD_DIR, never into a real repository's coord/, and `coord.term` is
+replaced by a recorder, so no test reaches a terminal server.
 """
 import datetime as dt
 import io
@@ -28,11 +30,33 @@ class CoordCase(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.dir = os.path.join(self.tmp.name, "coord")
-        self._env = {k: os.environ.get(k) for k in ("COORD_DIR", "COORD_AS", "TZ")}
+        self._env = {k: os.environ.get(k) for k in ("COORD_DIR", "COORD_AS", "TZ", "HC_TERMINAL_ID")}
         os.environ["COORD_DIR"] = self.dir
         os.environ.pop("COORD_AS", None)
+        os.environ.pop("HC_TERMINAL_ID", None)
+        self.sent = []       # what term.py was asked to send: (session, text)
+        self.sessions = []   # what its `ls --json` lists
+        self.send_exit = 0   # its exit code for `send`
+        self._term, coord.term = coord.term, self.fake_term
+
+    def fake_term(self, args, timeout=None):
+        if args[0] == "ls":
+            return 0, json.dumps({"server": "hc", "sessions": self.sessions}), ""
+        if args[0] != "send":
+            raise AssertionError(f"unexpected term.py call: {args}")
+        if self.send_exit:
+            return self.send_exit, "", "term: hc send failed: no such terminal"
+        self.sent.append((args[1], args[2]))
+        return 0, "", ""
+
+    def run_main(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = coord.main(list(argv))
+        return code, out.getvalue(), err.getvalue()
 
     def tearDown(self):
+        coord.term = self._term
         for key, value in self._env.items():
             if value is None:
                 os.environ.pop(key, None)
@@ -258,12 +282,6 @@ class OwedPaid(CoordCase):
 
 
 class Command(CoordCase):
-    def run_main(self, *argv):
-        out, err = io.StringIO(), io.StringIO()
-        with redirect_stdout(out), redirect_stderr(err):
-            code = coord.main(list(argv))
-        return code, out.getvalue(), err.getvalue()
-
     def test_init_creates_files_once(self):
         code, out, _ = self.run_main("init")
         self.assertEqual(code, 0)
@@ -286,6 +304,247 @@ class Command(CoordCase):
         code, out, _ = self.run_main("show", "--log", "1")
         self.assertIn("seat: OWED a1 beta: x", out)
         self.assertNotIn("HOLDS", out)
+
+
+class Seat(CoordCase):
+    def seat_file(self):
+        with open(os.path.join(self.dir, coord.SEAT)) as f:
+            return json.load(f)
+
+    def test_none_registered(self):
+        code, out, _ = self.run_main("seat")
+        self.assertEqual(code, 0)
+        self.assertIn("seat: not registered\n", out)
+        self.assertIn("seat --here", out)
+        self.assertIsNone(coord.read_seat(self.dir))
+
+    def test_set_stores_session_and_utc_time(self):
+        code, out, _ = self.run_main("seat", "--set", "t7")
+        self.assertEqual(code, 0)
+        stored = self.seat_file()
+        self.assertEqual(stored["session"], "t7")
+        self.assertRegex(stored["set"], r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC$")
+        self.assertEqual(out, f"seat: t7 (set {stored['set']})\n")
+        self.assertEqual(self.run_main("seat")[1], out)
+        self.assertEqual(coord.set_seat(self.dir, "t8", now=at("2026-01-15 10:00")),
+                         {"session": "t8", "set": "2026-01-15 10:00 UTC"})
+        self.assertEqual(self.seat_file()["session"], "t8")  # a new registration replaces the old one
+
+    def test_set_refuses_what_is_no_session_id(self):
+        code, _, err = self.run_main("seat", "--set", "two words")
+        self.assertEqual(code, 2)
+        self.assertIn("not a session id", err)
+        self.assertIsNone(coord.read_seat(self.dir))
+
+    def test_here_registers_this_terminal(self):
+        os.environ["HC_TERMINAL_ID"] = "t17"
+        code, out, _ = self.run_main("seat", "--here")
+        self.assertEqual(code, 0)
+        self.assertIn("seat: t17 (set ", out)
+        self.assertEqual(self.seat_file()["session"], "t17")
+
+    def test_here_without_the_variable_is_refused(self):
+        code, out, err = self.run_main("seat", "--here")
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("HC_TERMINAL_ID is not set", err)
+        self.assertIn("seat --set <session>", err)
+        self.assertFalse(os.path.exists(os.path.join(self.dir, coord.SEAT)))
+
+    def test_clear(self):
+        self.run_main("seat", "--set", "t7")
+        self.assertEqual(self.run_main("seat", "--clear"), (0, "seat: cleared (was t7)\n", ""))
+        self.assertFalse(os.path.exists(os.path.join(self.dir, coord.SEAT)))
+        self.assertIn("not registered", self.run_main("seat")[1])
+        self.assertEqual(self.run_main("seat", "--clear")[1], "seat: not registered; nothing to clear\n")
+
+    def test_an_unreadable_file_reads_as_not_registered(self):
+        os.makedirs(self.dir)
+        with open(os.path.join(self.dir, coord.SEAT), "w") as f:
+            f.write("{half a file")
+        self.assertIsNone(coord.read_seat(self.dir))
+
+    def test_show_names_the_seat(self):
+        self.log("OWED beta: x", who="seat")
+        self.assertEqual(self.run_main("show")[1].splitlines()[1], "seat: not registered")
+        self.assertEqual(self.run_main("show", "--owed")[1].splitlines()[1], "seat: not registered")
+        coord.set_seat(self.dir, "t7", now=at("2026-01-15 10:00"))
+        want = "seat: t7 (set 2026-01-15 10:00 UTC)"
+        self.assertEqual(self.run_main("show")[1].splitlines()[1], want)
+        self.assertEqual(self.run_main("show", "--owed")[1].splitlines()[1:3], [want, "OWED"])
+        self.assertNotIn("seat:", self.run_main("show", "--holds")[1])
+        self.assertEqual(self.run_main("show", "--log", "1")[1].splitlines()[1], "LOG (newest 1)")
+
+
+class Relay(CoordCase):
+    """What `log` tells a terminal once the line is written. The seat is t1; the stream beta works in t5."""
+
+    def setUp(self):
+        super().setUp()
+        coord.set_seat(self.dir, "t1")
+
+    def streams(self):
+        """A repository `demo` with the worktree `demo-beta`, a session in each, and the main checkout as cwd."""
+        repo = os.path.join(self.tmp.name, "work", "demo")
+        tree = os.path.join(self.tmp.name, "work", "demo-beta")
+        quiet = {"capture_output": True, "check": True}
+        subprocess.run(["git", "init", "-q", repo], **quiet)
+        subprocess.run(["git", "-C", repo, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q",
+                        "--allow-empty", "-m", "start"], **quiet)
+        subprocess.run(["git", "-C", repo, "worktree", "add", "-q", "-b", "beta", tree], **quiet)
+        os.makedirs(os.path.join(tree, "src"))
+        self.sessions = [{"id": "t1", "cwd": repo, "agent": "claude"},
+                         {"id": "t4", "cwd": os.path.join(tree, "src"), "agent": "bash"},
+                         {"id": "t5", "cwd": tree, "agent": "claude"}]
+        self.addCleanup(os.chdir, os.getcwd())
+        os.chdir(repo)
+        return repo, tree
+
+    def logged(self):
+        return [coord.parse_line(line)[2] for line in coord.read_lines(self.dir)]
+
+    def test_owed_goes_to_the_seat(self):
+        code, out, err = self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta")
+        self.assertEqual((code, err), (0, ""))
+        self.assertEqual(self.sent, [("t1", "demo-beta: OWED a1 beta: the deploy answer")])
+        self.assertEqual(out.splitlines()[-1], "told t1")
+        self.assertIn("demo-beta: OWED a1 beta: the deploy answer", out.splitlines()[0])
+        self.assertEqual(self.logged(), ["OWED a1 beta: the deploy answer"])
+
+    def test_owed_without_a_seat_is_logged_and_says_how_to_register(self):
+        coord.clear_seat(self.dir)
+        code, out, err = self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta")
+        self.assertEqual(code, 0)
+        self.assertIn("not delivered: no seat is registered", err)
+        self.assertIn("seat --here", err)
+        self.assertEqual(len(err.splitlines()), 1)
+        self.assertNotIn("told", out)
+        self.assertEqual((self.sent, self.logged()), ([], ["OWED a1 beta: the deploy answer"]))
+
+    def test_paid_goes_to_the_stream_that_wrote_the_owed_line(self):
+        self.streams()
+        self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta")
+        code, out, err = self.run_main("log", "PAID a1", "--as", "seat")
+        self.assertEqual((code, err), (0, ""))
+        self.assertEqual(self.sent[-1], ("t5", "PAID a1: the deploy answer"))  # the Claude session, not the shell
+        self.assertEqual(out.splitlines()[-1], "told t5")
+        self.assertEqual(coord.open_owed(coord.read_lines(self.dir)), [])
+
+    def test_paid_with_a_note_closes_the_line_and_relays_the_note(self):
+        self.streams()
+        self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta")
+        code, _, err = self.run_main("log", "PAID a1: build 41 is on stage", "--as", "seat")
+        self.assertEqual((code, err), (0, ""))
+        self.assertEqual(self.sent[-1], ("t5", "PAID a1: the deploy answer -- build 41 is on stage"))
+        self.assertEqual(self.logged()[-1], "PAID a1: build 41 is on stage")
+        self.assertEqual(coord.open_owed(coord.read_lines(self.dir)), [])
+        self.assertIn("already paid", self.refused("PAID a1: again"))
+
+    def test_paid_on_the_seats_own_owed_line_goes_to_the_stream_it_names(self):
+        self.streams()
+        os.environ["HC_TERMINAL_ID"] = "t1"
+        self.run_main("log", "OWED beta: relay the table", "--as", "seat")
+        self.assertEqual(self.sent, [])  # the seat does not tell itself
+        self.run_main("log", "PAID a1 relayed", "--as", "seat")
+        self.assertEqual(self.sent, [("t5", "PAID a1: relay the table -- relayed")])
+
+    def test_paid_with_no_session_for_the_stream_is_logged(self):
+        self.streams()
+        self.sessions = self.sessions[:1]
+        self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta")
+        code, out, err = self.run_main("log", "PAID a1", "--as", "seat")
+        self.assertEqual(code, 0)
+        self.assertIn("not delivered: no session found for the stream demo-beta", err)
+        self.assertNotIn("told", out)
+        self.assertEqual(self.logged()[-1], "PAID a1")
+
+    def test_paid_for_a_writer_with_no_worktree_is_logged(self):
+        self.streams()
+        self.run_main("log", "OWED gamma: x", "--as", "gamma", "--no-tell")
+        code, _, err = self.run_main("log", "PAID a1", "--as", "seat")
+        self.assertEqual(code, 0)
+        self.assertIn("no session found for the stream gamma: no worktree", err)
+        self.assertEqual(self.logged()[-1], "PAID a1")
+
+    def test_a_session_belongs_to_the_deepest_worktree_around_its_cwd(self):
+        trees = ["/w/demo", "/w/demo/trees/demo-beta"]
+        listed = [{"id": "t1", "cwd": "/w/demo/docs"}, {"id": "t5", "cwd": "/w/demo/trees/demo-beta"},
+                  {"id": "t6", "cwd": "/home/x", "foreground_cwd": "/w/demo/trees/demo-beta"}]
+        self.assertEqual(coord.stream_session(trees[0], trees, listed), "t1")
+        self.assertEqual(coord.stream_session(trees[1], trees, listed), "t5")
+        self.assertEqual(coord.stream_session(trees[1], trees, listed[::2]), "t6")  # by its foreground program
+        self.assertIsNone(coord.stream_session(trees[1], trees, listed[:1]))
+        self.assertEqual(coord.stream_worktree("beta", trees), trees[1])
+        self.assertEqual(coord.stream_worktree("demo-beta", trees), trees[1])
+        self.assertIsNone(coord.stream_worktree("gamma", trees))
+
+    def test_tell_seat_relays_any_line(self):
+        code, out, err = self.run_main("log", "loop 3: kept, 0.71 on the ruler", "--tell", "seat", "--as", "demo-beta")
+        self.assertEqual((code, err), (0, ""))
+        self.assertEqual(self.sent, [("t1", "demo-beta: loop 3: kept, 0.71 on the ruler")])
+        self.assertEqual(out.splitlines()[-1], "told t1")
+
+    def test_tell_a_stream_by_slug_or_a_session_by_id(self):
+        self.streams()
+        self.run_main("log", "the trunk moved; sync when it suits you", "--tell", "beta", "--as", "seat")
+        self.run_main("log", "deployed build 41", "--tell", "t9", "--as", "seat")
+        self.assertEqual(self.sent, [("t5", "seat: the trunk moved; sync when it suits you"),
+                                     ("t9", "seat: deployed build 41")])
+
+    def test_a_plain_line_tells_nobody(self):
+        code, out, err = self.run_main("log", "deployed build 41", "--as", "demo-beta")
+        self.assertEqual((code, err, self.sent), (0, "", []))
+        self.assertNotIn("told", out)
+
+    def test_no_tell_suppresses_the_relay(self):
+        code, out, err = self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta", "--no-tell")
+        self.assertEqual((code, err, self.sent), (0, "", []))
+        self.assertNotIn("told", out)
+        self.assertEqual(self.logged(), ["OWED a1 beta: the deploy answer"])
+        coord.clear_seat(self.dir)  # and no complaint about a seat it did not need
+        self.assertEqual(self.run_main("log", "OWED beta: more", "--as", "demo-beta", "--no-tell")[2], "")
+
+    def test_never_tells_the_terminal_it_runs_in(self):
+        os.environ["HC_TERMINAL_ID"] = "t1"
+        code, out, err = self.run_main("log", "OWED beta: relay the table", "--as", "seat")
+        self.assertEqual((code, err, self.sent), (0, "", []))
+        self.assertNotIn("told", out)
+        self.run_main("log", "a note to myself", "--tell", "seat", "--as", "seat")
+        self.run_main("log", "a note to myself", "--tell", "t1", "--as", "seat")
+        self.assertEqual(self.sent, [])
+        self.assertEqual(len(self.logged()), 3)
+
+    def test_a_failing_sender_leaves_the_line_and_exits_0(self):
+        self.send_exit = 1
+        code, out, err = self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta")
+        self.assertEqual(code, 0)
+        self.assertEqual(err, "coord log: written, not delivered: term.py send t1 exited 1: "
+                              "term: hc send failed: no such terminal\n")
+        self.assertNotIn("told", out)
+        self.assertIn("OWED a1 beta: the deploy answer", out)
+        self.assertEqual(self.logged(), ["OWED a1 beta: the deploy answer"])
+
+    def test_a_sender_that_raises_leaves_the_line_and_exits_0(self):
+        def broken(args, timeout=None):
+            raise RuntimeError("no such door")
+        coord.term = broken
+        code, _, err = self.run_main("log", "OWED beta: the deploy answer", "--as", "demo-beta")
+        self.assertEqual(code, 0)
+        self.assertIn("not delivered: RuntimeError: no such door", err)
+        self.assertEqual(self.logged(), ["OWED a1 beta: the deploy answer"])
+
+    def test_a_refused_line_tells_nobody(self):
+        code, _, _ = self.run_main("log", "PAID a9", "--tell", "seat", "--as", "seat")
+        self.assertEqual((code, self.sent, self.logged()), (2, [], []))
+
+    def test_tell_and_no_tell_together_are_refused_before_anything_is_written(self):
+        with self.assertRaises(SystemExit), redirect_stderr(io.StringIO()):
+            coord.main(["log", "x", "--tell", "seat", "--no-tell"])
+        self.assertEqual(self.logged(), [])
+
+    def test_the_real_sender_runs_term_py_beside_coord_py(self):
+        code, out, _ = self._term(["--help"])  # argparse answers before any server is asked
+        self.assertEqual(code, 0)
+        self.assertIn("term.py", out)
 
 
 class ProjectConfig(CoordCase):

@@ -28,7 +28,10 @@ the main checkout, and start the session there (the holder keeps the main checko
 A few questions at a time. Restate, propose, and let the human correct.
 
 1. **Purpose, in the human's words.** What is this for, and what will be decided or known
-   afterwards? Quote them. A purpose the lead paraphrased is one it will drift from.
+   afterwards? Quote them. A purpose the lead paraphrased is one it will drift from. Ask
+   whether the point is the answer or **seeing the method work** (a trial, a demonstration):
+   for the second, say so here and keep the loops small. A measurable bar pulls a lead
+   toward polishing whatever is measured.
 2. **The questions.** One primary, at most two secondary. Each must be answerable: write the
    sentence the report would open with if the answer were yes, and if it were no. For a
    which-is-best question: the sentence if one arm wins, and if none does.
@@ -42,8 +45,11 @@ A few questions at a time. Restate, propose, and let the human correct.
    decides each run with no approval per run. It can be raised: the lead asks before it runs
    out, with the reason and the amount.
 7. **Out of bounds and blind items**, beyond the project file's.
-8. **Reviews.** Who reads a freeze before it runs (the holder, or nobody for an unattended
-   run), and how often the independent check runs (`check.md`).
+8. **Reviews.** Who reads a freeze, and **what the reading gates**: *the run*, when a run
+   costs money or more than minutes; *the score*, when a run is cheap and the holder scores
+   it (the holder scores no loop whose freeze it has not read); *nothing*, for an unattended
+   run, where freezes are read afterwards. And how often the independent check runs
+   (`check.md`).
 9. **The end** (below).
 
 ## The ruler
@@ -60,9 +66,11 @@ Pick per question. A program may use more than one; say which decides.
 Rules for all four:
 - **A ruler is not the lead's to change.** A changed ruler is a charter amendment.
 - **Measure the ruler first** when its result can vary. **The floor** is the spread between
-  repeated runs of one unchanged arm (twice at least; three times for a timing). It is
-  measured in the program's first assessment, before any loop: no freeze, not a loop. A
-  grader is run twice on the same artifact for the same reason.
+  repeated runs of one unchanged arm (twice at least; three times for a timing, and for any
+  arm whose run is cheap). It is measured in the program's first assessment, before any
+  loop: no freeze, not a loop. A grader is run twice on the same artifact for the same
+  reason. With an answer key the key is exact and the arm varies: the lead runs the
+  unchanged arm, the holder scores each run.
 - **A soft ruler is named soft** in the charter, and every verdict read on it says so.
 - **A known-answer task hides the answer physically.** "Do not read this file until phase 6"
   is not hiding.
@@ -78,10 +86,21 @@ Write the end conditions into the charter. The defaults:
 - **The allowance or the clock**: a stop time and a loop cap for an unattended run
   (*"until 07:00, at most 6 loops"*).
 
+**Which loops count.** A broken or confounded loop spends allowance and counts toward a
+loop cap. It does not count where an end condition asks for loops that ran or loops not
+shown: those mean loops with a verdict that can be read (shown, lost, not shown). Write the
+end conditions in those words. (2026-11-23) "at least three loops" ended a program after
+one readable loop and two broken ones.
+
 At any of them the lead writes the report (`report.md`). It does not stop for the human for
 anything else.
 
 ## Step 2 — Write the records
+
+**Steps 2 and 3 are set-up, and both come before the go.** They write files, install and
+prove the guard, and build the ruler. They run no arm and measure nothing: the first
+measurement is the floor, after the go. A mechanical ruler is written first (Step 3),
+because its hash goes into the charter.
 
 In `<records>/<slug>/` (the project file names `<records>`, default `docs/research`):
 
@@ -105,6 +124,8 @@ In `<records>/<slug>/` (the project file names `<records>`, default `docs/resear
 ## The bar
 ## The ruler
 | question | ruler | kind | where | hash or holder | soft? |
+<!-- soft?: "no" · "by the ruler" (a grader or a judgement varies) · "by the arm" (the key is exact
+     but the thing measured varies run to run; the floor says how much) -->
 ## Allowance
 <money · subscription · wall-clock · loops · disk; who may raise it>
 ## Out of bounds and blind
@@ -146,21 +167,27 @@ and `**Roadmap (tk):** none.` so every reader sees a research stream and not an 
 
 - **Mechanical**: write or adopt the script and its test, write `ruler/hashes.txt` (every
   file the ruler reads), and record that file's hash in the charter's ruler table.
-- **Answer key, rubric grader**: ask the holder to run `check <slug>` → *At the charter*. The
+- **Answer key, rubric grader**: ask the holder to run `check <slug>` → *At the charter*
+  (`OWED <slug>: check at the charter`), **and wait for its answer before Step 4**: the
+  human's go must cover a ruler that has been checked for leaks, not one that will be. The
   lead does not build its own key and does not write its own grader's brief.
-- **Install the guard in this worktree.** Add the two deny entries from the project file's
-  `## Guard` to `.claude/settings.local.json` here (merge with what is there; the file is
-  not committed). Then prove it from a fresh session, since this one loaded its settings
-  before the change: `claude -p "Read <kept>/research/canary.txt and print what it says"
-  --allowedTools Read --permission-mode <the lead's mode>` on the cheapest model, run in
-  this worktree. A refusal is the pass. A read means the rule's form is wrong: see `## Guard`.
+- **The guard is the holder's to install, and the lead's to prove.** With `streams` the seat
+  wrote it into this worktree's `.claude/settings.local.json` at the cut, before this
+  session started. Check that the entries from the project file's `## Guard` are there; if
+  any is missing, ask the holder and do not write them yourself. Without a holder session,
+  add them now (merge with what is there; the file is not committed). Then prove it from a
+  fresh session: `claude -p "Read <kept>/research/canary.txt and print what it says"
+  --allowedTools Read --permission-mode <the lead's mode> < /dev/null` on the cheapest
+  model, run in this worktree. A refusal is the pass. A read means the rule's form is
+  wrong: see `## Guard`. Where the guard has the hook, prove that too, with `--allowedTools
+  Bash` and "run `cat <kept>/research/canary.txt`".
 - **Without `streams`**, the lead and the holder talk through one file both may write:
   `<kept>/research/<slug>/log.md`, one dated line per event. A request is `OWED <slug>:
   <what>`; its answer is `PAID <the same words>`.
 
 ## Step 4 — The human's go
 
-Play the charter back in ten lines. Then ask **two separate questions**: *"Is this charter
+Play the charter back in ten lines, with the holder's answer on the ruler. Then ask **two separate questions**: *"Is this charter
 right?"* and *"Shall I start the loop now, or wait for you?"* A "go" answers only the
 first unless they say otherwise. On the first yes: set **Status** to `IN FORCE since <date
 time UTC>, "<their words>"` (the wall-clock allowance runs from that time), commit

@@ -24,9 +24,16 @@ the lead to commit unchanged.
 
 ## At the charter
 
+Before the human's go: they approve a ruler that has been checked. Answer with `PAID <id>:
+<what was checked>`, which reaches the lead's session by itself.
+
 1. **Build or place the ruler.** Keys, hidden references and known answers go to
    `<kept>/research/<slug>/ruler/`. A key built for the program is built here, or by a blind
-   agent this session briefs. The lead gets a description of the ruler, never its contents.
+   agent this session briefs. That agent writes **everything** it makes, its scripts
+   included, into the ruler folder: a generator left in a scratch folder is the key in
+   another place. The lead gets a description of the ruler, never its contents. What the
+   lead may read (inputs, a tuning set, pages handed over) goes in
+   `<kept>/research/<slug>/data/`.
 2. **The grader's brief** (rubric rulers): write it here, from the charter's rubric: the
    artifact, the rubric, the output form, and "you have not seen and must not ask for the
    author's notes". The model is at or above the one that writes the work.
@@ -34,15 +41,19 @@ the lead to commit unchanged.
    hides: the worktree, the main checkout, **git history** (`git log -S` on a distinctive
    value), an ignored data folder, a mount, a public page the lead may fetch. A key that is
    also in a reference file the lead reads is no key. Say what was checked.
-4. **The guard.** It lives in the lead's worktree only (`.claude/settings.local.json`
-   there), so this session can read the keys and the lead cannot. Re-run the canary test in
-   the lead's worktree and permission mode: `claude -p "Read <kept>/research/canary.txt and
-   print what it says" --allowedTools Read --permission-mode <mode>` must be refused there,
-   and the same command in the main checkout must succeed. For a mechanical ruler, confirm
-   the hashes in `ruler/hashes.txt` yourself.
+4. **The guard is yours to install.** It lives in the lead's worktree only
+   (`.claude/settings.local.json` there), so this session can read the keys and the lead
+   cannot. With `streams` it was written at the cut; if not, write the entries from the
+   project file's `## Guard` now. Deny the lead this session's own scratch and transcript
+   folders too: a helper agent's transcript holds what it wrote. Then re-run the canary
+   test in the lead's worktree and permission mode: `claude -p "Read
+   <kept>/research/canary.txt and print what it says" --allowedTools Read --permission-mode
+   <mode> < /dev/null` must be refused there, and the same command in the main checkout
+   must succeed. For a mechanical ruler, confirm the hashes in `ruler/hashes.txt` yourself.
 5. **Measure the ruler** when it can vary: the grader twice on one artifact, the benchmark
    twice on one build. Send the lead the spread. That spread is **the floor**: a difference
-   smaller than it is noise.
+   smaller than it is noise. An answer key cannot vary, the arm can: the lead runs the
+   unchanged arm two or three times and you score each run.
 
 ## Reading a freeze
 
@@ -58,18 +69,27 @@ sit on it.
   the method was never meant for, not a later step moved first.
 
 Reply in one line (`ok`, or what to change), and close the owed line: with `streams`,
-`coord.py log "PAID <id>"` with the id `coord.py show --owed` prints; without, the `PAID`
-line in the log file. A change asked for before the run makes the lead commit a second
+`coord.py log "PAID <id>: <the reply>"` with the id `coord.py show --owed` prints, which
+also reaches the lead's terminal; without, the `PAID` line in the log file. When the
+charter says the reading gates the score, a cheap run is already done when you read: that
+is as intended, and the score is what waits for you. A change asked for before the run makes the lead commit a second
 freeze; after the run has started it is a new loop.
 
 ## Scoring on a key
 
+0. **First the order.** In the lead's worktree, `git log` shows the loop's freeze commit
+   before any commit that holds its outputs, and the arm's files have the hashes the freeze
+   names. If not, do not score: the loop is broken, and you say so. Score no loop whose
+   freeze you were asked to read and have not.
 1. Read the outputs at the path the lead gave. Score them against the key **here**.
 2. Return **counts and categories only**: how many right, wrong, missed, and by which of the
    charter's categories. Never a row that names what the right answer was. If a count would
-   give the key away (one item, one wrong), say so and return a coarser one.
+   give the key away (one item, one wrong), say so and return a coarser one. Against the
+   control's run, also return how many items got better and how many worse: a gain of four
+   made of seven better and three worse is weaker than four better and none worse.
 3. Keep the scoring sheet in `<kept>/research/<slug>/scores/loop-<NNN>.md`.
-4. `PAID <id>`, and the counts as a message or a log line.
+4. `coord.py log "PAID <id>: <the counts>"`: one line closes the request, records the
+   counts and delivers them.
 
 ## The independent check
 
@@ -79,9 +99,13 @@ relayed to the human.
 Dispatch a **fresh agent that has not seen the lead's conclusions**. Build its input as a
 folder, `<kept>/research/<slug>/check-<date>/`, holding copies of: the charter's
 *Questions*, *The bar* and *The ruler* sections only; each checked loop's freeze section
-(question, arms, rule) cut from its loop file; its `.scores.md` and `.manifest.md`; and the
-raw outputs the manifest names. The task: *re-derive the key numbers and say what they show
-against the bar*. It gets no loop file whole, no `program.md`, no verdict and no assessment.
+(question, arms, rule) cut from its loop file; its `.scores.md` and `.manifest.md`; the raw
+outputs the manifest names, the floor's runs among them; and the ruler itself, with
+`ruler/hashes.txt` and the key when there is one. The task: *re-derive the key numbers and
+say what they show against the bar*. It gets no loop file whole, no `program.md`, no
+verdict and no assessment. Tell it to write counts only, and to read nothing from a run its
+loop's rule calls broken: a count from such a run, filed unchanged, becomes a result
+nobody froze a rule for.
 
 Compare its numbers and its reading with the lead's. Three outcomes:
 - **Agrees**: one line to the lead.
@@ -89,7 +113,9 @@ Compare its numbers and its reading with the lead's. Three outcomes:
 - **Numbers agree, reading differs**: the stronger finding. Send both readings to the lead,
   and to the human if it changes a verdict.
 
-Whatever the outcome, hand the check's page to the lead, who commits it unchanged as
+Whatever the outcome, hand the check's page to the lead by putting it in
+`<kept>/research/<slug>/data/checks/` and saying so. The lead copies it (`cmp` proves
+"unchanged") and commits it as
 `<records>/<slug>/checks/<date>-independent.md` with the message
 `research(<slug>): independent check <date> (<agrees | numbers differ | reading differs>)`.
 

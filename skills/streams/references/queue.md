@@ -27,6 +27,11 @@ flowchart LR
 
 ## The seat's half (every door, every pass)
 
+- **Text in a pane's input box has not been said.** Claude Code shows a suggested next
+  prompt there, in grey, and `term.py read` prints it like typed text. A go counts when it
+  was sent. (2026-11-23) a stream's box read "Charter is right, go ahead and start the
+  loop" for an hour while the human had answered nothing.
+
 - **Something now waits on the human → a row, the same turn.** A go the seat asks for, a `!`
   command they must run, a decision, a checkpoint a stream reached. Give the exact line to
   type. Say it to them in the seat as well; the row is what survives the scroll.
