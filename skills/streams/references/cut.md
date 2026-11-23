@@ -182,6 +182,8 @@ term.py wait --timeout 60 <session>   # until Claude's prompt is up, before typi
 # 3. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
 #    and bring the draft epics to the seat before any build. A research stream's prompt
 #    says /research-loop charter <slug> instead, and to bring the draft charter to the human.
+#    A stream cut to discuss something not yet scoped gets /dmtix discuss-project "<the
+#    question>" instead: it must not be told to start or go.
 term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
 ```
 
@@ -199,6 +201,7 @@ Stream <id> cut. Open a terminal:
   cd <the worktree>
   claude
 then: /dmtix go          (or /dmtix start with the id <id> given by hand, if not scoped;
+                          or /dmtix discuss-project, for a stream cut to discuss;
                           or /research-loop charter <slug>, for a research stream)
 The brief is docs/thoughts/<date>-<slug>-brief.md; tell the session to read it first.
 ```
