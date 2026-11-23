@@ -33,6 +33,16 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   stream, and the roadmap holds only what ticks cannot, the links between streams. `/roadmap
   status | update | decide | review | new <name>`.
 
+- **[research-loop](skills/research-loop/)** — research in loops, for a question whose answer is
+  knowledge or a decision and not a feature. `/research-loop init` (once per repository: adopts
+  how it already does research, and explains the set-up), `charter <slug>` (purpose, bar, ruler,
+  allowance, end, with the human), `go` (assess, freeze, run, verdict, record, without waiting),
+  `check` (the seat's side: keys, scoring, the independent check), `report`, `explain`. The lead
+  never grades its own work: with `streams` the seat holds the ruler. `/dmtix discuss-project`
+  hands over to it, and its report hands back to `/dmtix start`.
+  Start at **[skills/research-loop/README.md](skills/research-loop/README.md)**: where the files
+  live and five worked examples.
+
 - **[joe](skills/joe/)** — type `/joe` after a long agent answer and get the same thing back
   short and in plain English: bottom line first, no hedging, no jargon, no tech-legalese.
   Rewrite only — it does no new work.
@@ -55,6 +65,10 @@ npx skills add mkelk/skills -g -a claude-code
 
 # or just the method and its engine
 npx skills add mkelk/skills --skill dmtix --skill ticks -g -a claude-code
+
+# into one repository only (no -g), as files it can commit: the method travels with the repo
+npx skills add mkelk/skills --skill dmtix --skill ticks --skill streams --skill research-loop \
+    -a claude-code --copy
 
 # a single skill, and copy instead of symlink
 npx skills add mkelk/skills --skill dmtix -g -a claude-code --copy
@@ -96,7 +110,7 @@ ref name that is itself the hit prints as a hash. A line that is reviewed and fi
 it; a file-name hit prints its own entry); the file takes exact lines only, never patterns.
 
 Beside it, `scripts/size-check` holds the skills an agent loads whole to a size budget: each
-`SKILL.md`, `README.md` and `references/*.md` (recipes too) of `streams` and `roadmap` under 16 KB,
+`SKILL.md`, `README.md` and `references/*.md` (recipes too) of `streams`, `roadmap` and `research-loop` under 16 KB,
 `streams/references/status.md` under 24 KB. A file over budget prints with its size and the check
 fails; `--top 3` also prints the largest. The pre-push hook runs both; to run them by hand:
 

@@ -37,7 +37,8 @@ this discussion is organized. Do not decide it for them. Say what you see, then 
      "done" is not a shipped feature. Its shape varies: sometimes one focused pass to an
      answer, sometimes a number of loops that each learn something and build on the last.
      Don't assume loops; find out which fits this question, and don't force a fixed spec
-     onto it.
+     onto it. Its run is not `/dmtix start`: it is the `research-loop` skill
+     (`/research-loop charter`), when that skill is installed.
    Many projects are a mix; say which parts are which.
 2. **How should we organize this discussion?** Offer the shape that fits, e.g. a short
    talk-through to a spec, or a longer discussion with research notes kept in the thought
@@ -186,6 +187,12 @@ Set the **Verdict** and **Status** in the document, commit it
 Document: <path> · Open unknowns: <n> (<m> block start)
 Next: /dmtix start "<title>"   (or: resolve <unknowns> first)
 ```
+
+**When the project, or its first part, is research:** the next door is not `/dmtix start`.
+Say so in the verdict, and report `Next: /research-loop charter <slug>` with this document as
+the charter's raw material (purpose, decisions, unknowns). If the `research-loop` skill is not
+installed, say that and name it (`npx skills add mkelk/skills --skill research-loop`). A mixed
+project names both, in order: often the research first, and the increment its report defines.
 
 If ready, tell the user that `/dmtix start` should be pointed at this document as the source
 of truth for the increment. **Do NOT start `/dmtix start` yourself, create ticks, or plan epic

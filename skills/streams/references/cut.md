@@ -180,7 +180,8 @@ term.py start <the worktree> <slug> [--workspace <the seat's workspace id>] -- c
 term.py wait --timeout 60 <session>   # until Claude's prompt is up, before typing anything
 # 2. No /rename: `start`'s label already names the pane (check it with `term.py ls --json`).
 # 3. The start prompt: read the brief, then /dmtix start with the id by hand (or /dmtix go),
-#    and bring the draft epics to the seat before any build.
+#    and bring the draft epics to the seat before any build. A research stream's prompt
+#    says /research-loop charter <slug> instead, and to bring the draft charter to the human.
 term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
 ```
 
@@ -197,7 +198,8 @@ The block to print when the session is not opened:
 Stream <id> cut. Open a terminal:
   cd <the worktree>
   claude
-then: /dmtix go          (or /dmtix start with the id <id> given by hand, if not scoped)
+then: /dmtix go          (or /dmtix start with the id <id> given by hand, if not scoped;
+                          or /research-loop charter <slug>, for a research stream)
 The brief is docs/thoughts/<date>-<slug>-brief.md; tell the session to read it first.
 ```
 

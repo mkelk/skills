@@ -23,5 +23,9 @@ Principles (binding for all three doors):
 - Records land in `.devmeta/` (written by the run's lifecycle hooks); live state is tk
   (`tk roadmap`, `tk board`).
 
+Research is not an increment: a question whose answer is knowledge or a decision runs under
+the `research-loop` skill, which `discuss-project` hands over to and whose report hands back
+to `start`.
+
 Source of truth for this skill: `github.com/mkelk/skills` → `skills/dmtix/`.
 Install / update via `npx skills` (see the repo README).

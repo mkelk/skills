@@ -14,7 +14,7 @@ import argparse
 import os
 import sys
 
-SKILLS = ("streams", "roadmap")
+SKILLS = ("streams", "roadmap", "research-loop")
 BUDGET = 16 * 1024
 # Files with their own budget, by path relative to the skill's directory.
 OWN_BUDGET = {"references/status.md": 24 * 1024}
