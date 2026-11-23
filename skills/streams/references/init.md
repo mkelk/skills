@@ -42,7 +42,10 @@ Read, do not ask, for these. Say what was found and from where.
 
 - **Trunk.** `coord.py config` prints it with its source: origin's `HEAD`, else a local `main`
   or `master`, else the current branch. A source of "the current branch" is a guess; confirm
-  it with the human.
+  it with the human. **When the main checkout is on a branch other than the detected trunk,
+  ask which is the trunk** (a trial or workshop branch kept apart from `main`, say), and write
+  the answer with `--trunk`: detection would name `main`, and every cut from the trunk, sync
+  and landing would then go to the branch the human meant to leave alone.
 - **Package manager**, from the lockfile at the top:
 
   | Lockfile | At cut |
@@ -94,7 +97,7 @@ Quote `'~/trees'` so the file keeps `~` and stays the same for everyone; an expa
 written back as `~/...` anyway.
 
 Leave `--trunk` out when detection found it from origin's `HEAD` (the file then follows the
-remote if it changes); give it when the human confirmed a guess. It refuses an existing file
+remote if it changes); give it when the human confirmed a guess or named another branch. It refuses an existing file
 without `--force`.
 
 ## Step 5 — Create coord/ and check
