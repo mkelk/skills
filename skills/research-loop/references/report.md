@@ -8,15 +8,19 @@ Arguments: `report <slug>`. Run it in the lead's session when `go` reaches an en
 or when the human asks for a report early (then it is an interim report and the charter
 stays in force).
 
+`<records>` and `<kept>` below are the `records:` and `kept:` lines of `.devmeta/research.md`
+(defaults `docs/research` and `~/<repo>-kept`).
+
 ## Step 1 — Before writing
 
 1. Re-read the charter: the purpose in the human's words, each question's *yes reads* and
    *no reads* sentences, the bar, the end conditions.
 2. Read `program.md` and every loop file's verdict. Build the answer from verdicts, never
    from the memory of the session.
-3. **Ask for the independent check** if the last one is older than the last loop that the
-   answer rests on (`check <slug> independent`, the holder's). A report relayed before its
-   numbers were re-derived says so on its first line.
+3. **Ask for the independent check and the purpose review** if the last ones are older than
+   the last loop the answer rests on (`check <slug> independent` and `check <slug> purpose`,
+   the holder's). A report relayed before its numbers were re-derived says so on its first
+   line.
 4. Ask the purpose question once more: does the answer about to be written answer what was
    asked, or what was tested?
 
@@ -48,8 +52,9 @@ and roughly at what cost.>
 
 ## What to do next
 <One of, with the reason:>
-- **Build it**: `/dmtix start "<title>"`, pointed at this report as the source of truth.
-  Name the goal sentence and the likely epics in two or three lines.
+- **Build it**: name the goal sentence and the likely parts in two or three lines, and the
+  arm under `arms/` that showed it. With dmtix: `/dmtix start "<title>"`, pointed at this
+  report as the source of truth. Without: the same lines are the task's description.
 - **More research**: a new charter, with the question this one opened.
 - **Decide**: what the human must decide, with the options and what each costs.
 - **Stop**: why nothing further is worth its cost.
@@ -67,8 +72,8 @@ Rules for the text:
 
 ## Step 3 — Close
 
-1. `charter.md`: **Status** → ENDED with the date and the end condition (not for an interim
-   report). `program.md`: the status box says ended and points at the report.
+1. `charter.md`: the **Status** line becomes `**Status:** ENDED <date> (<end condition>)`,
+   with nothing else on it (not for an interim report). `program.md`: the status box says ended and points at the report.
 2. `<records>/README.md`: the program's row gets its status and the report's path.
 3. Commit `research(<slug>): report (<ended by>)`.
 4. **Three lines plus the link**, to the holder and through it to the human: *the answer /

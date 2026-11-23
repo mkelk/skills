@@ -1,6 +1,6 @@
 # research-loop: design notes (2026-11-23)
 
-**Status:** v1 written. Not yet run on a real program end to end.
+**Status:** v1 written and dry-run once on a toy program (a speed-up with a mechanical ruler: one arm lost, one shown, every freeze committed before its run). The dry run's sixteen findings are fixed. Not yet run on a real program, with streams, with an answer key, or overnight.
 
 ## Why a skill
 
@@ -34,6 +34,10 @@ Nothing of that repository's subject is in the skill.
 
 ## Open
 
+- The guard is a deny rule in the lead's worktree only (`.claude/settings.local.json`), so the
+  holder can read its own keys, tested from a fresh headless session because a sub-agent
+  tests the caller's settings. The dry run found the first form of the rule matched nothing:
+  an absolute path needs two leading slashes.
 - The guard is a deny rule plus a canary test. A shell command can read what a Read rule
   denies; the doors say so. An unattended run with a key that matters needs the key off the
   machine or the lead in a box. No recipe for that box yet.

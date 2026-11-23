@@ -5,12 +5,18 @@ what it is measured by, what it may spend, and when it ends. The charter is the 
 the loop obeys besides this skill. **Nothing runs before the human's go**, and their words
 are recorded.
 
-Arguments: `charter <slug>`. Run it in the lead's session: in the stream's worktree when the
-repository uses `streams`, else on a branch `research/<slug>`. Never on the trunk.
+Arguments: `charter <slug>`. Run it in the lead's session, in the lead's own worktree, never
+on the trunk. With `streams` that is the stream's worktree. Without it, make one first, from
+the main checkout, and start the session there (the holder keeps the main checkout):
+`git worktree add ../<repo>-research-<slug> -b research/<slug>`.
+
+`<records>` and `<kept>` below are the `records:` and `kept:` lines of `.devmeta/research.md`
+(defaults `docs/research` and `~/<repo>-kept`).
 
 ## Step 0 — Where this comes from
 
 - **Project file.** `.devmeta/research.md` must exist; if not, point at `init` and stop.
+  Read its *Rulers*, *Allowance*, *Holder and unattended runs*, *Guard* and *Out of bounds*.
 - **A discussion.** If a `/dmtix discuss-project` thought document led here, read it first:
   its purpose, decisions and unknowns are the charter's raw material. If the stream has a
   brief (`docs/thoughts/<date>-<slug>-brief.md`), read that too.
@@ -24,7 +30,8 @@ A few questions at a time. Restate, propose, and let the human correct.
 1. **Purpose, in the human's words.** What is this for, and what will be decided or known
    afterwards? Quote them. A purpose the lead paraphrased is one it will drift from.
 2. **The questions.** One primary, at most two secondary. Each must be answerable: write the
-   sentence the report would open with if the answer were yes, and if it were no.
+   sentence the report would open with if the answer were yes, and if it were no. For a
+   which-is-best question: the sentence if one arm wins, and if none does.
 3. **The shape.** One focused pass, loops that each build on the last, or a few arms run
    side by side and compared. Do not assume loops.
 4. **The bar.** What is "good enough"? A number on the ruler, a rubric total, a decision
@@ -45,15 +52,17 @@ Pick per question. A program may use more than one; say which decides.
 
 | Kind | Fits | Where it lives | Who scores | What keeps it honest |
 |---|---|---|---|---|
-| **Mechanical**: a script, test or benchmark | a speed-up that must keep outputs identical; a ported model whose output must match a reference within a tolerance | in git, under `<records>/<slug>/ruler/` or the repository's own scripts; reference data read-only | the lead runs it | its hash is written in the charter (`git hash-object`); a loop that finds it changed is broken. The tolerance is the human's and is set before the first run |
+| **Mechanical**: a script, test or benchmark | a speed-up that must keep outputs identical; a ported model whose output must match a reference within a tolerance | in git, under `<records>/<slug>/ruler/` or the repository's own scripts; reference data read-only | the lead runs it | **every file the ruler reads is pinned**: script, its test, reference outputs, the control (`git hash-object <file>`, one line each in `<records>/<slug>/ruler/hashes.txt`, and that file's own hash in the charter). A loop that finds one changed is broken. Say where the reference outputs came from. The tolerance is the human's and is set before the first run |
 | **Answer key**: held-out truth | past cases with known causes; a known-answer redo; a list of the papers that matter | the kept folder, `<kept>/research/<slug>/ruler/`, never in git or a worktree | the holder scores and returns **counts only** | the guard from `init`, tested again here; a leak check that the key cannot be derived from what the lead can read, git history included |
 | **Rubric and an independent grader** | a report, an analysis, a literature study | the rubric in the charter; the grader's brief with the holder | a fresh agent that has seen none of the lead's notes or self-assessment, on a model at or above the one that wrote the work | the grader gets the artifact and the rubric only; its text is filed unchanged |
 | **The human's judgement** | taste, a product call | the human | the human, in batches at a checkpoint | asked rarely, on a prepared comparison, never per loop |
 
 Rules for all four:
 - **A ruler is not the lead's to change.** A changed ruler is a charter amendment.
-- **Measure the ruler first** when its result can vary: run one arm twice and record the
-  spread as the floor. A grader is run twice on the same artifact for the same reason.
+- **Measure the ruler first** when its result can vary. **The floor** is the spread between
+  repeated runs of one unchanged arm (twice at least; three times for a timing). It is
+  measured in the program's first assessment, before any loop: no freeze, not a loop. A
+  grader is run twice on the same artifact for the same reason.
 - **A soft ruler is named soft** in the charter, and every verdict read on it says so.
 - **A known-answer task hides the answer physically.** "Do not read this file until phase 6"
   is not hiding.
@@ -81,8 +90,10 @@ In `<records>/<slug>/` (the project file names `<records>`, default `docs/resear
 ```markdown
 # Charter: <title>
 
-**Status:** DRAFT (→ IN FORCE since <date>, "<the human's words>" | ENDED <date>)
+**Status:** DRAFT
 **Lead:** <session / stream> · **Ruler held by:** <the seat | session | the human>
+<!-- Status is exactly one of: DRAFT · IN FORCE since <date time UTC>, "<the human's words>" ·
+     ENDED <date> (<end condition>). The line starts with that word and holds no other. -->
 
 ## Purpose
 <quoted>
@@ -110,6 +121,7 @@ In `<records>/<slug>/` (the project file names `<records>`, default `docs/resear
 # <title>: where it stands
 
 **Updated:** <date time> · loop <n> · spent <…> of <allowance>
+**Floor:** <the spread of an unchanged arm on each ruler, with the date measured; "not measured" until then>
 **Stands:** <one or two lines against the bar>
 **Biggest problems:** <…>
 **Next:** <the next loop's question, or the end condition met>
@@ -123,26 +135,36 @@ In `<records>/<slug>/` (the project file names `<records>`, default `docs/resear
 ## Unknowns
 ```
 
-Also create `loops/`, `findings/` and `checks/`, and add the program's row to
-`<records>/README.md`.
+Add the program's row to `<records>/README.md`. The folders `loops/`, `arms/`, `findings/`
+and `checks/` are made by the door that first writes into them.
 
-**With dmtix present**, rewrite the Active block of `.devmeta/current-increment.md` **on this
+**With dmtix present** (`.devmeta/current-increment.md` exists), rewrite the Active block of `.devmeta/current-increment.md` **on this
 branch only**: `**Active:** research <slug> — <title> (no increment)`, the charter's path,
 and `**Roadmap (tk):** none.` so every reader sees a research stream and not an unscoped one.
 
 ## Step 3 — The ruler, with its holder
 
-- **Mechanical**: write or adopt the script and its test, record `git hash-object <file>` in
-  the charter's ruler table.
+- **Mechanical**: write or adopt the script and its test, write `ruler/hashes.txt` (every
+  file the ruler reads), and record that file's hash in the charter's ruler table.
 - **Answer key, rubric grader**: ask the holder to run `check <slug>` → *At the charter*. The
   lead does not build its own key and does not write its own grader's brief.
-- Re-run the guard's canary test from this worktree, in the permission mode the loop will
-  run in. A refusal is the pass.
+- **Install the guard in this worktree.** Add the two deny entries from the project file's
+  `## Guard` to `.claude/settings.local.json` here (merge with what is there; the file is
+  not committed). Then prove it from a fresh session, since this one loaded its settings
+  before the change: `claude -p "Read <kept>/research/canary.txt and print what it says"
+  --allowedTools Read --permission-mode <the lead's mode>` on the cheapest model, run in
+  this worktree. A refusal is the pass. A read means the rule's form is wrong: see `## Guard`.
+- **Without `streams`**, the lead and the holder talk through one file both may write:
+  `<kept>/research/<slug>/log.md`, one dated line per event. A request is `OWED <slug>:
+  <what>`; its answer is `PAID <the same words>`.
 
 ## Step 4 — The human's go
 
-Play the charter back in ten lines and ask for the go. On it: set **Status** to IN FORCE with
-the date and their words, commit `research(<slug>): charter in force`, and report:
+Play the charter back in ten lines. Then ask **two separate questions**: *"Is this charter
+right?"* and *"Shall I start the loop now, or wait for you?"* A "go" answers only the
+first unless they say otherwise. On the first yes: set **Status** to `IN FORCE since <date
+time UTC>, "<their words>"` (the wall-clock allowance runs from that time), commit
+`research(<slug>): charter in force`, and report:
 
 ```
 ## Research: <title> — charter in force
@@ -150,9 +172,10 @@ Charter: <path> · Ruler: <kinds> held by <who> · Allowance: <…> · Ends: <co
 Next: /research-loop go <slug>
 ```
 
-Then run `explain <slug>` once, so the human hears how this program was set up and why.
+Then run the `explain` door for this slug once (`references/explain.md`), so the human
+hears how this program was set up and why.
 
-**Do not start the loop yourself** unless the human's go said so.
+**Start the loop only on a yes to the second question.**
 
 ## Amendments
 

@@ -52,11 +52,12 @@ ends by explaining what was set up and why.
 | What | Where | Why there |
 |---|---|---|
 | The repository's research facts: rulers, allowance, bounds, the fetching rule, where the kept folder is | `.devmeta/research.md`, on the trunk | one committed file every worktree checks out, beside `.devmeta/streams.md` |
-| A program's records: `charter.md`, `program.md`, `loops/`, `findings/`, `checks/`, `report.md` | `docs/research/<slug>/`, **on the lead's branch, in its worktree** | the lead commits every loop; the trunk is the seat's and no stream writes on it. They reach the trunk when the stream lands |
+| A program's records: `charter.md`, `program.md`, `loops/` (freeze, scores, manifest), `arms/`, `findings/`, `checks/`, `report.md` | `docs/research/<slug>/`, **on the lead's branch, in its worktree** | the lead commits every loop; the trunk is the seat's and no stream writes on it. They reach the trunk when the stream lands |
 | The index of programs | `docs/research/README.md` | one row per program, with its status and report |
 | Keys, hidden references, known answers, grader briefs, scoring sheets | `<kept>/research/<slug>/ruler/` and `scores/`, **outside git and every worktree** | a file in the repository is in every worktree and in history for good |
 | Bulk data, captures, job output | `<kept>/research/<slug>/data/`, or an ignored data folder, with a manifest in git | too big or too private for git; the manifest says what exists |
-| A mechanical ruler (script, test, benchmark) | in git, its hash in the charter | the lead runs it and cannot quietly change it |
+| A mechanical ruler (script, test, reference outputs, the control) | in git, every file's hash in `ruler/hashes.txt` and that file's hash in the charter | the lead runs it and cannot quietly change it |
+| The guard that hides the keys | `.claude/settings.local.json` in the lead's worktree only | the holder must still read its own keys |
 | What the seat must see while it runs | the status box of `program.md`, read from the lead's worktree; three lines per loop in `coord/log.md` | the seat reads files, it does not ask |
 
 The lead never reads the kept ruler. The holder never writes on the lead's branch.
@@ -70,8 +71,9 @@ The lead never reads the kept ruler. The holder never writes on the lead's branc
   relays each loop's three lines.
 - **Landing** brings the records to the trunk. "Build it" becomes its own stream and
   increment.
-- **Without streams**: a branch `research/<slug>`, and a second session or the human as the
-  holder. Without dmtix: nothing changes.
+- **Without streams**: `charter` makes the lead a worktree on a branch `research/<slug>`; a
+  second session in the main checkout, or the human, is the holder; the two talk through
+  one log file in the kept folder. Without dmtix: nothing changes.
 
 ## Five worked examples
 
@@ -79,8 +81,9 @@ Each is one charter. The ruler is what differs.
 
 **1. Make a slow step faster, outputs identical.** *Mechanical ruler.* The ruler is a
 script: run the step on fixed inputs, compare every output to the reference to the agreed
-decimals, print the time. Its hash is in the charter. First loop: time the current code
-three times (the floor). Each loop freezes one idea: "shown if all outputs match and the
+decimals, print the time. Its files are pinned by hash. First, before any loop: time the
+current code three times (the floor). Each loop freezes one idea, kept as a patch under
+`arms/`: "shown if all outputs match and the
 median time drops by more than twice the floor's spread". An idea that changes an output is
 **lost**, however fast.
 

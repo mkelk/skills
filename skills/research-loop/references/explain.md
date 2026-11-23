@@ -6,9 +6,14 @@ also be asked for at any time.
 
 Arguments: `explain [<slug>]`. Read-only: it writes nothing.
 
+`<records>` and `<kept>` below are the `records:` and `kept:` lines of `.devmeta/research.md`
+(defaults `docs/research` and `~/<repo>-kept`).
+
 ## What to read
 
-- `.devmeta/research.md`: every section, and `## How we do research here` first.
+- `.devmeta/research.md`: every section, and `## How we do research here` first. If that
+  section disagrees with the sections below it, the sections are right: say so, and offer
+  to rewrite it.
 - With a slug: `<records>/<slug>/charter.md` and the status box of `program.md`.
 - `.devmeta/streams.md` when present: who the seat is, the standing rules.
 

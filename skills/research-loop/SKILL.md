@@ -22,10 +22,11 @@ New to it? `README.md`: what a program is, where its files live, five worked exa
 ## Two roles, never one
 
 - **The lead** runs the loop. It is one session, in its own worktree on its own branch: a
-  stream, when the repository uses the `streams` skill.
+  stream, when the repository uses the `streams` skill; else a worktree `charter` makes.
 - **The ruler's holder** owns what the lead is measured by: answer keys, hidden references,
   the grader's brief. With `streams` this is the seat. Without it, a second session in the
-  main checkout, or the human.
+  main checkout, or the human. The guard that hides the keys is installed in the lead's
+  worktree only, so the holder can read what the lead cannot.
 
 A lead that holds its own ruler grades its own work, and the grade drifts up. Every door
 below keeps the two apart.
@@ -37,8 +38,9 @@ below keeps the two apart.
   committed before anything runs, and the verdict is read off that rule and nothing else.
   The freeze commit preceding the run's commit is the proof.
 - **Measurement first.** No verdict on a ruler the assessment calls soft without saying so.
-  Before a difference is trusted, the same thing is measured twice: the spread between two
-  runs of one arm is the floor every difference must clear.
+  Before a difference is trusted, the unchanged arm is measured again: the spread between
+  its runs is **the floor** every difference must clear. It is measured once, in the first
+  assessment, and is not a loop.
 - **Smallest test first.** Before a plan is frozen the lead writes three answers: the
   smallest test that could answer the question, and why this plan is or is not it; the cost
   in money **and** in subscription use; whether it can be staged, one part first with a
