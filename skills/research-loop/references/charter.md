@@ -68,8 +68,13 @@ Rules for all four:
 - **Measure the ruler first** when its result can vary. **The floor** is the spread between
   repeated runs of one unchanged arm (twice at least; three times for a timing, and for any
   arm whose run is cheap). It is measured in the program's first assessment, before any
-  loop: no freeze, not a loop. A grader is run twice on the same artifact for the same
-  reason. With an answer key the key is exact and the arm varies: the lead runs the
+  loop: no freeze, not a loop. A grader is run **three times** on the same artifact for
+  the same reason: two gradings that agree say little. (2026-11-23) two gave 5 and 5, a
+  third gave 6, and a verdict turned on that point.
+- **Then look where the starting point sits on the ruler.** At the top already, the ruler
+  can only show losses: add a harder point or pick another ruler. And ask whether the ruler
+  can be met without the work: a count of things *named* is met by naming them; count
+  things read and used. With an answer key the key is exact and the arm varies: the lead runs the
   unchanged arm, the holder scores each run.
 - **A soft ruler is named soft** in the charter, and every verdict read on it says so.
 - **A known-answer task hides the answer physically.** "Do not read this file until phase 6"
@@ -171,16 +176,21 @@ and `**Roadmap (tk):** none.` so every reader sees a research stream and not an 
   (`OWED <slug>: check at the charter`), **and wait for its answer before Step 4**: the
   human's go must cover a ruler that has been checked for leaks, not one that will be. The
   lead does not build its own key and does not write its own grader's brief.
-- **The guard is the holder's to install, and the lead's to prove.** With `streams` the seat
-  wrote it into this worktree's `.claude/settings.local.json` at the cut, before this
-  session started. Check that the entries from the project file's `## Guard` are there; if
-  any is missing, ask the holder and do not write them yourself. Without a holder session,
-  add them now (merge with what is there; the file is not committed). Then prove it from a
-  fresh session: `claude -p "Read <kept>/research/canary.txt and print what it says"
-  --allowedTools Read --permission-mode <the lead's mode> < /dev/null` on the cheapest
-  model, run in this worktree. A refusal is the pass. A read means the rule's form is
-  wrong: see `## Guard`. Where the guard has the hook, prove that too, with `--allowedTools
-  Bash` and "run `cat <kept>/research/canary.txt`".
+- **The guard is the holder's to install.** With `streams` the seat wrote it into this
+  worktree's `.claude/settings.local.json` at the cut, before this session started. Check
+  that the entries from the project file's `## Guard` are there; if any is missing, ask the
+  holder and do not write them yourself. Without a holder session, add them now (merge with
+  what is there; the file is not committed).
+- **Who proves it.** *With the hook*, the holder: a command that names the canary is itself
+  refused here, so the lead cannot run the proof. That refusal shows the hook is alive in
+  this session; ask the holder for the rest (it is part of the check at the charter).
+  *Without the hook*, the lead, from a fresh session: `claude -p "Read
+  <kept>/research/canary.txt and print what it says" --allowedTools Read --permission-mode
+  <the lead's mode> < /dev/null` on the cheapest model, run in this worktree. A refusal is
+  the pass. A read means the rule's form is wrong: see `## Guard`.
+- **Name the ruler's place in words.** With the hook, a shell command whose text holds the
+  ruler folder's path is refused, a write included. In the charter and every record, write
+  "the kept folder's ruler directory for this program"; the project file has the path.
 - **Without `streams`**, the lead and the holder talk through one file both may write:
   `<kept>/research/<slug>/log.md`, one dated line per event. A request is `OWED <slug>:
   <what>`; its answer is `PAID <the same words>`.

@@ -176,8 +176,10 @@ Open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr other
 (`term.py which` says which; links in the README's example 7). First `coord.py seat`: it must
 name this pane (`coord.py seat --here`), or a stream's `OWED` line reaches nobody. With `hc`
 and the herdr-app window, give no `--workspace`: a space opened on a worktree nests by itself
-under the space whose first terminal sits in the main checkout. Three steps, each checked
-before the next:
+under the space whose first terminal sits in the main checkout. A session in a folder
+Claude Code does not trust yet stops at its trust question (`wait` says stopped, `send` is
+refused as blocked): the human answers it in that pane, never the seat. Three steps, each
+checked before the next:
 
 ```bash
 # 1. Claude in a place of its own, in the worktree — never a tab in the seat's place: the human

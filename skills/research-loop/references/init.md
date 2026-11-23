@@ -36,6 +36,11 @@ Read, do not ask. Say what was found and where.
   | phases written in `CLAUDE.md` | the run step of each loop |
   | a rule that hides a file until a late phase | a blind item: it moves behind the guard |
 
+  **A name the repository already uses stays the repository's.** When it has its own
+  `report.md` or `program.md`, write in the mapping which file is which, and refer to both
+  by full path in every record: the graded artifact at the top, the program's findings
+  under `<records>/<slug>/`.
+
   What the existing loop lacks is what this skill adds. Name the gaps plainly (the usual
   ones: the same session grades its own work; the scoring rule is applied after the run, not
   frozen before it; a hidden file is hidden only by an instruction).
@@ -160,7 +165,10 @@ A guard is a claim until someone has watched it fire.
   `"hooks": {"PreToolUse": [{"hooks": [{"type": "command", "command": "python3 <skill
   dir>/scripts/guard-hook.py '~/<repo>-kept/research/*/ruler' '~/<repo>-kept/research/canary.txt'"}]}]}`.
   Prove it the same way, with `--allowedTools Bash` and "run `cat <canary>`". It is a
-  tripwire, not a sandbox: a path built from pieces gets past it.
+  tripwire, not a sandbox: a path built from pieces gets past it. Two things follow from
+  how it works, and both go under `## Guard`: the hook refuses **any** command that names a
+  guarded path, so only the holder can run the guard's proof in a lead's worktree, and a
+  lead writes the ruler's place in words, never as a path in a shell command.
 - **The holder's own folders.** A helper agent that builds a key leaves a transcript and
   often a script behind. Add `Read` denies for the holder session's scratch folder and its
   transcript folder to the guard, and write them under `## Guard`.

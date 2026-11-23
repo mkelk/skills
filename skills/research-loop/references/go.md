@@ -20,18 +20,26 @@ appended to `<kept>/research/<slug>/log.md`, which the holder reads; a request i
    starts `**Status:** IN FORCE`. A line that starts DRAFT or ENDED is not in force,
    whatever else it says. Otherwise point at `init` or `charter` and stop.
 2. Not on the trunk. On the trunk, stop and say so.
-3. **Read, in this order:** the charter; `program.md` (the status box first); the last file
-   in `loops/`; the project file's *Out of bounds*, *Fetching* and *Standing rules*. A loop
-   file with a freeze and no verdict is a run that was interrupted: resume it at Step 4 or
-   call it **broken**, never freeze it again with a kinder rule.
+3. **Read, in this order:** the stream's brief, when there is one
+   (`docs/thoughts/*-<slug>-brief.md`); the charter; `program.md` (the status box first);
+   **every** loop file with no verdict, and the last one; the project file's *Out of
+   bounds*, *Fetching* and *Standing rules*. A loop file with a freeze and no verdict is a
+   run that was interrupted: resume it at Step 4 or call it **broken**, never freeze it
+   again with a kinder rule.
+   **Then bring the page up to date before anything else.** A session that stopped mid-loop
+   leaves a stale page: compare its *Updated* line with `git log`, with `coord.py show`
+   (what was paid while nobody listened) and with `git status` (a holder's page copied but
+   not committed), and write what they show. (2026-11-23) a resumed lead found a page that
+   still called its charter a draft.
 4. **The ruler is what the charter says**: for each mechanical ruler, the hash of
    `ruler/hashes.txt` equals the charter's, and `git hash-object` of every file it lists
    equals its line. A difference stops the loop: it is a charter amendment or an accident,
    and the human decides which.
 5. **The guard still fires**, once per session: in this worktree, `claude -p "Read
    <kept>/research/canary.txt and print what it says" --allowedTools Read --permission-mode
-   <this session's mode>` on the cheapest model is refused. A sub-agent of this session is
-   not a test of it.
+   <this session's mode> < /dev/null` on the cheapest model is refused. A sub-agent of this
+   session is not a test of it. With the hook installed, the command is refused before it
+   starts, because it names the canary: that refusal is the proof.
 6. The allowance left, from the status box; the wall-clock runs from the time in the
    charter's Status line. At or over it: go to the end (Step 9).
 
@@ -58,7 +66,10 @@ Building the first version of the thing being improved belongs here too: there i
 unchanged arm without it. Probe the model call once (`subcall.md`). With an answer key or a
 grader, each run goes to the holder as its own line: `OWED <slug>: score floor run <n> at
 <path>`. Write the spread in the status box's **Floor** line and commit `research(<slug>):
-floor`. Two runs give a weak floor: say so wherever a verdict leans on it.
+floor`. Two runs give a weak floor: say so wherever a verdict leans on it; a grader is run three
+times. **Then place the starting point on each ruler**: if it is at the top already, or
+the ruler is met without the work, say so to the holder before the first freeze. That is a
+fault in the ruler, and mending it is a charter amendment.
 
 ### 2. Pick the next activity
 
@@ -101,7 +112,11 @@ and do what the charter's *Reviews* says the reading gates. **The run:** wait fo
 answer. **The score:** run now, but ask for no score until the reading is paid; the holder
 scores no loop whose freeze it has not read. **Nothing:** go on. A change the holder asks
 for **before the run** is a second freeze commit that says what changed and why; once the
-run has started, a change is a new loop.
+run has started, a change is a new loop. **A fault in the ruler found mid-run** is neither:
+the holder says which clause of the rule cannot fire, the lead adds a dated note under
+*Assessment*, the rule's text stays as frozen, and the verdict is read on the clauses that
+still work. Mending the ruler is the human's, as an amendment. Unattended, go on with the
+rulers that work; when none that decides is left, that is "needs a decision".
 
 ### 4. Run
 
@@ -119,7 +134,8 @@ run has started, a change is a new loop.
   runs with nothing but the arm and the item.
 - **Raw output** goes to `<kept>/research/<slug>/data/loop-<NNN>/` (or the repository's
   ignored data folder), with `loops/<NNN>-<short>.manifest.md` in git: what was made, by
-  which model, at what cost, where it is.
+  which model, at what cost, where it is. A run whose every output is in its commit needs
+  no manifest: say so in *Run*.
 - **The stop rule is live**: check it between parts, not at the end. **One part, one
   command**: never chain the parts of a staged run in one script or one shell line. Run a
   part, check the stop rule, then start the next. (2026-11-23) two loops ran their second
@@ -137,7 +153,12 @@ mechanical ruler's output, pasted, and nothing else.
 - **Mechanical:** run the ruler as it is. Paste its output, not a summary of it.
 - **Answer key:** hand the outputs to the holder (`OWED <slug>: score loop <NNN> at <path>`).
   Counts come back; the key does not. **While waiting, do not idle**: assess and freeze the
-  next loop that does not need this score, and say in its freeze that it does not.
+  next loop that does not need this score, and say in its freeze that it does not. First
+  ask whether every verdict the pending loop can have ends the program: then freeze
+  nothing, and draft the report.
+- **A page from the holder** (a grader's page, a scoring note) is copied into the records
+  and committed as soon as it arrives, in a commit of its own, before anything is read off
+  it. A page left uncommitted is lost with the session.
 - **Rubric:** the grader is dispatched by the holder when there is one. Without a holder,
   dispatch a fresh agent whose brief holds the artifact and the rubric **only**, save that
   brief in the loop file, and file the grader's text unchanged. Never grade in the lead's
@@ -159,6 +180,10 @@ Read the frozen rule against the scores. One word, then one sentence:
 Before writing it, ask the purpose question: did this test what the human asked, or
 something easier? If easier, the verdict says which, in its sentence.
 
+**When a round rewrites an artifact in place** (a repository's own loop, adopted), a lost
+round has left its text as the current one. Restore the earlier version, or write in the
+status box which version stands and why. Never leave it unsaid.
+
 ### 7. Record and report
 
 1. The loop file: *Run*, *Scores*, *Verdict*, cost. A longer note or an evidence table the
@@ -168,7 +193,7 @@ something easier? If easier, the verdict says which, in its sentence.
    the page says is older than its Updated line.
 3. Commit `research(<slug>): loop <NNN> <verdict>`.
 4. **Three lines to the holder**, at every loop: *tried / numbers / next*, with the spend so
-   far. With `streams`: `coord.py log --tell seat "<slug> loop <NNN> <verdict>: <tried> /
+   far, in minutes read from the clock. With `streams`: `coord.py log --tell seat "<slug> loop <NNN> <verdict>: <tried> /
    <numbers> / <next>"`. The log line survives the session, and `--tell seat` puts it in the
    seat's terminal. An `OWED` line reaches the seat by itself, and its `PAID` comes back to
    this session the same way: a log line alone wakes nobody. If `coord.py` says the line

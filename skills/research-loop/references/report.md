@@ -20,7 +20,10 @@ stays in force).
 3. **Ask for the independent check and the purpose review** if the last ones are older than
    the last loop the answer rests on (`check <slug> independent` and `check <slug> purpose`,
    the holder's). A report relayed before its numbers were re-derived says so on its first
-   line.
+   line. While they are owed, draft the report and mark the check pending; close it only
+   when they are paid. Each page the holder hands over is committed unchanged, as
+   `research(<slug>): independent check <date> (<agrees | numbers differ | reading differs>)`
+   and `research(<slug>): purpose review <date>`.
 4. Ask the purpose question once more: does the answer about to be written answer what was
    asked, or what was tested?
 

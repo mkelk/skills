@@ -53,7 +53,11 @@ The six items of `cut.md`, and these:
    terminal by itself, and the answer comes back the same way; loop results go with
    `coord.py log --tell seat "…"`.
 6. **The lead's permission mode**, the guard as installed, and what the seat already knows
-   about clean model calls here (`research-loop` → `references/subcall.md`).
+   about clean model calls here (`research-loop` → `references/subcall.md`). With the hook:
+   say that the seat proves the guard, and that records name the ruler's place in words.
+7. **One seat, one repository.** The stream's worktree is a worktree of this repository, or
+   this seat cannot hold it: `coord/` and the terminal window both group by repository. A
+   program in another repository gets a seat of its own there.
 
 ## Step 5 — the session
 

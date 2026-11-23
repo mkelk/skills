@@ -49,9 +49,15 @@ Before the human's go: they approve a ruler that has been checked. Answer with `
    test in the lead's worktree and permission mode: `claude -p "Read
    <kept>/research/canary.txt and print what it says" --allowedTools Read --permission-mode
    <mode> < /dev/null` must be refused there, and the same command in the main checkout
-   must succeed. For a mechanical ruler, confirm the hashes in `ruler/hashes.txt` yourself.
-5. **Measure the ruler** when it can vary: the grader twice on one artifact, the benchmark
-   twice on one build. Send the lead the spread. That spread is **the floor**: a difference
+   must succeed. With the hook, also `--allowedTools Bash` and "run `cat <the canary>`":
+   refused there. **With the hook this proof is yours alone**: the lead's session cannot
+   run a command that names the canary. For a mechanical ruler, confirm the hashes in
+   `ruler/hashes.txt` yourself.
+5. **Measure the ruler** when it can vary: the grader three times on one artifact, each a
+   fresh agent on its own copy of the folder; the benchmark twice on one build. **And ask
+   what the ruler can be fooled by**: is the starting point at its top already, and can it
+   be met without the work (a count of things named)? Say so before the go; a ruler that
+   cannot move measures nothing. Send the lead the spread. That spread is **the floor**: a difference
    smaller than it is noise. An answer key cannot vary, the arm can: the lead runs the
    unchanged arm two or three times and you score each run.
 
@@ -73,7 +79,10 @@ Reply in one line (`ok`, or what to change), and close the owed line: with `stre
 also reaches the lead's terminal; without, the `PAID` line in the log file. When the
 charter says the reading gates the score, a cheap run is already done when you read: that
 is as intended, and the score is what waits for you. A change asked for before the run makes the lead commit a second
-freeze; after the run has started it is a new loop.
+freeze; after the run has started it is a new loop. A fault you find in the **ruler** is
+different: say which clause of the rule cannot fire, let the verdict be read on the rest,
+and put the ruler's change to the human as an amendment. Report the faulty ruler's number
+both ways meanwhile; it decides nothing.
 
 ## Scoring on a key
 
@@ -101,7 +110,9 @@ folder, `<kept>/research/<slug>/check-<date>/`, holding copies of: the charter's
 *Questions*, *The bar* and *The ruler* sections only; each checked loop's freeze section
 (question, arms, rule) cut from its loop file; its `.scores.md` and `.manifest.md`; the raw
 outputs the manifest names, the floor's runs among them; and the ruler itself, with
-`ruler/hashes.txt` and the key when there is one. The task: *re-derive the key numbers and
+`ruler/hashes.txt` and the key when there is one. When a question compares the lead's
+own grade with the grader's, add the lead's grades in a file the agent is told to open
+only after its own grading. The task: *re-derive the key numbers and
 say what they show against the bar*. It gets no loop file whole, no `program.md`, no
 verdict and no assessment. Tell it to write counts only, and to read nothing from a run its
 loop's rule calls broken: a count from such a run, filed unchanged, becomes a result
