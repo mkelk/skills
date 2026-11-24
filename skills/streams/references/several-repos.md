@@ -20,6 +20,10 @@ A stream belongs to exactly one repository: its worktree is a worktree of that r
 
 In the seat's pane, for the new repository `<repo>` (its main checkout):
 
+0. Give the seat the repository as a working directory: `/add-dir <repo>` in the seat (or start
+   it with `claude --add-dir <repo>`). A session asks before reading or editing files outside
+   its own directories, and the seat writes `.devmeta/` and `.tick/` there; a seat that stops
+   on such a question at night has stalled.
 1. `init` for that repository: follow `references/init.md` with every command run there,
    `git -C <repo> …` and `coord.py -C <repo> …`. The project file is written and committed in
    `<repo>`, on its trunk.
