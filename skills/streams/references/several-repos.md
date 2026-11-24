@@ -1,9 +1,19 @@
 ## Purpose
 
-One seat per developer, also when the work spans several repositories (the human, 2026-11-24:
-*"I want the seat to be able to work over several repos and I want only one seat per
-developer"*). This file says what changes when the seat serves more than one repository. Every
-door still works one repository at a time; the seat runs it once per repository.
+**Not rehearsed. The default is one seat per repository** (`references/init.md`); use this
+only when the human asks for one seat over several repositories in so many words.
+
+Tested so far (2026-11-24): `coord.py -C`, the seats file and `coord.py repos` (unit tests);
+an `OWED` line from a second repository reaching the seat; `/add-dir` and the settings rule
+below. Not yet run end to end from one seat: `init` and `dmtix bootstrap` for another
+repository, a `cut` and a landing there, `status` and `keep-running` over several, the scout,
+a compaction. The other doors do not mention this file: when it is used, the seat applies it
+to each door itself. (The human, 2026-11-24, first: *"I want the seat to be able to work over
+several repos and I want only one seat per developer"*; then, for a live workshop: *"one seat
+per repo"*, the set-up that had been tested.)
+
+This file says what changes when a seat serves more than one repository. Every door still
+works one repository at a time; the seat runs it once per repository.
 
 ## What stays per repository
 

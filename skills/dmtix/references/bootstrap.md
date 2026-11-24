@@ -1,8 +1,6 @@
 
 ## Purpose
 
-**Which repository:** the current checkout's, unless the human names another; a seat serving several repositories runs this door for each, with every command in that repository (`git -C <repo>`, `cd <repo> && …`).
-
 One-time-per-project installer of the devmeta method on top of the synthesized ticks engine,
 and the upgrade path after an engine update: re-run it in each project. Safe to re-run
 anytime: on a healthy project it prints an all-green checklist and changes nothing.

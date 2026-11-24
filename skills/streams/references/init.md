@@ -109,9 +109,9 @@ coord.py config --slug demo
 
 Then `coord.py seat --here`, in this pane: it records which terminal the seat is, so a
 stream's `OWED` line is delivered here and not only written to a log nobody is reading.
-**One seat per developer.** A seat may serve several repositories: run this door for each,
-every command in that repository, then `coord.py -C <repo> seat --here`
-(`references/several-repos.md`).
+**A seat serves one repository.** Work in a second repository gets its own seat, in a pane
+of its own in that repository's main checkout. One seat for several repositories exists
+(`references/several-repos.md`) but is not rehearsed: only on the human's explicit word.
 
 `init` creates `coord/` in git's common directory and its files, and writes nothing that is
 already there. `config` must print the trunk, the worktree path for `demo` and the sections

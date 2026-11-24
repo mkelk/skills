@@ -55,9 +55,10 @@ The six items of `cut.md`, and these:
 6. **The lead's permission mode**, the guard as installed, and what the seat already knows
    about clean model calls here (`research-loop` → `references/subcall.md`). With the hook:
    say that the seat proves the guard, and that records name the ruler's place in words.
-7. **Which repository.** The stream's worktree is a worktree of the repository the program
-   lives in. A seat serving several repositories cuts it there, with `-C <repo>` on every
-   `coord.py` call (`references/several-repos.md`).
+7. **One seat, one repository.** The stream's worktree is a worktree of this repository, or
+   this seat cannot hold it: `coord/` and the terminal window both group by repository. A
+   program in another repository gets a seat of its own there. (One seat for several
+   repositories: `references/several-repos.md`, not rehearsed, only on the human's word.)
 
 ## Step 5 — the session
 

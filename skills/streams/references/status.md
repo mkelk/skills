@@ -1,7 +1,5 @@
 ## Purpose
 
-A seat serving several repositories runs this once per `coord.py repos --paths`, NEEDS YOU first.
-
 Answer "what is running, is anything waiting for me, has anything stalled" in one screen,
 from files and processes, never from memory and never by asking the sessions.
 

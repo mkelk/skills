@@ -16,7 +16,8 @@ goes to the project's issue tracker. `COORD_DIR` overrides the directory (the te
 - `coord/seat.json`    the seat's terminal (session id, when it was set in UTC): where `log` sends what
                        the seat must hear. Written by `seat --here`, in the seat's pane.
 
-One seat may serve several repositories (one seat per developer). Each repository keeps its own `coord/`
+The default is one seat per repository. One seat may also serve several (not rehearsed:
+`references/several-repos.md`). Each repository keeps its own `coord/`
 and its own `seat.json`; registering a seat also records the repository in a file of the user's,
 `$STREAMS_SEATS` or `$XDG_STATE_HOME/streams/seats.json` (default `~/.local/state/streams/seats.json`),
 so `repos` can list every repository a seat serves. `-C <dir>` runs any command as if started in `<dir>`,

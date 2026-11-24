@@ -1,7 +1,5 @@
 ## Purpose
 
-A seat serving several repositories does each pass once per `coord.py repos --paths`.
-
 Run on a timer. Do `status`, then **act on what it found** and **say only what the human needs
 to hear**. The other doors answer a question when asked; this one notices what nobody asked
 about.

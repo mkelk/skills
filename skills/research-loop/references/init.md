@@ -1,7 +1,5 @@
 ## Purpose
 
-**Which repository:** the current checkout's, unless the human names another; a seat serving several repositories runs this door for each, with every command in that repository (`git -C <repo>`, `cd <repo> && …`).
-
 Set a repository up for research once: write its research facts to `.devmeta/research.md`,
 make the kept folder, and adapt the skill to how this repository already works. **The door
 ends by telling the human what the skill does here, how it was adapted, and why.** That

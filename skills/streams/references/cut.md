@@ -28,9 +28,6 @@ Default `--from mainline`: cut from the mainline's branch tip so the stream has 
 tree; `--from trunk` (the trunk, `coord.py config --get trunk`) when the stream must not carry
 the mainline's unfinished work.
 
-**A seat serving several repositories** cuts in the stream's repository: every command there,
-`coord.py -C <repo>` and `git -C <repo>` (`references/several-repos.md`).
-
 **A research stream** (its session leads a program under `research-loop`) has no increment
 and a guard of its own: read `references/cut-research.md` after this file and follow its
 differences.
