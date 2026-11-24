@@ -1143,11 +1143,15 @@ def main(argv=None):
         _CHDIR = os.path.realpath(target)
 
     if a.command == "repos":
-        session = (a.seat or os.environ.get("HC_TERMINAL_ID", "")).strip()
+        session = (a.seat or "").strip()
         if not session:
+            # This terminal, when it is a seat; else the seat registered in this repository (a check run
+            # from a plain terminal must report on the seat, not on that terminal).
+            mine = os.environ.get("HC_TERMINAL_ID", "").strip()
             here = coord_dir()
             seat = read_seat(here) if here else None
-            session = seat["session"] if seat else ""
+            registered = seat["session"] if seat else ""
+            session = mine if (mine and repos_of(mine)) else (registered or mine)
         if not session:
             print("coord repos: which seat? Give --seat <session>, or run it in the seat's pane.", file=sys.stderr)
             return 2

@@ -431,6 +431,12 @@ class SeveralRepos(CoordCase):
         out = self.run_main("-C", self.b, "log", "OWED beta: x", "--no-tell")[1]
         self.assertIn(f"-C {self.b}", out.replace(os.path.expanduser("~"), "~").replace("~", os.path.expanduser("~")))
 
+    def test_repos_from_a_plain_terminal_reports_the_seat(self):
+        self.run_main("seat", "--set", "t1")
+        self.run_main("-C", self.b, "seat", "--set", "t1")
+        os.environ["HC_TERMINAL_ID"] = "t8"   # a plain terminal, not the seat
+        self.assertEqual(self.run_main("-C", self.b, "repos", "--paths")[1].split(), [self.a, self.b])
+
     def test_c_to_a_missing_directory_is_refused(self):
         code, _, err = self.run_main("-C", os.path.join(self.tmp.name, "nope"), "show")
         self.assertEqual(code, 2)
