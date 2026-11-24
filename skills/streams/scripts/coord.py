@@ -16,6 +16,12 @@ goes to the project's issue tracker. `COORD_DIR` overrides the directory (the te
 - `coord/seat.json`    the seat's terminal (session id, when it was set in UTC): where `log` sends what
                        the seat must hear. Written by `seat --here`, in the seat's pane.
 
+One seat may serve several repositories (one seat per developer). Each repository keeps its own `coord/`
+and its own `seat.json`; registering a seat also records the repository in a file of the user's,
+`$STREAMS_SEATS` or `$XDG_STATE_HOME/streams/seats.json` (default `~/.local/state/streams/seats.json`),
+so `repos` can list every repository a seat serves. `-C <dir>` runs any command as if started in `<dir>`,
+like `git -C`: that is how one seat works in a repository it does not sit in.
+
 Lines with a meaning in the log:
 
 - `HOLD <what>: <why>` with `--for 40m` or `--until 07:30` (the human's local time). The end is stored
@@ -117,12 +123,19 @@ def default_who(cwd=None):
     return os.path.basename(top or os.path.abspath(cwd or os.getcwd()))
 
 
-def _self_command():
-    path = os.path.abspath(__file__)
+_CHDIR = None   # the -C directory of this run, so a printed command runs in the same repository
+
+
+def _tilde(path):
     home = os.path.expanduser("~")
-    if path.startswith(home + os.sep):
-        path = "~" + path[len(home):]
-    return f"python3 {path}"
+    return "~" + path[len(home):] if path.startswith(home + os.sep) else path
+
+
+def _self_command():
+    cmd = f"python3 {_tilde(os.path.abspath(__file__))}"
+    if _CHDIR:
+        cmd += f" -C {_tilde(_CHDIR)}"
+    return cmd
 
 
 # ------------------------------------------------------------------ the human's local time
@@ -821,6 +834,83 @@ def seat_line(directory):
     return f"seat: {seat['session']} (set {seat.get('set') or 'at an unknown time'})"
 
 
+# ------------------------------------------------------------------ the repositories one seat serves
+
+
+def seats_file():
+    """`$STREAMS_SEATS`, else `$XDG_STATE_HOME/streams/seats.json`, else `~/.local/state/streams/seats.json`."""
+    override = os.environ.get("STREAMS_SEATS")
+    if override:
+        return os.path.abspath(os.path.expanduser(override))
+    state = os.environ.get("XDG_STATE_HOME") or os.path.join(os.path.expanduser("~"), ".local", "state")
+    return os.path.join(state, "streams", "seats.json")
+
+
+def read_seats():
+    """{session: {main checkout: when it was registered}}; {} when the file is missing or does not read."""
+    try:
+        with open(seats_file(), encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {s: r for s, r in data.items() if isinstance(r, dict)}
+
+
+def _write_seats(data):
+    path = seats_file()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(json.dumps(data, indent=2, sort_keys=True) + "\n")
+    os.replace(tmp, path)
+
+
+def record_repo(session, repo, now=None):
+    """Record that `session` is the seat of the repository whose main checkout is `repo`. A repository has one
+    seat, so the repository is taken off any other session's list."""
+    repo = os.path.realpath(repo)
+    data = read_seats()
+    for other in list(data):
+        data[other].pop(repo, None)
+        if not data[other]:
+            del data[other]
+    data.setdefault(session, {})[repo] = f"{stamp(now or dt.datetime.now(UTC))} UTC"
+    _write_seats(data)
+
+
+def forget_repo(session, repo):
+    """Take the repository off `session`'s list (the seat's registration there was cleared)."""
+    repo = os.path.realpath(repo)
+    data = read_seats()
+    if session in data and repo in data[session]:
+        del data[session][repo]
+        if not data[session]:
+            del data[session]
+        _write_seats(data)
+
+
+def repos_of(session):
+    """[(main checkout, state)] for every repository `session` serves, sorted. The state is `seat` when the
+    repository's own seat.json still names the session, `moved to <s>` or `not registered` when it does not,
+    and `gone` when the directory is no longer a repository."""
+    out = []
+    for repo in sorted(read_seats().get(session, {})):
+        directory = coord_dir(cwd=repo) if os.path.isdir(repo) else None
+        if not directory:
+            out.append((repo, "gone"))
+            continue
+        seat = read_seat(directory)
+        if not seat:
+            out.append((repo, "not registered"))
+        elif seat["session"] != session:
+            out.append((repo, f"moved to {seat['session']}"))
+        else:
+            out.append((repo, "seat"))
+    return out
+
+
 def term(args, timeout=TERM_TIMEOUT):
     """Run term.py (the file beside this one) with `args`: (exit code, stdout, stderr). The tests replace it."""
     script = os.path.join(os.path.dirname(os.path.realpath(__file__)), "term.py")
@@ -987,7 +1077,11 @@ def show(directory, holds=False, owed=False, log=None, now=None, zone=None):
 
 
 def main(argv=None):
+    global _CHDIR
+    _CHDIR = None
     ap = argparse.ArgumentParser(prog="coord.py", description="The streams skill's coordination state.")
+    ap.add_argument("-C", dest="chdir", metavar="DIR",
+                    help="run as if started in DIR, like git -C: the repository there (a seat serving several)")
     sub = ap.add_subparsers(dest="command", required=True)
     sub.add_parser("init", help="create coord/ and its files")
     p_log = sub.add_parser("log", help="append one line to coord/log.md, and tell the terminal it concerns",
@@ -1018,6 +1112,13 @@ def main(argv=None):
                        help="register the terminal this command runs in ($HC_TERMINAL_ID, set by herdr-core)")
     g_seat.add_argument("--set", dest="session", metavar="SESSION", help="register this session id")
     g_seat.add_argument("--clear", action="store_true", help="remove the registration")
+    p_repos = sub.add_parser("repos", help="every repository a seat serves, and whether it is still the seat there",
+                             description="The repositories a seat was registered in (seat --here or --set), from "
+                                         "the user's seats file. Default: this terminal's session ($HC_TERMINAL_ID), "
+                                         "else the seat registered in the current repository.")
+    p_repos.add_argument("--seat", metavar="SESSION", help="the seat's session id")
+    p_repos.add_argument("--paths", action="store_true", help="only the main checkouts where it is the seat, one per "
+                                                              "line (for a loop)")
     p_cfg = sub.add_parser("config", help="the project's facts from .devmeta/streams.md, or detected")
     p_cfg.add_argument("--file", help="the project file (default .devmeta/streams.md at the top)")
     p_cfg.add_argument("--slug", help="also print the worktree path for this stream slug")
@@ -1032,6 +1133,37 @@ def main(argv=None):
     p_init.add_argument("--resources", action="append", help="a line for ## Resources (repeatable)")
     p_init.add_argument("--force", action="store_true", help="replace an existing file")
     a = ap.parse_args(argv)
+
+    if a.chdir:
+        target = os.path.expanduser(a.chdir)
+        if not os.path.isdir(target):
+            print(f"coord: -C {a.chdir}: no such directory", file=sys.stderr)
+            return 2
+        os.chdir(target)
+        _CHDIR = os.path.realpath(target)
+
+    if a.command == "repos":
+        session = (a.seat or os.environ.get("HC_TERMINAL_ID", "")).strip()
+        if not session:
+            here = coord_dir()
+            seat = read_seat(here) if here else None
+            session = seat["session"] if seat else ""
+        if not session:
+            print("coord repos: which seat? Give --seat <session>, or run it in the seat's pane.", file=sys.stderr)
+            return 2
+        found = repos_of(session)
+        if a.paths:
+            for repo, state in found:
+                if state == "seat":
+                    print(repo)
+            return 0
+        if not found:
+            print(f"seat {session}: no repositories recorded ({seats_file()})")
+            return 0
+        print(f"seat {session} serves:")
+        for repo, state in found:
+            print(f"  {repo}" + ("" if state == "seat" else f"  ({state})"))
+        return 0
 
     if a.command == "config":
         try:
@@ -1102,6 +1234,9 @@ def main(argv=None):
     if a.command == "seat":
         if a.clear:
             was = clear_seat(directory)
+            repo = main_checkout()
+            if was and repo:
+                forget_repo(was["session"], repo)
             print(f"seat: cleared (was {was['session']})" if was else "seat: not registered; nothing to clear")
             return 0
         if a.here or a.session is not None:
@@ -1118,6 +1253,9 @@ def main(argv=None):
             except CoordError as err:
                 print(f"coord seat: {err}", file=sys.stderr)
                 return 2
+            repo = main_checkout()
+            if repo:
+                record_repo(session.strip(), repo)
         print(seat_line(directory))
         if not read_seat(directory):
             print(f"  register it in the seat's pane: {_self_command()} seat --here")

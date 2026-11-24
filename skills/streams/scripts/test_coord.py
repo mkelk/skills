@@ -30,8 +30,9 @@ class CoordCase(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.dir = os.path.join(self.tmp.name, "coord")
-        self._env = {k: os.environ.get(k) for k in ("COORD_DIR", "COORD_AS", "TZ", "HC_TERMINAL_ID")}
+        self._env = {k: os.environ.get(k) for k in ("COORD_DIR", "COORD_AS", "TZ", "HC_TERMINAL_ID", "STREAMS_SEATS")}
         os.environ["COORD_DIR"] = self.dir
+        os.environ["STREAMS_SEATS"] = os.path.join(self.tmp.name, "seats.json")
         os.environ.pop("COORD_AS", None)
         os.environ.pop("HC_TERMINAL_ID", None)
         self.sent = []       # what term.py was asked to send: (session, text)
@@ -373,6 +374,73 @@ class Seat(CoordCase):
         self.assertEqual(self.run_main("show", "--owed")[1].splitlines()[1:3], [want, "OWED"])
         self.assertNotIn("seat:", self.run_main("show", "--holds")[1])
         self.assertEqual(self.run_main("show", "--log", "1")[1].splitlines()[1], "LOG (newest 1)")
+
+
+class SeveralRepos(CoordCase):
+    """One seat serving two repositories: -C, the user's seats file, and `repos`."""
+
+    def setUp(self):
+        super().setUp()
+        os.environ.pop("COORD_DIR")
+        quiet = {"capture_output": True, "check": True}
+        self.a = os.path.realpath(os.path.join(self.tmp.name, "alpha"))
+        self.b = os.path.realpath(os.path.join(self.tmp.name, "beta"))
+        for repo in (self.a, self.b):
+            subprocess.run(["git", "init", "-q", repo], **quiet)
+            subprocess.run(["git", "-C", repo, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q",
+                            "--allow-empty", "-m", "start"], **quiet)
+        self.addCleanup(os.chdir, os.getcwd())
+        os.chdir(self.a)
+
+    def test_one_seat_two_repositories(self):
+        self.assertEqual(self.run_main("seat", "--set", "t1")[0], 0)
+        self.assertEqual(self.run_main("-C", self.b, "seat", "--set", "t1")[0], 0)
+        self.assertEqual(coord.read_seat(os.path.join(self.b, ".git", "coord"))["session"], "t1")
+        code, out, _ = self.run_main("repos", "--seat", "t1", "--paths")
+        self.assertEqual((code, out.split()), (0, [self.a, self.b]))
+
+    def test_here_records_the_repository(self):
+        os.environ["HC_TERMINAL_ID"] = "t9"
+        self.run_main("-C", self.b, "seat", "--here")
+        self.assertEqual(self.run_main("repos", "--paths")[1].split(), [self.b])
+
+    def test_a_repository_has_one_seat(self):
+        self.run_main("seat", "--set", "t1")
+        self.run_main("-C", self.b, "seat", "--set", "t1")
+        self.run_main("-C", self.b, "seat", "--set", "t2")
+        self.assertEqual(self.run_main("repos", "--seat", "t1", "--paths")[1].split(), [self.a])
+        self.assertEqual(self.run_main("repos", "--seat", "t2", "--paths")[1].split(), [self.b])
+
+    def test_moved_registration_is_shown_not_listed(self):
+        self.run_main("seat", "--set", "t1")
+        coord.set_seat(os.path.join(self.a, ".git", "coord"), "t3")   # changed behind the file's back
+        self.assertIn("moved to t3", self.run_main("repos", "--seat", "t1")[1])
+        self.assertEqual(self.run_main("repos", "--seat", "t1", "--paths")[1], "")
+
+    def test_clear_forgets_the_repository(self):
+        self.run_main("seat", "--set", "t1")
+        self.run_main("-C", self.b, "seat", "--set", "t1")
+        self.run_main("-C", self.b, "seat", "--clear")
+        self.assertEqual(self.run_main("repos", "--seat", "t1", "--paths")[1].split(), [self.a])
+
+    def test_repos_defaults_to_the_seat_registered_here(self):
+        self.run_main("seat", "--set", "t1")
+        self.assertIn(self.a, self.run_main("repos")[1])
+
+    def test_hint_carries_c(self):
+        out = self.run_main("-C", self.b, "log", "OWED beta: x", "--no-tell")[1]
+        self.assertIn(f"-C {self.b}", out.replace(os.path.expanduser("~"), "~").replace("~", os.path.expanduser("~")))
+
+    def test_c_to_a_missing_directory_is_refused(self):
+        code, _, err = self.run_main("-C", os.path.join(self.tmp.name, "nope"), "show")
+        self.assertEqual(code, 2)
+        self.assertIn("no such directory", err)
+
+    def test_log_with_c_writes_in_that_repository(self):
+        self.run_main("-C", self.b, "log", "note in beta", "--no-tell")
+        with open(os.path.join(self.b, ".git", "coord", "log.md"), encoding="utf-8") as f:
+            self.assertIn("note in beta", f.read())
+        self.assertFalse(os.path.exists(os.path.join(self.a, ".git", "coord", "log.md")))
 
 
 class Relay(CoordCase):
