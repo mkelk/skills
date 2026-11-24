@@ -23,7 +23,9 @@ In the seat's pane, for the new repository `<repo>` (its main checkout):
 0. Give the seat the repository as a working directory: `/add-dir <repo>` in the seat (or start
    it with `claude --add-dir <repo>`). A session asks before reading or editing files outside
    its own directories, and the seat writes `.devmeta/` and `.tick/` there; a seat that stops
-   on such a question at night has stalled.
+   on such a question at night has stalled. The seat keeps the settings of the repository it
+   was started in: an added repository's `.claude/settings.json` does not apply to it (tested
+   2026-11-24), so the seat's own allow rules go in its first repository.
 1. `init` for that repository: follow `references/init.md` with every command run there,
    `git -C <repo> …` and `coord.py -C <repo> …`. The project file is written and committed in
    `<repo>`, on its trunk.
