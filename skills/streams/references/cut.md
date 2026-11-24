@@ -176,7 +176,11 @@ Open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr other
 (`term.py which` says which; links in the README's example 7). First `coord.py seat`: it must
 name this pane (`coord.py seat --here`), or a stream's `OWED` line reaches nobody. With `hc`
 and the herdr-app window, give no `--workspace`: a space opened on a worktree nests by itself
-under the space whose first terminal sits in the main checkout. A session in a folder
+under the space whose first terminal sits in the main checkout. **When the window runs on
+another machine** (the herdr-app window on Windows with herdr-core inside WSL, or a laptop
+connected over ssh), no `herdr-app` command exists here: `term.py start` then starts the session
+with the window's two placement labels, and the window shows it as a new space named after the
+worktree's folder (`<repo>-<slug>`), not after the stream; tell the human that name. A session in a folder
 Claude Code does not trust yet stops at its trust question (`wait` says stopped, `send` is
 refused as blocked): the human answers it in that pane, never the seat. Three steps, each
 checked before the next:

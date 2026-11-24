@@ -263,6 +263,16 @@ class TermTest(unittest.TestCase):
         self.assertEqual(run[run.index("--cwd") + 1], "/w/repo-d")
         self.assertEqual(run[run.index("--label") + 1], "stream=D stream")
         self.assertEqual(run[run.index("--name") + 1], "d-stream")
+        # A window on another machine (Windows over WSL, ssh) shows only terminals with these two.
+        labels = [run[i + 1] for i, a in enumerate(run[:run.index("--")]) if a == "--label"]
+        self.assertEqual(labels, ["stream=D stream", "herdr.space=stream-d-stream", "herdr.tab=stream-d-stream-1"])
+
+    def test_start_on_hc_without_window_in_a_given_space(self):
+        self.hc(ls=HC_EMPTY, RUN={"address": "t9"})
+        self.answer("start", "/w/repo-d", "d", "--workspace", "sp12", "--", "claude")
+        run = [c for c in self.calls("hc") if c[1] == "run"][0]
+        labels = [run[i + 1] for i, a in enumerate(run[:run.index("--")]) if a == "--label"]
+        self.assertEqual(labels, ["stream=d", "herdr.space=sp12", "herdr.tab=stream-d"])
 
     def test_start_on_hc_in_the_window(self):
         self.hc(ls=HC_EMPTY, LABEL="{}")

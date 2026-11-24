@@ -345,9 +345,19 @@ def start(cwd, label, cmd, forced=None, workspace=None):
             _check(_run(["hc", "label", tid, f"stream={label}"]), "hc label")
         else:
             # herdr-app is absent or exited non-zero: nothing was started.
-            # No window to show it in: a terminal hc keeps alive, reachable by `hc attach`.
+            # A window may still be showing this server from another machine: the herdr-app window on
+            # Windows connected to herdr-core inside WSL, or a laptop connected over ssh. From here
+            # nothing can ask that window to open a space, and it shows only the terminals that carry
+            # its two placement labels. So set them: a space id it does not know becomes a new space
+            # there, in the terminal's folder; with --workspace, a new tab in that space. With no
+            # window anywhere the labels do nothing, and the terminal is reachable by `hc attach`.
+            ident = _slug(label) or "stream"
+            place = ([f"herdr.space={workspace}", f"herdr.tab=stream-{ident}"] if workspace
+                     else [f"herdr.space=stream-{ident}", f"herdr.tab=stream-{ident}-1"])
             args = ["hc", "run", "--bg", "--json", "--no-parent", "--outlive-parent", "--cwd", cwd,
                     "--label", f"stream={label}"]
+            for kv in place:
+                args += ["--label", kv]
             if _slug(label):
                 args += ["--name", _slug(label)]
             r = _check(_run(args + ["--"] + list(cmd), timeout=120), "hc run")
