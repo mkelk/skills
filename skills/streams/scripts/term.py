@@ -358,6 +358,11 @@ def start(cwd, label, cmd, forced=None, workspace=None):
                     "--label", f"stream={label}"]
             for kv in place:
                 args += ["--label", kv]
+            # The core looks the program up on its own PATH, and a core started through `--via` (WSL)
+            # or ssh has not read the user's profile: `claude` in ~/.local/bin is "No such file" there
+            # while this shell finds it. So hand over the full path. Not `env PATH=… claude`: the core
+            # names the agent after the program it started, and would call the session `env`.
+            cmd = [shutil.which(cmd[0]) or cmd[0]] + list(cmd[1:])
             if _slug(label):
                 args += ["--name", _slug(label)]
             r = _check(_run(args + ["--"] + list(cmd), timeout=120), "hc run")

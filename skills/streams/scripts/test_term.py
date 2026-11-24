@@ -267,6 +267,14 @@ class TermTest(unittest.TestCase):
         labels = [run[i + 1] for i, a in enumerate(run[:run.index("--")]) if a == "--label"]
         self.assertEqual(labels, ["stream=D stream", "herdr.space=stream-d-stream", "herdr.tab=stream-d-stream-1"])
 
+    def test_start_on_hc_without_window_hands_over_the_full_path(self):
+        # The core's PATH may lack what this shell has (WSL through --via, ssh): the program goes by full path.
+        self.hc(ls=HC_EMPTY, RUN={"address": "t9"})
+        self.fake("claude")
+        self.answer("start", "/w/repo-d", "d", "--", "claude", "--resume", "abc")
+        run = [c for c in self.calls("hc") if c[1] == "run"][0]
+        self.assertEqual(run[run.index("--") + 1:], [os.path.join(self.bin, "claude"), "--resume", "abc"])
+
     def test_start_on_hc_without_window_in_a_given_space(self):
         self.hc(ls=HC_EMPTY, RUN={"address": "t9"})
         self.answer("start", "/w/repo-d", "d", "--workspace", "sp12", "--", "claude")
