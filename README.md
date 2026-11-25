@@ -33,6 +33,7 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   increments that several streams build together. Each piece points at one tick in its own
   stream, and the roadmap holds only what ticks cannot, the links between streams. `/roadmap
   status | update | decide | review | new <name>`.
+  See **[skills/roadmap/README.md](skills/roadmap/README.md)**.
 
 - **[research-loop](skills/research-loop/)** — research in loops, for a question whose answer is
   knowledge or a decision and not a feature. `/research-loop init` (once per repository: adopts
