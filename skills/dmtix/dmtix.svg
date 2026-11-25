@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1075" width="1640" height="1075" role="img" font-family="Calibri, 'Liberation Sans', Arial, sans-serif" fill="#222222">
+<title>dmtix: the doors and what they write</title>
+<desc>Five doors in order: bootstrap once per project, optional discuss-project, start, go, and a checkpoint where the run stops and you review. Below them, the artefacts: method config, thought notes, live state in tk, narrative records, and the ticks engine.</desc>
+<rect width="1640" height="1075" fill="#ffffff"/>
+<text x="35" y="62" font-size="44" font-weight="bold" fill="#111111">dmtix: five doors, one rhythm</text>
+<text x="35" y="104" font-size="24" fill="#55555a">You decide at the doors. Agents do the run. Every door leaves files behind.</text>
+<circle cx="1390" cy="52" r="9" fill="#e68e0d"/>
+<text x="1410" y="60" font-size="22" fill="#b45309">you</text>
+<circle cx="1480" cy="52" r="9" fill="#222222"/>
+<text x="1500" y="60" font-size="22">agents</text>
+<text x="35" y="160" font-size="20" font-weight="bold" fill="#55555a">THE DOORS</text>
+<text x="1605" y="160" font-size="20" text-anchor="end" fill="#55555a">left to right</text>
+<rect x="35" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+<text x="57" y="223" font-size="36" font-weight="bold" fill="#b45309">Set up</text>
+<text x="57" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix bootstrap</text>
+<text x="57" y="287" font-size="20" fill="#55555a">once per project</text>
+<text x="57" y="335" font-size="21">check the ticks skill</text>
+<text x="57" y="365" font-size="21">tk init</text>
+<text x="57" y="395" font-size="21">add lifecycle sections</text>
+<text x="57" y="425" font-size="21">to the config</text>
+<text x="57" y="455" font-size="21">make the records tree</text>
+<text x="57" y="527" font-size="18" fill="#55555a">writes</text>
+<text x="57" y="557" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.tick/config.md</text>
+<text x="57" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.devmeta/</text>
+<rect x="355" y="175" width="290" height="430" rx="16" fill="#ffffff" stroke="#b45309" stroke-width="3" stroke-dasharray="12 9"/>
+<text x="377" y="223" font-size="36" font-weight="bold" fill="#b45309">Discuss</text>
+<text x="377" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix discuss-project</text>
+<text x="377" y="287" font-size="20" fill="#55555a">optional: you + Claude</text>
+<text x="377" y="335" font-size="21">not clear yet?</text>
+<text x="377" y="365" font-size="21">Claude asks, you answer</text>
+<text x="377" y="395" font-size="21">it hunts unknowns</text>
+<text x="377" y="425" font-size="21">ends with a verdict:</text>
+<text x="377" y="455" font-size="21">ready, not ready, dropped</text>
+<text x="377" y="551" font-size="18" fill="#55555a">writes</text>
+<text x="377" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">docs/thoughts/</text>
+<rect x="675" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+<text x="697" y="223" font-size="36" font-weight="bold" fill="#b45309">Start</text>
+<text x="697" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix start</text>
+<text x="697" y="287" font-size="20" fill="#55555a">you decide, the engine drafts</text>
+<text x="697" y="335" font-size="21">goal and scope</text>
+<text x="697" y="365" font-size="21">epics: engine drafts,</text>
+<text x="697" y="395" font-size="21">you ratify</text>
+<text x="697" y="425" font-size="21">a definition of done</text>
+<text x="697" y="455" font-size="21">for every epic</text>
+<text x="697" y="503" font-size="18" fill="#55555a">writes</text>
+<text x="697" y="533" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">_overview.md</text>
+<text x="697" y="557" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tk roadmap</text>
+<text x="697" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">current-increment.md</text>
+<rect x="995" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="1017" y="223" font-size="36" font-weight="bold" fill="#111111">Go</text>
+<text x="1017" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix go</text>
+<text x="1017" y="287" font-size="20" fill="#55555a">you start it, agents run</text>
+<rect x="1011" y="309" width="258" height="46" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="1021" y="329" font-size="20" font-weight="bold" fill="#111111">Plan</text>
+<text x="1021" y="348" font-size="18" fill="#55555a">split into ticks</text>
+<path d="M1147 355 L1147 373" fill="none" stroke="#222222" stroke-width="2"/>
+<polygon points="1147,373 1139,357 1155,357" fill="#222222"/>
+<rect x="1011" y="373" width="258" height="46" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="1021" y="393" font-size="20" font-weight="bold" fill="#111111">Waves</text>
+<text x="1021" y="412" font-size="18" fill="#55555a">parallel, own worktrees</text>
+<path d="M1147 419 L1147 437" fill="none" stroke="#222222" stroke-width="2"/>
+<polygon points="1147,437 1139,421 1155,421" fill="#222222"/>
+<rect x="1011" y="437" width="258" height="46" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="1021" y="457" font-size="20" font-weight="bold" fill="#111111">Close-out</text>
+<text x="1021" y="476" font-size="18" fill="#55555a">review, retro, records</text>
+<text x="1017" y="527" font-size="18" fill="#55555a">writes</text>
+<text x="1017" y="557" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">ia-cycles/&lt;epic&gt;.md</text>
+<text x="1017" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">project-history.md</text>
+<rect x="1315" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+<text x="1337" y="223" font-size="36" font-weight="bold" fill="#b45309">Checkpoint</text>
+<text x="1337" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">the run stops</text>
+<text x="1337" y="287" font-size="20" fill="#55555a">back to you</text>
+<text x="1337" y="335" font-size="21">a report is waiting</text>
+<text x="1337" y="365" font-size="21">you review it,</text>
+<text x="1337" y="395" font-size="21">smoke-test the result</text>
+<text x="1337" y="425" font-size="21">and land it yourself</text>
+<text x="1337" y="475" font-size="18" fill="#55555a">agents never merge to main</text>
+<text x="1337" y="551" font-size="18" fill="#55555a">writes</text>
+<text x="1337" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">completion.md</text>
+<path d="M328 347 L352 347" fill="none" stroke="#222222" stroke-width="3" stroke-dasharray="8 6"/>
+<polygon points="352,347 336,355 336,339" fill="#222222"/>
+<path d="M648 347 L672 347" fill="none" stroke="#222222" stroke-width="3" stroke-dasharray="8 6"/>
+<polygon points="672,347 656,355 656,339" fill="#222222"/>
+<path d="M968 347 L992 347" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="992,347 976,355 976,339" fill="#222222"/>
+<path d="M1288 347 L1312 347" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="1312,347 1296,355 1296,339" fill="#222222"/>
+<text x="35" y="665" font-size="20" font-weight="bold" fill="#55555a">THE ARTEFACTS: what the doors write and read</text>
+<rect x="35" y="695" width="290" height="235" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="55" y="735" font-size="28" font-weight="bold" fill="#111111">Method</text>
+<text x="55" y="763" font-size="18" fill="#55555a">how you work; rarely edited</text>
+<text x="55" y="799" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.tick/config.md</text>
+<text x="55" y="863" font-size="18" fill="#55555a">go reads it at each epic</text>
+<text x="55" y="887" font-size="18" fill="#55555a">close-out and at the</text>
+<text x="55" y="911" font-size="18" fill="#55555a">checkpoint</text>
+<rect x="355" y="695" width="290" height="235" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="375" y="735" font-size="28" font-weight="bold" fill="#111111">Thoughts</text>
+<text x="375" y="763" font-size="18" fill="#55555a">dated notes, one per talk</text>
+<text x="375" y="799" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">docs/thoughts/</text>
+<text x="375" y="825" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">  YYYY-MM-DD-slug.md</text>
+<text x="375" y="863" font-size="18" fill="#55555a">plain talk and notes: no</text>
+<text x="375" y="887" font-size="18" fill="#55555a">ticks, no code</text>
+<rect x="675" y="695" width="290" height="235" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="695" y="735" font-size="28" font-weight="bold" fill="#111111">Live state</text>
+<text x="695" y="763" font-size="18" fill="#55555a">what is true now</text>
+<text x="695" y="799" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tk roadmap</text>
+<text x="695" y="825" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tk board</text>
+<text x="695" y="851" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.tick/profile.md</text>
+<text x="695" y="895" font-size="18" fill="#55555a">epics and ticks; go keeps</text>
+<text x="695" y="919" font-size="18" fill="#55555a">them current</text>
+<rect x="995" y="695" width="610" height="235" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="1015" y="735" font-size="28" font-weight="bold" fill="#111111">Records</text>
+<text x="1015" y="763" font-size="18" fill="#55555a">what happened, in prose; kept in git</text>
+<text x="1015" y="799" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.devmeta/</text>
+<text x="1015" y="825" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">  current-increment.md</text>
+<text x="1015" y="851" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">  project-history.md</text>
+<text x="1325" y="799" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">  increments/&lt;id&gt;/</text>
+<text x="1325" y="825" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">    _overview.md</text>
+<text x="1325" y="851" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">    ia-cycles/</text>
+<text x="1325" y="877" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">    completion.md</text>
+<text x="1015" y="900" font-size="18" fill="#55555a">bootstrap makes the tree; start, go and the checkpoint fill it</text>
+<path d="M180 609 L180 691" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="180,691 172,675 188,675" fill="#555555"/>
+<path d="M500 609 L500 691" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="500,691 492,675 508,675" fill="#555555"/>
+<path d="M780 609 L780 691" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="780,691 772,675 788,675" fill="#555555"/>
+<path d="M915 609 L915 650 L1035 650 L1035 691" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1035,691 1027,675 1043,675" fill="#555555"/>
+<path d="M1145 609 L1145 691" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1145,691 1137,675 1153,675" fill="#555555"/>
+<path d="M1460 609 L1460 691" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1460,691 1452,675 1468,675" fill="#555555"/>
+<rect x="35" y="957" width="1570" height="72" rx="14" fill="#f7f7f7" stroke="#b0b0b0" stroke-width="2"/>
+<text x="57" y="992" font-size="28" font-weight="bold" fill="#111111">Engine</text>
+<text x="190" y="992" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">~/.claude/skills/ticks/</text>
+<text x="57" y="1018" font-size="19" fill="#55555a">go hands over to the ticks skill. All the loop logic lives there, not in dmtix. One engine per machine.</text>
+</svg>
