@@ -152,10 +152,18 @@ Rules:
 
 ## Step 6 — Base branch
 
-Ask the user (the one legitimate question): use the current branch, or create
-`YYYY-MM-DD-<slug>` from it? Never main/master. Record the choice in `_overview.md` →
-"How to run", and stamp it on the roadmap so the engine never assumes main:
-`tk update <id> --base-branch <branch>` for the project tick and each epic.
+Never use main/master itself. Check `git rev-parse --git-dir` against
+`git rev-parse --git-common-dir`.
+- **They differ (a linked worktree):** a stream's branch was cut for this worktree. If it
+  is `main` or `master`, refuse and stop, without asking. Otherwise use the current
+  branch; do not ask, and never create a second branch.
+- **They match (a plain checkout):** ask the user (the one legitimate question): use the
+  current branch, or create `YYYY-MM-DD-<slug>` from it? On `main` or `master`, do not
+  offer the current branch: ask only whether to create `YYYY-MM-DD-<slug>` from it.
+
+Record the branch in `_overview.md` → "How to run", and stamp it on the roadmap so the
+engine never assumes main: `tk update <id> --base-branch <branch>` for the project tick
+and each epic.
 
 ## Step 7 — Commit and stop
 
