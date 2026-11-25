@@ -16,7 +16,7 @@ reference and follow it exactly.** With no or an unknown argument, show this tab
 | `start` (or `start-increment-spec`) | once per increment | `references/start-increment-spec.md` — interactive scoping (engine-drafted epic partition, human-ratified; goal-compatible DoDs), records tree, tk roadmap. Setup only. |
 | `go` | per session | `references/go.md` — start **or resume** the run; thin wrapper over the ticks skill; stops at the project checkpoint. |
 
-Principles (binding for all three doors):
+Principles (binding for every door):
 - **Doors, not engines.** These files hold the interactive surface only. All process lives
   in the ticks skill and the tk structure — never add loop logic here.
 - **Method vs state:** `.tick/config.md` is method (edited only to change how you work);

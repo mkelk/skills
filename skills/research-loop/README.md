@@ -24,7 +24,7 @@ role, the holder, keeps it (keys, hidden answers), so the lead never grades itse
 | Door | When | What it does |
 |---|---|---|
 | `/research-loop init` | once per repository, in the main checkout | Reads how the repository already does research, adopts it, writes `.devmeta/research.md`, and explains what it set up |
-| `/research-loop charter <slug>` | once per program, with you | Writes the purpose, questions, bar, ruler, allowance and end. Nothing runs before your go |
+| `/research-loop charter <slug>` | once per program, with you | Writes the nine parts of the charter: purpose, questions, shape, bar, ruler and holder, allowance, what is out of bounds or hidden, reviews, and the end. Nothing runs before your go |
 | `/research-loop go` | per session | Starts or resumes the loop: assess, freeze, run, verdict, record. Does not wait |
 | `/research-loop check <slug>` | the holder's side, per loop | Holds the keys, scores, runs the independent check |
 | `/research-loop report <slug>` | once, at the end | Writes the findings report |

@@ -60,7 +60,7 @@ is anything finished and unlanded?
      `## Heavy runs` names its tool's recipe, if it has one (`references/recipes/` holds worked
      ones).
    - **The Active block in `current-increment.md`: always the mainline's, whether or not git
-     conflicted** — a side branch cut after the mainline's line last changed merges its block
+     conflicted** — a stream's branch cut after the mainline's line last changed merges its block
      clean. **Landing one epic early turns this round**: the stream's next sync takes the
      trunk's header clean, so tell it to restore its own Active line after that sync.
      (2026-09-29) a stream caught it by reading the file.

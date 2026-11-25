@@ -38,7 +38,7 @@ The usual order: `init` once, then `status` and `queue` as you work, `cut` for e
 *Flow on top (you, the seat, the streams, the trunk); files below.*
 
 You ask and decide; the seat cuts streams and reads them all. Each stream is one branch in one
-worktree with its own session, running its own increment. A finished stream is merged into the
+worktree with its own session, running its own increment (or, for a research stream, its own program). A finished stream is merged into the
 trunk by the seat. The files below the flow are the project file (committed), `coord/` (shared
 by every worktree, never committed) and what a cut writes into the new worktree.
 
@@ -116,7 +116,7 @@ npx skills add mkelk/skills --skill streams --skill dmtix --skill ticks -g -a cl
 ## Good to know
 
 - **A cut makes a stream.** It asks nothing in the normal case. It asks one yes-or-no
-  question only when the project may have a deploy host and no main line of work yet.
+  question only when the project deploys somewhere and no main line of work exists yet.
 - **Claude Code 2.1.331 or later.** Version 2.1.325 did not report its status to herdr. The seat
   then typed its text into a trust question.
 - **A trust question.** A session in a folder Claude Code does not trust yet stops at its trust
