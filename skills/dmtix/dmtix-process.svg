@@ -134,7 +134,7 @@
     <rect x="40" y="925" width="360" height="125" rx="14" fill="none" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="10 8"/>
     <text x="64" y="958" font-size="22" fill="#55555a">not clear yet? start here:</text>
     <text x="64" y="995" font-size="24" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix discuss-project</text>
-    <text x="64" y="1031" font-size="19" fill="#222222">ready &#183; research &#183; not ready &#183; dropped</text>
+    <text x="64" y="1031" font-size="19" fill="#222222">ready (a build or research) &#183; not ready &#183; dropped</text>
 
     <!-- where things live -->
     <rect x="440" y="925" width="1440" height="125" rx="14" fill="none" stroke="#b0b0b0" stroke-width="2"/>
