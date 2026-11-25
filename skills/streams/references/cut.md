@@ -204,15 +204,16 @@ term.py wait --timeout 60 <session>   # until Claude's prompt is up, before typi
 #    says /research-loop charter <slug> instead, and to bring the draft charter to the human.
 #    A stream cut to discuss something not yet scoped gets /dmtix discuss-project "<the
 #    question>" instead: it must not be told to start or go.
+#    A stream that is "not a run" (no increment) gets: "You are the <slug> stream. Read the
+#    brief, then wait. Do not run /dmtix start, go or discuss-project." Its brief names no id.
 term.py send <session> 'You are the <slug> stream (increment <id>) ...'
 ```
 
-**Say "give `/dmtix start` the id by hand" in the start prompt whenever the stream is
-unscoped**, and why: the Active line and the row already name that id, and a method that picks
-its own leaves two ids for one increment.
+**In a run's start prompt, say "give `/dmtix start` the id by hand"** when the stream is
+unscoped: the Active line and the row already name that id; a method that picks its own leaves two.
 
-**Do not end by asking the human for the session's name** — the human should not be the index.
-`term.py ls --json` gives the session at that worktree with its state, id and label.
+**Never ask the human for the session's name:** `term.py ls --json` gives the session at that
+worktree with its state, id and label.
 
 The block to print when the session is not opened:
 
@@ -230,8 +231,7 @@ Then, when the session was opened, check on the machine: `term.py ls --json` sho
 worktree, `working`, and `/proc/<pid>/cwd` agrees. Set the row's session to `<slug>`, and log the
 cut: `coord.py log "CUT <slug> (<id>): …"`, naming the session id.
 
-- (2026-11-20) a cut that printed what to open, by the old default, left the human asking where
-  the pane was — opening the session became the default.
+- (2026-11-20) a cut that only printed what to open left the human asking where the pane was.
 - (2026-11-20) `/rename` sent through hc was answered as a chat message ("a built-in command, I
   can't run it"): `hc send` delivers `<hc from="t5">/rename replay</hc>`, so no slash command
   runs that way. The label from `start` already named the pane.
@@ -246,7 +246,6 @@ cut: `coord.py log "CUT <slug> (<id>): …"`, naming the session id.
 
 ## Field notes
 
-- (2026-09-21) the door's three faults on an empty machine were invisible until it was walked end
-  to end — walk a door on a machine whose shape it did not anticipate.
+- (2026-09-21) three faults on an empty machine showed only when the door was walked end to end.
 - (2026-09-20) a sync-forward at the cut conflicts on the Active line (keep the stream's) and on
   list files (keep both) when the trunk has moved — expected, not a defect.
