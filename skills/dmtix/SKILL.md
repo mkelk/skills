@@ -1,6 +1,6 @@
 ---
 name: dmtix
-description: devmeta-on-ticks — a delivery method on the synthesized ticks engine. Explicit user invocation with an argument; "bootstrap" installs the method into a project, "discuss-project" opens a Claude-led discussion of a not-yet-scoped project, "start" scopes a new increment, "go" starts or resumes the active increment's run. Not for general tk/tick work — the ticks skill owns that.
+description: devmeta-on-ticks — a delivery method on the synthesized ticks engine. Explicit user invocation with an argument; "bootstrap" installs the method into a project, "explain" says what the method is in this project, "discuss-project" opens a Claude-led discussion of a not-yet-scoped project, "start" scopes a new increment, "go" starts or resumes the active increment's run. Not for general tk/tick work — the ticks skill owns that.
 ---
 
 # dmtix — devmeta-on-ticks
