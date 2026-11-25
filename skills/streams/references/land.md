@@ -12,6 +12,12 @@ merged tree (`--get at-landing`), the heavy runs and how to see one (`--get heav
 how each shared file resolves (`--get seams`). A section the project does not have means the
 step has nothing to run; say so in the merge message rather than invent a check.
 
+**Where the project pushes nothing** (the workshop: the trunk is `workshop`, nothing deploys, no
+remote moves): "the mainline" below means the trunk. Skip each push, each `origin/` and each
+remote-branch step, and the message to the mainline's session when no session sits on the trunk.
+Prove the merge in step 7 against the local trunk, and say in the merge message that nothing
+was pushed.
+
 ## The checklist
 
 **Land a finished stream as soon as it can be landed.** A stream at its checkpoint with a green
@@ -125,7 +131,7 @@ is anything finished and unlanded?
      artifact.** (2026-09-21) a "moved in 2 of 4 projects, revert it" rule was wrong: at phone
      width the element was not in frame.
 7. **Prove the merge landed what you think, before you delete anything.** `git merge-base
-   --is-ancestor <branch> "origin/$(coord.py config --get trunk)"` — and read the records
+   --is-ancestor <branch> "$(coord.py config --get trunk)"` (`origin/` before the trunk when the project pushes) — and read the records
    themselves: does the trunk's `current-increment.md` say what shipped, does the project tick
    read closed with its reason? A relayed SHA is a claim until the repo is asked.
 7b. **Do not ask a stream to push its branch, and do not push one yourself.** Every worktree
