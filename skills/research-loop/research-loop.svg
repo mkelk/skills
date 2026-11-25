@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1125" width="1640" height="1125" role="img" font-family="Calibri, 'Liberation Sans', Arial, sans-serif" fill="#222222">
+<title>research-loop: the doors and the files</title>
+<desc>Five doors: init once per repository, charter with the human, go (the lead runs the loop: assess, freeze, run, verdict, record), check (the ruler's holder scores and runs the independent check), and report. Below them the files: the research facts, the program's records in git on the lead's branch, the kept folder outside git that holds the ruler, and the report.</desc>
+<rect width="1640" height="1125" fill="#ffffff"/>
+<text x="35" y="62" font-size="44" font-weight="bold" fill="#111111">research-loop: a lead runs, a holder keeps the ruler</text>
+<text x="35" y="104" font-size="24" fill="#55555a">You set the question and the bar. The lead never grades its own work.</text>
+<circle cx="1390" cy="52" r="9" fill="#e68e0d"/>
+<text x="1410" y="60" font-size="22" fill="#b45309">you</text>
+<circle cx="1480" cy="52" r="9" fill="#222222"/>
+<text x="1500" y="60" font-size="22">agents</text>
+<text x="35" y="160" font-size="20" font-weight="bold" fill="#55555a">THE DOORS</text>
+<text x="1605" y="160" font-size="20" text-anchor="end" fill="#55555a">left to right</text>
+<rect x="35" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+<text x="57" y="223" font-size="36" font-weight="bold" fill="#b45309">Init</text>
+<text x="57" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">init</text>
+<text x="57" y="287" font-size="20" fill="#55555a">once per repository</text>
+<text x="57" y="335" font-size="21">read how the repo</text>
+<text x="57" y="365" font-size="21">does research now</text>
+<text x="57" y="395" font-size="21">adopt it, keep its names</text>
+<text x="57" y="425" font-size="21">ask you what it cannot</text>
+<text x="57" y="455" font-size="21">see; explain the setup</text>
+<text x="57" y="527" font-size="18" fill="#55555a">writes</text>
+<text x="57" y="557" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.devmeta/research.md</text>
+<text x="57" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">docs/research/README.md</text>
+<rect x="355" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+<text x="377" y="223" font-size="36" font-weight="bold" fill="#b45309">Charter</text>
+<text x="377" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">charter &lt;slug&gt;</text>
+<text x="377" y="287" font-size="20" fill="#55555a">once per program, with you</text>
+<text x="377" y="335" font-size="21">your purpose, your words</text>
+<text x="377" y="365" font-size="21">the questions, the bar</text>
+<text x="377" y="395" font-size="21">the ruler, who holds it</text>
+<text x="377" y="425" font-size="21">the allowance, the end</text>
+<text x="377" y="455" font-size="21">nothing runs before your go</text>
+<text x="377" y="527" font-size="18" fill="#55555a">writes</text>
+<text x="377" y="557" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">charter.md</text>
+<text x="377" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">program.md</text>
+<rect x="675" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="697" y="223" font-size="36" font-weight="bold" fill="#111111">Go</text>
+<text x="697" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">go</text>
+<text x="697" y="287" font-size="20" fill="#55555a">the lead: runs, no waiting</text>
+<rect x="691" y="297" width="258" height="38" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="701" y="314" font-size="18" font-weight="bold" fill="#111111">Assess</text>
+<text x="701" y="330" font-size="16" fill="#55555a">measure the floor first</text>
+<path d="M827 335 L827 343" fill="none" stroke="#222222" stroke-width="2"/>
+<rect x="691" y="343" width="258" height="38" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="701" y="360" font-size="18" font-weight="bold" fill="#111111">Freeze</text>
+<text x="701" y="376" font-size="16" fill="#55555a">the rule, committed first</text>
+<path d="M827 381 L827 389" fill="none" stroke="#222222" stroke-width="2"/>
+<rect x="691" y="389" width="258" height="38" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="701" y="406" font-size="18" font-weight="bold" fill="#111111">Run</text>
+<text x="701" y="422" font-size="16" fill="#55555a">sub-agents, cheap models</text>
+<path d="M827 427 L827 435" fill="none" stroke="#222222" stroke-width="2"/>
+<rect x="691" y="435" width="258" height="38" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="701" y="452" font-size="18" font-weight="bold" fill="#111111">Verdict</text>
+<text x="701" y="468" font-size="16" fill="#55555a">read off the frozen rule</text>
+<path d="M827 473 L827 481" fill="none" stroke="#222222" stroke-width="2"/>
+<rect x="691" y="481" width="258" height="38" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="701" y="498" font-size="18" font-weight="bold" fill="#111111">Record</text>
+<text x="701" y="514" font-size="16" fill="#55555a">files; then assess again</text>
+<text x="697" y="551" font-size="18" fill="#55555a">writes</text>
+<text x="697" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">loops/&lt;NNN&gt;-&lt;short&gt;.md</text>
+<rect x="995" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="1017" y="223" font-size="36" font-weight="bold" fill="#111111">Check</text>
+<text x="1017" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">check &lt;slug&gt;</text>
+<text x="1017" y="287" font-size="20" fill="#55555a">the holder: owns the ruler</text>
+<text x="1017" y="335" font-size="21">hold the keys, outside git</text>
+<text x="1017" y="365" font-size="21">read a freeze</text>
+<text x="1017" y="395" font-size="21">score the run on keys</text>
+<text x="1017" y="425" font-size="21">send counts, never the key</text>
+<text x="1017" y="455" font-size="21">the independent check:</text>
+<text x="1017" y="485" font-size="21">a fresh agent, little context</text>
+<text x="1017" y="527" font-size="18" fill="#55555a">writes</text>
+<text x="1017" y="557" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&lt;kept&gt;/.../scores/</text>
+<text x="1017" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&lt;kept&gt;/.../check-&lt;date&gt;/</text>
+<rect x="1315" y="175" width="290" height="430" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="1337" y="223" font-size="36" font-weight="bold" fill="#111111">Report</text>
+<text x="1337" y="257" font-size="21" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">report &lt;slug&gt;</text>
+<text x="1337" y="287" font-size="20" fill="#55555a">once, when an end is met</text>
+<text x="1337" y="335" font-size="21">the lead writes it</text>
+<text x="1337" y="365" font-size="21">each question: the answer</text>
+<text x="1337" y="395" font-size="21">and what it rests on</text>
+<text x="1337" y="425" font-size="21">what it changes</text>
+<text x="1337" y="455" font-size="21">what to do next</text>
+<text x="1337" y="505" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">often: /dmtix start</text>
+<text x="1337" y="551" font-size="18" fill="#55555a">writes</text>
+<text x="1337" y="581" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">report.md</text>
+<path d="M328 347 L352 347" fill="none" stroke="#222222" stroke-width="3" stroke-dasharray="8 6"/>
+<polygon points="352,347 336,355 336,339" fill="#222222"/>
+<path d="M648 347 L672 347" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="672,347 656,355 656,339" fill="#222222"/>
+<path d="M968 347 L992 347" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="992,347 976,355 976,339" fill="#222222"/>
+<path d="M992 375 L968 375" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="968,375 984,367 984,383" fill="#222222"/>
+<path d="M1288 347 L1312 347" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="1312,347 1296,355 1296,339" fill="#222222"/>
+<text x="35" y="664" font-size="20" font-weight="bold" fill="#55555a">THE FILES</text>
+<rect x="35" y="690" width="290" height="300" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="55" y="730" font-size="28" font-weight="bold" fill="#111111">Research facts</text>
+<text x="55" y="758" font-size="18" fill="#55555a">one file, on the trunk</text>
+<text x="55" y="794" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.devmeta/research.md</text>
+<text x="55" y="820" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">docs/research/README.md</text>
+<text x="55" y="870" font-size="18" fill="#55555a">rulers, allowance, bounds,</text>
+<text x="55" y="894" font-size="18" fill="#55555a">where the kept folder is;</text>
+<text x="55" y="918" font-size="18" fill="#55555a">the index of programs</text>
+<rect x="355" y="690" width="610" height="300" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="375" y="730" font-size="28" font-weight="bold" fill="#111111">Records: docs/research/&lt;slug&gt;/</text>
+<text x="375" y="758" font-size="18" fill="#55555a">in git, on the lead's branch; committed each loop</text>
+<text x="375" y="794" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">charter.md</text>
+<text x="375" y="820" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">program.md</text>
+<text x="375" y="846" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">loops/</text>
+<text x="411" y="872" font-size="18" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&lt;NNN&gt;-&lt;short&gt;.md</text>
+<text x="411" y="896" font-size="18" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&lt;NNN&gt;-&lt;short&gt;.scores.md</text>
+<text x="411" y="920" font-size="18" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&lt;NNN&gt;-&lt;short&gt;.manifest.md</text>
+<text x="755" y="794" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">arms/</text>
+<text x="755" y="820" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">findings/</text>
+<text x="755" y="846" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">checks/</text>
+<text x="755" y="872" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">report.md</text>
+<text x="375" y="958" font-size="18" fill="#55555a">program.md starts with a status box: go resumes from it,</text>
+<text x="375" y="982" font-size="18" fill="#55555a">never from memory</text>
+<rect x="995" y="690" width="290" height="300" rx="14" fill="#ffffff" stroke="#b45309" stroke-width="2" stroke-dasharray="12 9"/>
+<text x="1015" y="730" font-size="28" font-weight="bold" fill="#111111">Kept folder</text>
+<text x="1015" y="758" font-size="18" fill="#55555a">outside git and every worktree</text>
+<text x="1015" y="794" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&lt;kept&gt;/research/&lt;slug&gt;/</text>
+<text x="1015" y="820" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">ruler/  scores/</text>
+<text x="1015" y="846" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">data/   log.md</text>
+<text x="1015" y="880" font-size="18" fill="#55555a">keys and hidden answers; a</text>
+<text x="1015" y="904" font-size="18" fill="#55555a">guard in the lead's</text>
+<text x="1015" y="928" font-size="18" fill="#55555a">worktree hides them</text>
+<rect x="1315" y="690" width="290" height="300" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="1335" y="730" font-size="28" font-weight="bold" fill="#111111">The report</text>
+<text x="1335" y="758" font-size="18" fill="#55555a">same records folder</text>
+<text x="1335" y="794" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">report.md</text>
+<text x="1335" y="820" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">findings/</text>
+<text x="1335" y="858" font-size="18" fill="#55555a">built from the verdicts,</text>
+<text x="1335" y="882" font-size="18" fill="#55555a">never from memory; names</text>
+<text x="1335" y="906" font-size="18" fill="#55555a">what to build, if anything</text>
+<path d="M180 609 L180 686" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="180,686 172,670 188,670" fill="#555555"/>
+<path d="M500 609 L500 686" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="500,686 492,670 508,670" fill="#555555"/>
+<path d="M820 609 L820 686" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="820,686 812,670 828,670" fill="#555555"/>
+<path d="M1140 609 L1140 686" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1140,686 1132,670 1148,670" fill="#555555"/>
+<path d="M1460 609 L1460 686" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1460,686 1452,670 1468,670" fill="#555555"/>
+<rect x="35" y="1017" width="1570" height="80" rx="14" fill="#f7f7f7" stroke="#b0b0b0" stroke-width="2"/>
+<text x="57" y="1052" font-size="28" font-weight="bold" fill="#111111">Two roles, never one</text>
+<text x="57" y="1082" font-size="19" fill="#55555a">The lead never reads the ruler. The holder never writes on the lead's branch. The rule is committed before the run; the verdict is read off it.</text>
+</svg>

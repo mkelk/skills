@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1010" width="1640" height="1010" role="img" font-family="Calibri, 'Liberation Sans', Arial, sans-serif" fill="#222222">
+<title>streams: one seat, many streams</title>
+<desc>Top: you talk to the seat in the main checkout. The seat cuts streams, each a branch in its own worktree run by its own session as a dmtix increment: one mainline and side streams. Streams land on the trunk; for now the seat does the landing by hand and pushes on your word. Below: the artefacts. The project file .devmeta/streams.md and each stream's brief and records are committed; coord/ in the git common dir (streams table, log, schedules, asks) is never committed.</desc>
+<rect width="1640" height="1010" fill="#ffffff"/>
+<text x="35" y="62" font-size="44" font-weight="bold" fill="#111111">streams: one seat, many streams</text>
+<text x="35" y="104" font-size="24" fill="#55555a">You talk to the seat. The seat cuts streams and reads them all. Each stream runs its own increment.</text>
+<circle cx="1390" cy="52" r="9" fill="#e68e0d"/>
+<text x="1410" y="60" font-size="22" fill="#b45309">you</text>
+<circle cx="1480" cy="52" r="9" fill="#222222"/>
+<text x="1500" y="60" font-size="22">agents</text>
+<text x="35" y="160" font-size="20" font-weight="bold" fill="#55555a">THE FLOW</text>
+<rect x="35" y="175" width="240" height="440" rx="16" fill="#fdf3e3" stroke="#b45309" stroke-width="3"/>
+<text x="57" y="223" font-size="36" font-weight="bold" fill="#b45309">You</text>
+<text x="57" y="257" font-size="20" fill="#55555a">ask, decide, approve</text>
+<text x="57" y="315" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/streams init</text>
+<text x="57" y="349" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/streams status</text>
+<text x="57" y="383" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/streams queue</text>
+<text x="57" y="417" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/streams cut</text>
+<text x="57" y="451" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/streams land</text>
+<text x="57" y="515" font-size="19" fill="#55555a">say "ship it"</text>
+<text x="57" y="541" font-size="19" fill="#55555a">before a push</text>
+<rect x="355" y="175" width="330" height="440" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="377" y="223" font-size="36" font-weight="bold" fill="#111111">Seat</text>
+<text x="377" y="257" font-size="20" fill="#55555a">main checkout, on the trunk</text>
+<text x="377" y="305" font-size="21">cut: branch, worktree,</text>
+<text x="377" y="337" font-size="21">brief, a row in the table</text>
+<text x="377" y="369" font-size="21">status: running, waiting,</text>
+<text x="377" y="401" font-size="21">stalled, from files</text>
+<text x="377" y="433" font-size="21">keep-running: hourly pass</text>
+<text x="377" y="465" font-size="21">land: merge, check, push</text>
+<rect x="371" y="511" width="298" height="84" rx="10" fill="#ffffff" stroke="#b45309" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="385" y="541" font-size="20" font-weight="bold" fill="#b45309">First cut? It asks you:</text>
+<text x="385" y="571" font-size="22" fill="#b45309">side stream or mainline?</text>
+<rect x="765" y="175" width="470" height="440" rx="16" fill="#ffffff" stroke="#555555" stroke-width="3"/>
+<text x="787" y="223" font-size="36" font-weight="bold" fill="#111111">Streams</text>
+<text x="787" y="257" font-size="20" fill="#55555a">one branch, one worktree, one session each</text>
+<rect x="783" y="285" width="434" height="92" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="799" y="315" font-size="22" font-weight="bold" fill="#111111">mainline</text>
+<text x="799" y="339" font-size="18" fill="#55555a">the main line of work</text>
+<text x="799" y="363" font-size="18" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">../app-inc07</text>
+<text x="1201" y="315" font-size="19" text-anchor="end">one dmtix increment</text>
+<text x="1201" y="339" font-size="18" text-anchor="end" fill="#55555a">/dmtix go in its own session</text>
+<text x="1201" y="363" font-size="17" text-anchor="end" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">inc07-2026-03-02</text>
+<rect x="783" y="393" width="434" height="92" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="799" y="423" font-size="22" font-weight="bold" fill="#111111">side stream</text>
+<text x="799" y="447" font-size="18" fill="#55555a">beside the mainline</text>
+<text x="799" y="471" font-size="18" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">../app-docs</text>
+<text x="1201" y="423" font-size="19" text-anchor="end">one dmtix increment</text>
+<text x="1201" y="447" font-size="18" text-anchor="end" fill="#55555a">/dmtix go in its own session</text>
+<text x="1201" y="471" font-size="17" text-anchor="end" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">docs-2026-03-05</text>
+<rect x="783" y="501" width="434" height="92" rx="10" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+<text x="799" y="531" font-size="22" font-weight="bold" fill="#111111">side stream</text>
+<text x="799" y="555" font-size="18" fill="#55555a">beside the mainline</text>
+<text x="799" y="579" font-size="18" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">../app-billing</text>
+<text x="1201" y="531" font-size="19" text-anchor="end">one dmtix increment</text>
+<text x="1201" y="555" font-size="18" text-anchor="end" fill="#55555a">/dmtix go in its own session</text>
+<text x="1201" y="579" font-size="17" text-anchor="end" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">billing-2026-03-04</text>
+<rect x="1315" y="175" width="290" height="440" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="1337" y="223" font-size="36" font-weight="bold" fill="#111111">Trunk</text>
+<text x="1337" y="257" font-size="20" fill="#55555a">usually main</text>
+<text x="1337" y="315" font-size="21">a finished stream</text>
+<text x="1337" y="347" font-size="21">is merged here,</text>
+<text x="1337" y="379" font-size="21">the checks run,</text>
+<text x="1337" y="411" font-size="21">then the seat</text>
+<text x="1337" y="443" font-size="21">pushes the trunk</text>
+<text x="1337" y="515" font-size="20" font-weight="bold" fill="#111111">landing is by hand</text>
+<text x="1337" y="541" font-size="20" fill="#55555a">for now: a checklist</text>
+<text x="1337" y="567" font-size="20" fill="#55555a">the seat follows</text>
+<path d="M278 325 L352 325" fill="none" stroke="#b45309" stroke-width="3"/>
+<polygon points="352,325 336,333 336,317" fill="#b45309"/>
+<path d="M688 325 L762 325" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="762,325 746,333 746,317" fill="#222222"/>
+<text x="692" y="309" font-size="19" fill="#55555a">cut</text>
+<path d="M1238 325 L1312 325" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="1312,325 1296,333 1296,317" fill="#222222"/>
+<text x="1243" y="309" font-size="19" fill="#55555a">land</text>
+<text x="35" y="650" font-size="20" font-weight="bold" fill="#55555a">THE ARTEFACTS</text>
+<rect x="35" y="665" width="330" height="320" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="55" y="705" font-size="28" font-weight="bold" fill="#111111">Project file</text>
+<text x="55" y="731" font-size="18" fill="#55555a">facts the skill cannot guess</text>
+<text x="55" y="767" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.devmeta/streams.md</text>
+<text x="55" y="793" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">- trunk</text>
+<text x="55" y="819" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">- resources</text>
+<text x="55" y="845" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">- at cut</text>
+<text x="55" y="871" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">- at landing</text>
+<text x="55" y="897" font-size="18" fill="#55555a">written once by init; the seat</text>
+<text x="55" y="919" font-size="18" fill="#55555a">reads it at every door</text>
+<text x="55" y="967" font-size="18" font-weight="bold" fill="#222222">committed</text>
+<rect x="395" y="665" width="430" height="320" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="415" y="705" font-size="28" font-weight="bold" fill="#111111">coord/</text>
+<text x="415" y="731" font-size="18" fill="#55555a">in the git common dir, one per machine</text>
+<text x="415" y="767" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">streams.md: one row per stream</text>
+<text x="415" y="793" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">log.md: holds, hand-offs</text>
+<text x="415" y="819" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">schedules.md: what runs on a clock</text>
+<text x="415" y="845" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">asks.md: what waits on you</text>
+<text x="415" y="897" font-size="18" fill="#55555a">every worktree sees the same folder;</text>
+<text x="415" y="919" font-size="18" fill="#55555a">status and queue read it; streams write</text>
+<text x="415" y="941" font-size="18" fill="#55555a">the log</text>
+<text x="415" y="967" font-size="18" font-weight="bold" fill="#b45309">never committed</text>
+<rect x="855" y="665" width="350" height="320" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="875" y="705" font-size="28" font-weight="bold" fill="#111111">At cut</text>
+<text x="875" y="731" font-size="18" fill="#55555a">written into the new worktree</text>
+<text x="875" y="767" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">../app-&lt;name&gt;/</text>
+<text x="875" y="793" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">docs/thoughts/</text>
+<text x="875" y="819" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&gt; &lt;date&gt;-&lt;name&gt;-brief.md</text>
+<text x="875" y="897" font-size="18" fill="#55555a">the brief: where the stream is,</text>
+<text x="875" y="919" font-size="18" fill="#55555a">what it holds, its neighbours,</text>
+<text x="875" y="941" font-size="18" fill="#55555a">the rules</text>
+<text x="875" y="967" font-size="18" font-weight="bold" fill="#222222">committed</text>
+<rect x="1235" y="665" width="370" height="320" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="1255" y="705" font-size="28" font-weight="bold" fill="#111111">Stream records</text>
+<text x="1255" y="731" font-size="18" fill="#55555a">dmtix writes them on the branch</text>
+<text x="1255" y="767" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.devmeta/increments/&lt;id&gt;/</text>
+<text x="1255" y="793" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&gt; _overview.md</text>
+<text x="1255" y="819" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&gt; ia-cycles/</text>
+<text x="1255" y="845" font-size="19" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">&gt; completion.md</text>
+<text x="1255" y="897" font-size="18" fill="#55555a">what happened, in prose; the seat</text>
+<text x="1255" y="919" font-size="18" fill="#55555a">reads completion.md before a</text>
+<text x="1255" y="941" font-size="18" fill="#55555a">landing</text>
+<text x="1255" y="967" font-size="18" font-weight="bold" fill="#222222">committed</text>
+<path d="M520 619 L520 661" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="520,661 512,645 528,645" fill="#555555"/>
+<path d="M1000 619 L1000 661" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1000,661 992,645 1008,645" fill="#555555"/>
+<path d="M1420 619 L1420 661" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1420,661 1412,645 1428,645" fill="#555555"/>
+<path d="M200 619 L200 661" fill="none" stroke="#b45309" stroke-width="3"/>
+<polygon points="200,661 192,645 208,645" fill="#b45309"/>
+</svg>

@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1000" width="1640" height="1000" role="img" font-family="Calibri, 'Liberation Sans', Arial, sans-serif" fill="#222222">
+<title>ticks: the loop for one epic and the files it uses</title>
+<desc>Flow: you decide the roadmap, then the orchestrator plans the epic into ticks, runs waves of parallel implementers each in its own worktree with a tick gate, merges and runs the wave gate, runs a final review and a close-out retro, then continues with the next epic. At a project boundary the run stops for your checkpoint. Below: the tick files, config, learnings and profile in .tick, the worktrees and branches, the tk views, and the reports.</desc>
+<rect width="1640" height="1000" fill="#ffffff"/>
+<text x="35" y="62" font-size="44" font-weight="bold" fill="#111111">ticks: one loop per epic</text>
+<text x="35" y="104" font-size="24" fill="#55555a">You decide the roadmap. One orchestrator owns the state. Implementers only write code.</text>
+<circle cx="1390" cy="52" r="9" fill="#e68e0d"/>
+<text x="1410" y="60" font-size="22" fill="#b45309">you</text>
+<circle cx="1480" cy="52" r="9" fill="#222222"/>
+<text x="1500" y="60" font-size="22">agents</text>
+<text x="35" y="160" font-size="20" font-weight="bold" fill="#55555a">THE LOOP</text>
+<text x="1605" y="160" font-size="20" text-anchor="end" fill="#55555a">left to right; the next epic starts the loop again</text>
+<rect x="35" y="175" width="200" height="380" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+<text x="51" y="215" font-size="28" font-weight="bold" fill="#b45309">Roadmap</text>
+<text x="51" y="243" font-size="19" fill="#b45309">you</text>
+<text x="51" y="287" font-size="20">epics and their</text>
+<text x="51" y="314" font-size="20">order</text>
+<text x="51" y="341" font-size="20">a definition of</text>
+<text x="51" y="368" font-size="20">done for each</text>
+<text x="51" y="395" font-size="20">epic</text>
+<rect x="263" y="175" width="200" height="380" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="279" y="215" font-size="28" font-weight="bold" fill="#111111">Plan</text>
+<text x="279" y="243" font-size="19" fill="#55555a">orchestrator</text>
+<text x="279" y="287" font-size="20">split the epic</text>
+<text x="279" y="314" font-size="20">into ticks</text>
+<text x="279" y="341" font-size="20">put them in</text>
+<text x="279" y="368" font-size="20">waves</text>
+<text x="279" y="395" font-size="20">add a review</text>
+<text x="279" y="422" font-size="20">tick and a</text>
+<text x="279" y="449" font-size="20">close-out tick</text>
+<rect x="491" y="175" width="200" height="380" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="507" y="215" font-size="28" font-weight="bold" fill="#111111">Waves</text>
+<text x="507" y="243" font-size="19" fill="#55555a">implementers</text>
+<text x="507" y="287" font-size="20">parallel, each in</text>
+<text x="507" y="314" font-size="20">its own worktree</text>
+<rect x="503" y="355" width="176" height="44" rx="10" fill="#ffffff" stroke="#555555" stroke-width="2"/>
+<text x="513" y="374" font-size="19" font-weight="bold" fill="#111111">tick A</text>
+<text x="513" y="393" font-size="17" fill="#55555a">tick gate</text>
+<rect x="503" y="411" width="176" height="44" rx="10" fill="#ffffff" stroke="#555555" stroke-width="2"/>
+<text x="513" y="430" font-size="19" font-weight="bold" fill="#111111">tick B</text>
+<text x="513" y="449" font-size="17" fill="#55555a">tick gate</text>
+<rect x="503" y="467" width="176" height="44" rx="10" fill="#ffffff" stroke="#555555" stroke-width="2"/>
+<text x="513" y="486" font-size="19" font-weight="bold" fill="#111111">tick C</text>
+<text x="513" y="505" font-size="17" fill="#55555a">tick gate</text>
+<text x="507" y="537" font-size="16" fill="#55555a">each runs the tick gate</text>
+<rect x="719" y="175" width="200" height="380" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="735" y="215" font-size="28" font-weight="bold" fill="#111111">Merge</text>
+<text x="735" y="243" font-size="19" fill="#55555a">orchestrator</text>
+<text x="735" y="287" font-size="20">merge each branch</text>
+<text x="735" y="314" font-size="20">run the wave gate</text>
+<text x="735" y="341" font-size="20">on the merged</text>
+<text x="735" y="368" font-size="20">tree</text>
+<text x="735" y="395" font-size="20">then close the</text>
+<text x="735" y="422" font-size="20">wave's ticks</text>
+<rect x="947" y="175" width="200" height="380" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="963" y="215" font-size="28" font-weight="bold" fill="#111111">Final review</text>
+<text x="963" y="243" font-size="19" fill="#55555a">agents</text>
+<text x="963" y="287" font-size="20">review the whole</text>
+<text x="963" y="314" font-size="20">epic diff</text>
+<text x="963" y="341" font-size="20">findings go back</text>
+<text x="963" y="368" font-size="20">to the code's</text>
+<text x="963" y="395" font-size="20">author</text>
+<rect x="1175" y="175" width="200" height="380" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
+<text x="1191" y="215" font-size="28" font-weight="bold" fill="#111111">Close-out</text>
+<text x="1191" y="243" font-size="19" fill="#55555a">orchestrator</text>
+<text x="1191" y="287" font-size="20">check the epic</text>
+<text x="1191" y="314" font-size="20">against its done</text>
+<text x="1191" y="341" font-size="20">run the retro,</text>
+<text x="1191" y="368" font-size="20">write the</text>
+<text x="1191" y="395" font-size="20">learnings</text>
+<text x="1191" y="422" font-size="20">plan the next</text>
+<text x="1191" y="449" font-size="20">epic</text>
+<rect x="1403" y="175" width="200" height="380" rx="16" fill="#fdf3e3" stroke="#b45309" stroke-width="3" stroke-dasharray="12 9"/>
+<text x="1419" y="215" font-size="28" font-weight="bold" fill="#b45309">Checkpoint</text>
+<text x="1419" y="243" font-size="19" fill="#b45309">you, at a project end</text>
+<text x="1419" y="287" font-size="20">the run stops</text>
+<text x="1419" y="314" font-size="20">you read the</text>
+<text x="1419" y="341" font-size="20">completion report</text>
+<text x="1419" y="368" font-size="20">and decide</text>
+<path d="M238 365 L260 365" fill="none" stroke="#b45309" stroke-width="3"/>
+<polygon points="260,365 244,373 244,357" fill="#b45309"/>
+<path d="M466 365 L488 365" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="488,365 472,373 472,357" fill="#222222"/>
+<path d="M694 365 L716 365" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="716,365 700,373 700,357" fill="#222222"/>
+<path d="M922 365 L944 365" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="944,365 928,373 928,357" fill="#222222"/>
+<path d="M1150 365 L1172 365" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="1172,365 1156,373 1156,357" fill="#222222"/>
+<path d="M1378 365 L1400 365" fill="none" stroke="#b45309" stroke-width="3" stroke-dasharray="8 6"/>
+<polygon points="1400,365 1384,373 1384,357" fill="#b45309"/>
+<path d="M1275 558 L1275 585 L363 585 L363 559" fill="none" stroke="#222222" stroke-width="3"/>
+<polygon points="363,559 371,575 355,575" fill="#222222"/>
+<text x="1007" y="577" font-size="19" text-anchor="middle" fill="#55555a">next epic: same loop, no new prompt</text>
+<text x="35" y="628" font-size="20" font-weight="bold" fill="#55555a">THE ARTEFACTS</text>
+<rect x="35" y="640" width="380" height="325" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="55" y="680" font-size="28" font-weight="bold" fill="#111111">Tracker</text>
+<text x="55" y="708" font-size="18" fill="#55555a">in .tick/, kept in git</text>
+<text x="55" y="748" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tick files</text>
+<text x="55" y="774" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">  epics, ticks, state</text>
+<text x="55" y="800" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.tick/config.md</text>
+<text x="55" y="826" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.tick/profile.md</text>
+<text x="55" y="852" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.tick/learnings.md</text>
+<text x="55" y="878" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">.tick/learnings-ref.md</text>
+<text x="55" y="915" font-size="17" fill="#55555a">config is yours; profile and learnings</text>
+<text x="55" y="938" font-size="17" fill="#55555a">are the engine's</text>
+<rect x="430" y="640" width="380" height="325" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="450" y="680" font-size="28" font-weight="bold" fill="#111111">Code</text>
+<text x="450" y="708" font-size="18" fill="#55555a">isolated, then merged</text>
+<text x="450" y="748" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">git worktree</text>
+<text x="450" y="774" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">git branch</text>
+<text x="450" y="812" font-size="18" fill="#55555a">one per tick, or per chain of ticks</text>
+<text x="450" y="872" font-size="17" fill="#55555a">implementers write code here and never</text>
+<text x="450" y="895" font-size="17" fill="#55555a">touch the tracker. Worktrees and</text>
+<text x="450" y="918" font-size="17" fill="#55555a">branches stay until the final review</text>
+<text x="450" y="941" font-size="17" fill="#55555a">is done.</text>
+<rect x="825" y="640" width="380" height="325" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="845" y="680" font-size="28" font-weight="bold" fill="#111111">Views</text>
+<text x="845" y="708" font-size="18" fill="#55555a">to look at, not to edit</text>
+<text x="845" y="748" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tk roadmap</text>
+<text x="845" y="774" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tk board</text>
+<text x="845" y="800" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tk graph &lt;epic&gt;</text>
+<text x="845" y="826" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">tk next &lt;epic&gt;</text>
+<text x="845" y="872" font-size="17" fill="#55555a">roadmap shows epics in waves; graph</text>
+<text x="845" y="895" font-size="17" fill="#55555a">shows ticks in waves; next gives the</text>
+<text x="845" y="918" font-size="17" fill="#55555a">next action</text>
+<rect x="1220" y="640" width="385" height="325" rx="14" fill="#ffffff" stroke="#b0b0b0" stroke-width="2"/>
+<text x="1240" y="680" font-size="28" font-weight="bold" fill="#111111">Reports</text>
+<text x="1240" y="708" font-size="18" fill="#55555a">prose, written by the loop</text>
+<text x="1240" y="748" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">retro report</text>
+<text x="1240" y="774" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">completion report</text>
+<text x="1240" y="820" font-size="17" fill="#55555a">the retro report comes at each epic</text>
+<text x="1240" y="843" font-size="17" fill="#55555a">close-out; the completion report</text>
+<text x="1240" y="866" font-size="17" fill="#55555a">comes at a project checkpoint. Where</text>
+<text x="1240" y="889" font-size="17" fill="#55555a">they are kept is set in the config.</text>
+<path d="M215 559 L215 636" fill="none" stroke="#b45309" stroke-width="3"/>
+<polygon points="215,636 207,620 223,620" fill="#b45309"/>
+<path d="M591 559 L591 636" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="591,636 583,620 599,620" fill="#555555"/>
+<path d="M1315 559 L1315 636" fill="none" stroke="#555555" stroke-width="3"/>
+<polygon points="1315,636 1307,620 1323,620" fill="#555555"/>
+<path d="M1503 559 L1503 636" fill="none" stroke="#b45309" stroke-width="3"/>
+<polygon points="1503,636 1495,620 1511,620" fill="#b45309"/>
+</svg>
