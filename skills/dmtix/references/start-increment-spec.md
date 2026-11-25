@@ -23,10 +23,26 @@ not duplicate its logic here.
 
 ## Step 1 — Increment id
 
-Read `.devmeta/current-increment.md`. Parse the active line's leading integer (0 if
-placeholder), add 1 → `<NN>`. Generate a 3-letter random suffix `<xxx>` from [a-z]
-(collision-proofing for parallel branches). Increment id = `<NN>-<xxx>`; directory =
-`.devmeta/increments/increment-<NN>-<xxx>/`.
+Read `.devmeta/current-increment.md`.
+
+**An id that exists already is used, not replaced.** Two cases, checked in this order; say in
+one line which id is used and why:
+- the human names an id, as an argument or in words: use it as given. If the active line
+  names a different increment that has not started, say that too: the seat's table carries
+  that one.
+- the active line names an increment whose status is `NOT STARTED` and which has no directory
+  under `.devmeta/increments/` (also when that folder does not exist yet): a stream's cut
+  wrote it (`streams` → `cut`), and the seat's table already carries it. Use that id as it is,
+  in whatever form it has (`<NN>s<k>-<xxx>` or `<NN>-<xxx>`).
+
+Otherwise make a new one: parse the active line's leading integer (0 if it names no
+increment, as in "none"), add 1 → `<NN>`, two digits. Generate a 3-letter random suffix `<xxx>` from [a-z] (collision-proofing for
+parallel branches). Increment id = `<NN>-<xxx>`.
+
+Directory = `.devmeta/increments/increment-<id>/`.
+
+(2026-11-25) a stream cut for a discussion had its id on the Active line; a bare `start`
+afterwards made a second id, and the seat's row named one the records did not have.
 
 ## Step 2 — Interactive scope dialogue
 
