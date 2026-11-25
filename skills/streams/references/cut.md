@@ -24,9 +24,8 @@ streams cut on one day is normal, so the date is the least distinguishing part. 
 three date-first branches were identical for eleven characters in a sidebar that truncated
 there — existing streams were not renamed; the convention changed for the next cut.
 
-Default `--from mainline` when the table has a mainline row: cut from the mainline's branch tip
-so the stream has the current tree. With no mainline row, and with `--from trunk`: from the trunk.
-`--from trunk` (the trunk, `coord.py config --get trunk`) when the stream must not carry
+Default `--from mainline`: cut from the mainline's branch tip so the stream has the current
+tree; with no mainline row, from the trunk. `--from trunk` (the trunk, `coord.py config --get trunk`) when the stream must not carry
 the mainline's unfinished work.
 
 **A research stream** (its session leads a program under `research-loop`) has no increment
@@ -35,35 +34,26 @@ differences.
 
 ## Step 0 — A stream, unless the human asks for the mainline
 
-**A cut makes a stream.** That is the normal case: id `<NN>s<k>-<xxx>`, the lowest free share
-of each resource, no deploy host. It needs no question, except in the one case under *The one question*, below.
+**A cut makes a stream:** id `<NN>s<k>-<xxx>`, the lowest free share of each resource, no
+deploy host. No question.
 
-**The mainline is the exception, and the human asks for it by name** ("cut the mainline", "the
-main line of increments, in a worktree"). A project has one at most: the stream that carries
-its main sequence of increments. Id `<NN>-<xxx>`; the mainline's resources; it owns any deploy
-host. The main checkout then stays on the trunk driving nothing. Say that in the table's
-header — **a session sitting in the main checkout is the thing a seat will mistake for the
-mainline**, and the mistake is silent.
+**The mainline is the exception, and the human asks for it by name.** A
+project has one at most: the stream that carries its main sequence of increments. Id
+`<NN>-<xxx>`; the mainline's resources; it owns any deploy host. The main checkout then stays
+on the trunk driving nothing. Say that in the table's header — **a session sitting in the main
+checkout is the thing a seat will mistake for the mainline**, and the mistake is silent.
 
-**The one question: ask only where the kind changes something real and nobody has said.** All
-three must hold. (1) The project deploys somewhere: `coord.py config` shows a `## Resources`
-line about a place it deploys to (a host, a server, staging, production), or the project file
-has an `## At hotfix` section at all. (2) `coord/streams.md` has no mainline row: read the
-table now for this; Step 1 reads it again for the claims. (3) The human's words do not name
-the kind. Then ask one question, yes or no: *"Is this the project's mainline? It would own the deploy host."* In every other
-case do not ask, and do not mention the mainline: a project without a deploy host never meets
-the word.
+**The one question.** Ask *"Is this the project's mainline? It would own the deploy host."*
+only when all three hold: (1) the project deploys somewhere: `coord.py config`
+shows a `## Resources` line about a place it deploys to (a host, staging,
+production), or the project file has an `## At hotfix` section; (2) `coord/streams.md` has no
+mainline row; (3) the human did not name the kind. Otherwise do not ask, and do
+not mention the mainline. Never infer a mainline from the task's size or wording.
 
-Never infer a mainline from the size or the wording of the task: only from the human naming it.
-
-- (2026-09-21) "a worktree to work through the issues" on an empty machine meant the mainline,
-  which the defaults made a stream — so the rule became *ask whenever the table has no mainline
-  row*.
-- (2026-11-25) that rule asked at every cut in repositories that will never have a mainline,
-  and "side stream or mainline" read as two equal kinds (the human: *"It is a normal stream.
-  that is the whole concept"*). A stream cut by default holds less than a mainline (no host),
-  so the default errs on the safe side: the question is kept only where a deploy host is at
-  stake.
+- (2026-09-21) "a worktree to work through the issues" meant the mainline and got a stream's
+  defaults, so the rule became *always ask*.
+- (2026-11-25) that asked at every cut where there will never be a mainline. A stream holds
+  less (no host), so the default is the safe side.
 
 ## Step 1 — Read the table, claim what the project names
 
@@ -195,10 +185,9 @@ Open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr other
 name this pane (`coord.py seat --here`), or a stream's `OWED` line reaches nobody. With `hc`
 and the herdr-app window, give no `--workspace`: a space opened on a worktree nests by itself
 under the space whose first terminal sits in the main checkout. **When the window runs on
-another machine** (the herdr-app window on Windows with herdr-core inside WSL, or a laptop
-connected over ssh), no `herdr-app` command exists here: `term.py start` then starts the session
-with the window's two placement labels, and the window shows it as a new space named after the
-worktree's folder (`<repo>-<slug>`), not after the stream; tell the human that name. A session in a folder
+another machine** (Windows with herdr-core inside WSL, or over ssh), the window shows the
+session as a new space named after the worktree's folder (`<repo>-<slug>`): tell the human
+that name. A session in a folder
 Claude Code does not trust yet stops at its trust question (`wait` says stopped, `send` is
 refused as blocked): the human answers it in that pane, never the seat. Three steps, each
 checked before the next:
