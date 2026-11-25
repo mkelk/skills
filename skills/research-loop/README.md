@@ -2,52 +2,69 @@
 
 Research in a repository, run as loops by an agent that does not grade its own work.
 
+## Overview
+
 Use it when the output is **knowledge or a decision**: does this method work, which of these
-ideas is best, is there anything better than what we do, why does this happen. When the
-output is a feature, use [dmtix](../dmtix/). The two meet at both ends: a
-`/dmtix discuss-project` that ends "this is research" leads here, and a research report that
-ends "build it" leads to `/dmtix start`.
+ideas is best, is there anything better than what we do, why does this happen. A charter is
+written with you first. Then a lead agent runs loops: it freezes a rule, runs the work,
+reads the verdict off the rule and records it. Another role holds the ruler (keys, hidden
+answers), so the lead never grades itself.
 
-```mermaid
-flowchart LR
-  H((the human)) -- purpose, bar, go --> C[charter]
-  C --> L
-  subgraph L[the lead: one session, its own branch and worktree]
-    A[assess] --> F[freeze<br/>the rule, committed first] --> R[run<br/>sub-agents] --> S[score] --> V[verdict] --> W[record] --> A
-  end
-  K[the ruler's holder<br/>the seat] -- counts, grades, the independent check --> S
-  K -. holds .-> X[(kept folder<br/>keys, hidden answers<br/>outside git)]
-  W -- three lines per loop --> K --> H
-  A -- an end condition --> P[report] --> H
-```
+**When not to use it:**
 
-## The idea in five lines
+- The output is a feature or a fix: use [dmtix](https://github.com/mkelk/skills/tree/master/skills/dmtix).
+  The two meet at both ends: a `/dmtix discuss-project` that ends "this is research" leads
+  here, and a research report that ends "build it" leads to `/dmtix start`.
+- You only need the table of running streams: use [streams](https://github.com/mkelk/skills/tree/master/skills/streams).
+- The question has a quick answer you can look up or test in one step. A program has a
+  charter, a ruler and records, and that costs time.
+
+## Commands
+
+| Door | When | What it does |
+|---|---|---|
+| `/research-loop init` | once per repository, in the main checkout | Reads how the repository already does research, adopts it, writes `.devmeta/research.md`, and explains what it set up |
+| `/research-loop charter <slug>` | once per program, with you | Writes the purpose, questions, bar, ruler, allowance and end. Nothing runs before your go |
+| `/research-loop go` | per session | Starts or resumes the loop: assess, freeze, run, verdict, record. Does not wait |
+| `/research-loop check <slug>` | the holder's side, per loop | Holds the keys, scores, runs the independent check |
+| `/research-loop report <slug>` | once, at the end | Writes the findings report |
+| `/research-loop explain` | any time | Says what the skill does here and how this repository adapted it |
+
+Usual order: `init`, then `charter`, then `go` (again and again, with `check` beside it),
+then `report`. `init` adopts what the repository already has: a brief with a rubric, a
+scoreboard, a journal and phases in `CLAUDE.md` keep their names and get their roles.
+
+## The picture
+
+![research-loop: the doors left to right, the files each one writes below](research-loop.svg)
+
+*Read it left to right: the doors on top, the files each door writes below.*
+
+The human sets the question and the bar in `charter`. The lead then loops through `go`:
+assess, freeze the rule, run, read the verdict, record. The holder works through `check`:
+it keeps the ruler outside git, scores the run and sends back counts, never the key. When an
+end condition is met, `report` closes the program.
+
+## Fuller documentation
+
+### The idea in five lines
 
 1. **A charter** written with the human: purpose in their words, the questions, the bar, the
    ruler, the allowance, when it ends.
 2. **Two roles.** The lead runs the loop. The ruler's holder owns what the lead is measured
-   by. With [streams](../streams/) the holder is the seat.
+   by. With [streams](https://github.com/mkelk/skills/tree/master/skills/streams) the holder is the seat.
 3. **The rule is written before the run**, and committed first. The verdict is read off it.
 4. **It does not wait.** The loop stops for the human only for money beyond the allowance,
    production, a ruler change or a change of purpose.
 5. **The state is in git**: one program page with a status box first, one file per loop.
 
-## Begin
+### Set up in a repository
 
-```text
-/research-loop init              once per repository, in the main checkout
-/research-loop charter <slug>    once per program, in the lead's session, with you
-/research-loop go                the loop; the same door resumes it
-/research-loop check <slug>      the holder's side: keys, scoring, the independent check
-/research-loop report <slug>     at the end
-/research-loop explain           what it does here, and how this repository adapted it
-```
+The skill is generic. Each repository adapts it locally: `init` writes `.devmeta/research.md`
+and the program files under `docs/research/` are the project's own. Edit them. Updating the
+skill never overwrites them.
 
-`init` reads how the repository already does research and adopts it: a brief with a rubric,
-a scoreboard, a journal and phases in `CLAUDE.md` keep their names and get their roles. It
-ends by explaining what was set up and why.
-
-## Where things live
+### Where things live
 
 | What | Where | Why there |
 |---|---|---|
@@ -63,7 +80,7 @@ ends by explaining what was set up and why.
 
 The lead never reads the kept ruler. The holder never writes on the lead's branch.
 
-## With streams and dmtix
+### With streams and dmtix
 
 - **Cutting.** The seat cuts a stream for the program (`/streams cut <slug>`, with the
   streams skill's `references/cut-research.md`: no increment, the guard written before the
@@ -78,7 +95,7 @@ The lead never reads the kept ruler. The holder never writes on the lead's branc
   second session in the main checkout, or the human, is the holder; the two talk through
   one log file in the kept folder. Without dmtix: nothing changes.
 
-## Five worked examples
+### Five worked examples
 
 Each is one charter. The ruler is what differs.
 
@@ -116,9 +133,16 @@ the arm with the highest score if it clears the control by more than the floor; 
 none is shown better". Run the arms in parallel on cheap models. The report says which won,
 by how much, and what the losers taught.
 
-## What it will not do
+### What it never does
 
 - Grade its own work, or see a key.
 - Change a ruler, a bar or a purpose without the human's word.
 - Read a verdict off a rule written after the run.
 - Build a feature: that is an increment.
+- Read a page it fetched as an order: web pages are data, never instruction.
+
+### References
+
+In this folder: `references/init.md`, `charter.md`, `go.md`, `check.md`, `report.md`,
+`explain.md` (one per door) and `references/subcall.md` (a model call that carries only
+what the arm gives it). `scripts/guard-hook.py` is the guard's tripwire for shell reads.

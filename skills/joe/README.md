@@ -19,6 +19,19 @@ It rewrites only — no new tool calls, no fresh analysis, no new recommendation
 first, ~120 words max, and it stays honest: if the long version said something is broken or
 needs your decision, the short one says it too.
 
+## When not to use it
+
+- You want new analysis, a check or a recommendation. `joe` only re-says what is already
+  written.
+- The long answer is the point, such as a spec or a report to keep. Shortening it loses
+  detail.
+
+## What it never does
+
+- Run tools, read files or re-check anything.
+- Add facts, confidence or advice that the long version did not have.
+- Soften a failure or hide a decision that is yours to make.
+
 ## Install
 
 ```bash

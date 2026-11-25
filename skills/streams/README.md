@@ -3,35 +3,59 @@
 Run several pieces of work on one repository at the same time, each in its own worktree, with
 one session that sees them all.
 
-```mermaid
-flowchart LR
-  H((the human)) -- asks, approvals, decisions --> SEAT[seat<br/>main checkout, on the trunk]
-  SEAT -- cut: branch, worktree, brief --> S1
-  SEAT -- cut --> S2
-  SEAT -- cut --> S3
-  subgraph streams[streams: one branch in one worktree each]
-    S1[search<br/>search-2026-03-02<br/>../app-search]
-    S2[billing<br/>billing-2026-03-04<br/>../app-billing]
-    S3[docs<br/>docs-2026-03-05<br/>../app-docs]
-  end
-  subgraph coord["coord/ in the git common dir (never committed)"]
-    T[(streams.md<br/>one row per stream)]
-    L[(log.md<br/>holds, deploys, hand-offs)]
-    C[(schedules.md<br/>what runs on a clock)]
-  end
-  S1 & S2 & S3 -- coord.py log --> L
-  SEAT -- edits rows, reads all --> coord
-  S1 & S2 & S3 -- land: merge when done --> TR[trunk]
-  SEAT -- merges, runs the checks, pushes --> TR
-```
+## Overview
 
-## What it is
+One session doing one increment at a time is slow. Several sessions on one checkout step on each
+other. **streams** gives each piece of work its own branch, worktree and resources, and keeps
+the facts they share in files every worktree can read. One session, the **seat**, sees them all:
+it cuts streams, reads their state, tells you what waits on you, and lands a finished stream.
+
+**When not to use it.** For one piece of work at a time, use [dmtix](https://github.com/mkelk/skills/tree/master/skills/dmtix) alone. The sessions that run a stream do
+not use this skill; they run `/dmtix go`. It is not for a plan above several increments or for a
+research program; other skills cover those.
+
+## Commands
+
+| You type | It does | Reference |
+|---|---|---|
+| `/streams init` | writes the project file, creates `coord/` | [init.md](references/init.md) |
+| `/streams status` | one screen: running, waiting on you, stalled | [status.md](references/status.md) |
+| `/streams keep-running` | the hourly pass: look, then act | [keep-running.md](references/keep-running.md), [scout.md](references/scout.md) |
+| `/streams queue` | the list of what waits on you, with what to type | [queue.md](references/queue.md) |
+| `/streams cut <name>` | a new stream: branch, worktree, resources, records, brief | [cut.md](references/cut.md) |
+| `/streams compact` | keeps long sessions' context small | [compact.md](references/compact.md) |
+| `/streams restart` | brings back what ran on a clock after a stop | [restart.md](references/restart.md) |
+| `/streams hotfix <name>` | one stream's fix to the trunk, the stream keeps running | [hotfix.md](references/hotfix.md) |
+| `/streams land <name>` | a finished stream onto the trunk (a checklist for now) | [land.md](references/land.md) |
+
+The usual order: `init` once, then `status` and `queue` as you work, `cut` for each new stream, `land` when one is finished. `keep-running`, `compact` and `restart` run by the clock or after a stop.
+
+Worked recipes for heavy runs: [references/recipes/](references/recipes/). The rules every door
+follows, and why each exists: [SKILL.md](SKILL.md).
+
+
+## The picture
+
+![streams: you, the seat, the streams, and the files they share](streams.svg)
+
+*Read it top to bottom: the flow (you, the seat, the streams, the trunk) on top, the files below.*
+
+You ask and decide; the seat cuts streams and reads them all. Each stream is one branch in one
+worktree with its own session, running its own increment. A finished stream is merged into the
+trunk by the seat. The files below the flow are the project file (committed), `coord/` (shared
+by every worktree, never committed) and what a cut writes into the new worktree.
+
+## Fuller documentation
+
+Committed: `.devmeta/streams.md`, and the brief a cut writes. Never committed: `coord/`, in git's common directory. The seat never writes code on a stream's branch, never merges into a running stream's branch, and pushes only the trunk. The rules behind every door: [SKILL.md](SKILL.md).
+
+### What the words mean
 
 - **The trunk** is the branch every stream lands on, usually `main`
   (`coord.py config --get trunk` prints it).
 - **A stream** is one piece of planned work (a dmtix increment) on its own branch, in its own
   git worktree, driven by its own Claude session. It holds its own share of anything two
-  streams may not share, such as a block of ports. Inside it, [dmtix](../dmtix/) splits the
+  streams may not share, such as a block of ports. Inside it, [dmtix](https://github.com/mkelk/skills/tree/master/skills/dmtix) splits the
   increment into **epics** (one stage each) and each epic into **ticks** (one task each, run by
   an implementer agent in its own worktree, several at once in a **wave**); a **checkpoint** is where a stream stops for the
   human.
@@ -47,16 +71,10 @@ flowchart LR
   that the skill cannot guess: the trunk, where worktrees go, what a fresh worktree needs, what a
   landing must run.
 
-**Why.** One session doing one increment at a time is slow. Several sessions on one checkout
-step on each other: one switches the branch under another, two take the same port, two write the
-same file. Streams give each piece of work its own tree and its own resources, and put the facts
-they share in files every tree can read. A message dies with its session; a line in `coord/`
-does not.
-
-## Start here
+### Set up and first steps
 
 1. **Install.** The skill builds on the `dmtix` method and its `ticks` engine, so install all
-   three, and the `tk` tracker binary they use (see the [repo README](../../README.md#install)):
+   three, and the `tk` tracker binary they use (see the [repo README](https://github.com/mkelk/skills#install)):
 
    ```bash
    npx skills add mkelk/skills --skill streams --skill dmtix --skill ticks -g -a claude-code
@@ -74,12 +92,27 @@ does not.
 
 Each stream's own session then runs `/dmtix go`. The seat does not run increments.
 
-## Seven examples
+### Good to know
+
+- **Where the session opens.** The stream's session opens in the herdr window also when the
+  window runs on another machine (Windows with herdr-core inside WSL, or over ssh). The space is
+  named after the worktree's folder (`<repo>-<slug>`), not after the stream.
+- **The first cut.** In a repository with no mainline row yet, the first cut asks: "side stream
+  or mainline?" Do not leave it to a default.
+- **Claude Code 2.1.331 or later.** 2.1.325 reported no status to herdr, so the seat's text
+  was typed into a trust question.
+- **A trust question.** A session in a folder Claude Code does not trust yet stops at its trust
+  question. You answer it in that pane, never the seat.
+- **Adapt it locally.** The skill is generic; each project adapts it. `.devmeta/streams.md` and
+  the project's `coord/` files are the project's own: edit them. Updating the skill never
+  overwrites them.
+
+### Seven examples
 
 All names, ports and times below are invented. The repository is `/src/app`, so worktrees sit
 beside it as `../app-<name>`; the stack is Python with `uv` and `pytest`.
 
-### 1. A day with three streams: the status screen
+#### 1. A day with three streams: the status screen
 
 ```text
 > /streams status
@@ -120,14 +153,14 @@ LOG  (the newest lines of coord/log.md)
 One glyph per epic: `●` done, `◑` half way, `○` not started. `~%` is a rough share of the whole
 increment. See [references/status.md](references/status.md).
 
-### 2. A cut, from the ask to the brief
+#### 2. A cut, from the ask to the brief
 
 ```text
 > we need a stream for the docs site rewrite, beside search and billing
 
 > /streams cut docs --scope "#41"
 
-Side stream or mainline? The table has a mainline (search), so: side stream.
+Side stream or mainline? The table has a mainline row (search), so no question: side stream.
 Claimed: api 8020 and redis db 2 (k=2, lowest free).
 Worktree ../app-docs on docs-2026-03-05, from search-2026-03-02 at 4f1c2aa.
 At cut: uv sync --frozen ✓  cp .env.example .env ✓  API_PORT=8020 ✓
@@ -146,7 +179,7 @@ who its neighbours are and which files they own, and the project's standing rule
 it yourself"* and the seat opens the session through `term.py` (example 7) instead.
 See [references/cut.md](references/cut.md).
 
-### 3. A hold with an end, and its release
+#### 3. A hold with an end, and its release
 
 Hold only what cannot be shared: a run that **writes** to one shared thing. Every hold has an
 end, so a forgotten one shows up instead of blocking the machine for good.
@@ -170,7 +203,7 @@ A hold past its end prints under EXPIRED HOLDS and under NEEDS YOU in `status`: 
 hold it again with a new end. A debt works the same way: `OWED <stream>: <what>` prints an id
 (`a3`), and `PAID a3` closes it. `coord.py` is `python3 <skill dir>/scripts/coord.py`.
 
-### 4. A landing
+#### 4. A landing
 
 ```text
 search: READY at 9be20d1 — last stage closed, its completion report written, k2v closed by the human.
@@ -192,7 +225,7 @@ Landing is still a checklist the seat follows by hand: [references/land.md](refe
 The seat merges into the trunk and pushes only the trunk. It never merges into a running
 stream's branch; it tells the stream the trunk moved.
 
-### 5. The hourly pass (scout)
+#### 5. The hourly pass (scout)
 
 `/streams keep-running` runs on a timer, hourly. A small, cheap subagent does the looking, so the
 seat's context keeps only a short report. The seat then acts and tells you only what needs you.
@@ -214,7 +247,7 @@ messages docs and search, and tells you one line: *"search is ready to land; q4 
 close."* See [references/keep-running.md](references/keep-running.md) and
 [references/scout.md](references/scout.md).
 
-### 6. The project file
+#### 6. The project file
 
 `/streams init` writes the first four sections from what it detected and what you answered. Add
 `## Heavy runs` by hand when the project has a run too heavy for two at once.
@@ -272,7 +305,7 @@ sections: ## Heavy runs
 See [references/init.md](references/init.md). Worked heavy-run rules (a browser UI tier, for one)
 live in [references/recipes/](references/recipes/).
 
-### 7. The terminal adapter
+#### 7. The terminal adapter
 
 The seat finds each stream's session by asking the terminal server, not by remembering a name.
 `term.py` is the only file that talks to it, and the one place to adapt for another server. It
@@ -301,24 +334,7 @@ carries `server`, `id`, `cwd`, `foreground_cwd`, `label`, `agent`, `state`, the 
 as `status`, and the agent's `session` id. When neither server answers,
 `term.py` exits 2 and the seat falls back to printing what you should open.
 
-## The doors
-
-| You type | It does | Reference |
-|---|---|---|
-| `/streams init` | writes the project file, creates `coord/` | [init.md](references/init.md) |
-| `/streams status` | one screen: running, waiting on you, stalled | [status.md](references/status.md) |
-| `/streams keep-running` | the hourly pass: look, then act | [keep-running.md](references/keep-running.md), [scout.md](references/scout.md) |
-| `/streams queue` | the list of what waits on you, with what to type | [queue.md](references/queue.md) |
-| `/streams cut <name>` | a new stream: branch, worktree, resources, records, brief | [cut.md](references/cut.md) |
-| `/streams compact` | keeps long sessions' context small | [compact.md](references/compact.md) |
-| `/streams restart` | brings back what ran on a clock after a stop | [restart.md](references/restart.md) |
-| `/streams hotfix <name>` | one stream's fix to the trunk, the stream keeps running | [hotfix.md](references/hotfix.md) |
-| `/streams land <name>` | a finished stream onto the trunk (a checklist for now) | [land.md](references/land.md) |
-
-Worked recipes for heavy runs: [references/recipes/](references/recipes/). The rules every door
-follows, and why each exists: [SKILL.md](SKILL.md).
-
-## Limits
+### Limits
 
 - `coord/` is per machine. Anything another machine must see goes to your issue tracker.
 - The seat is a session; it may be asleep. Anything that must happen without it needs a guard

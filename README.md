@@ -7,9 +7,10 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
 
 - **[dmtix](skills/dmtix/)** — devmeta-on-ticks. A delivery method (interactive increment
   scoping → autonomous walk-away run → durable narrative records) on top of the **ticks**
-  engine below. Invoked with an argument: `/dmtix bootstrap | start | go`.
+  engine below. Invoked with an argument: `/dmtix bootstrap | start | go`. Start at
+  **[skills/dmtix/README.md](skills/dmtix/README.md)**.
 
-- **[ticks](skills/ticks/)** — the engine dmtix runs on: plans an epic into ticks, runs them
+- **[ticks](skills/ticks/README.md)** — the engine dmtix runs on: plans an epic into ticks, runs them
   as parallel or warm-chained agents in their own worktrees, gates each tick and each wave,
   reviews, retros, and resumes from the tracker after any stop. Works the `tk` tracker,
   whose binary comes from [`pengelbrecht/ticks`](https://github.com/pengelbrecht/ticks). It
@@ -45,14 +46,38 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
 
 - **[joe](skills/joe/)** — type `/joe` after a long agent answer and get the same thing back
   short and in plain English: bottom line first, no hedging, no jargon, no tech-legalese.
-  Rewrite only — it does no new work.
+  Rewrite only — it does no new work. See [skills/joe/README.md](skills/joe/README.md).
 
 - **[herdr-reload](skills/herdr-reload/)** — after a Claude Code update, `/herdr-reload` moves
   the sessions already running in your herdr-app (hc) or herdr terminals, here and on connected
   machines, onto the new binary. Each idle session on an old version gets `/exit` and then
   `claude --resume` of the same session. Dry run first; busy sessions are never interrupted.
   `/herdr-reload force` skips the confirmation and queues a restart note to each busy
-  session's agent instead.
+  session's agent instead. See [skills/herdr-reload/README.md](skills/herdr-reload/README.md).
+
+## Which skill when
+
+| You want to... | Use |
+| --- | --- |
+| Build one feature or fix as an increment: scope it, run it, keep records | **dmtix** |
+| Work the tick tracker: plan an epic, run ticks, resume after a stop | **ticks** (dmtix runs on it) |
+| Coordinate several dmtix increments that run side by side | **streams** |
+| Plan above the increments, for pieces that several streams build together | **roadmap** (beside streams) |
+| Answer a question whose answer is knowledge or a decision, not a feature | **research-loop** |
+
+How they hand over: dmtix runs on ticks, so every increment is an epic of ticks. When more
+than one increment runs at once, the streams seat coordinates them, and roadmap sits beside
+streams for plans that cross streams. A research-loop usually runs as a stream beside the
+dmtix increments: `/dmtix discuss-project` can hand over to it, and its report hands back to
+`/dmtix start`.
+
+The skills are generic. Each project adapts them locally: the files a skill writes into your
+repository are yours to edit, and updating the skill never overwrites them.
+
+The pictures (one per skill, flow on top, files below):
+[dmtix](skills/dmtix/dmtix.svg), [streams](skills/streams/streams.svg),
+[research-loop](skills/research-loop/research-loop.svg), [ticks](skills/ticks/ticks.svg).
+Regenerate them with `python3 diagrams/build.py`.
 
 ## Install
 
