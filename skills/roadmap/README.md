@@ -33,6 +33,15 @@ It is for the seat only, and it needs the streams skill's `coord/` folder.
 The usual order: `new` once, `update` as streams report, `status` whenever you ask where it
 stands, `review` at a checkpoint, and `decide` after each decision.
 
+## What it asks, and when it stops
+
+- **It asks only where the plan needs your word:** `new` asks for the name and the pieces; `decide`
+  asks for your decision in your own words (it records them with the date); `review` ends with a
+  recommendation and waits for your answer. Everything else it reads and shows.
+- **It stops after each command.** There is no run: `status` and `review` only look, `update` writes
+  one row, `decide` writes one decision. It never starts, merges or changes a stream.
+- A name it does not know, or a stream that has not reported, is shown as "unknown", not guessed.
+
 ## Where things live
 
 | What | Where | Committed? |

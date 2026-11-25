@@ -32,6 +32,16 @@ The usual order:
 5. Answer what waits for you (`tk approve`, `tk reject`, `tk note`).
 6. At the end the close-out checks the epic against its definition of done and plans the next epic.
 
+## What it asks, and when it stops
+
+- **It asks before it plans:** what is unclear in your idea, what is in scope, and what "done"
+  means for the epic. It also asks how far the run should go: one epic, one project, or the whole roadmap.
+- **It asks during a run only through ticks that wait for you:** work only a human can do, an approval,
+  or an input. They show in `tk list --awaiting=`; the run goes on with everything else.
+- **It stops at a project checkpoint**, at a tick that waits for you, or at a real blocker (a failing
+  wave gate it cannot repair). Between epics of one project it keeps going by itself.
+- **It never changes the roadmap on its own:** adding, removing or reordering epics is your decision.
+
 ## The picture
 
 ![ticks: one loop per epic. Flow on top, left to right, from Roadmap through Plan, Waves, Merge, Final review and Close-out to a Checkpoint.](ticks.svg)
