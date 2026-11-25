@@ -23,7 +23,7 @@ research program (use the [research-loop](https://github.com/mkelk/skills/tree/m
 | `/streams keep-running` | the hourly pass: look, then act | [keep-running.md](references/keep-running.md), [scout.md](references/scout.md) |
 | `/streams queue` | the list of what waits on you, with what to type | [queue.md](references/queue.md) |
 | `/streams explain` | says what is set up here and why; writes nothing | [init.md](references/init.md) (step 6) |
-| `/streams cut <name> [--from mainline\|trunk] [--scope …]` | a new stream: branch, worktree, resources, records, brief | [cut.md](references/cut.md) |
+| `/streams cut <name> [--scope …]` | a new stream: branch, worktree, resources, records, brief | [cut.md](references/cut.md) |
 | `/streams compact` | keeps long sessions' context small | [compact.md](references/compact.md) |
 | `/streams restart` | brings back what ran on a clock after a stop | [restart.md](references/restart.md) |
 | `/streams hotfix <name>` | one stream's fix to the trunk, the stream keeps running | [hotfix.md](references/hotfix.md) |
@@ -97,8 +97,8 @@ Each stream's own session then runs `/dmtix go`. The seat does not run increment
 - **Where the session opens.** If the herdr-app window runs on another machine (Windows with
   herdr-core in WSL, or over ssh), the session still opens there. It gets its own space, named
   after the worktree's folder (`<repo>-<slug>`).
-- **The first cut.** In a repository with no mainline row yet, the first cut asks: "side stream
-  or mainline?" Do not leave it to a default.
+- **A cut makes a stream.** It asks nothing in the normal case. It asks one yes-or-no
+  question only when the project may have a deploy host and no main line of work yet.
 - **Claude Code 2.1.331 or later.** Version 2.1.325 did not report its status to herdr. The seat
   then typed its text into a trust question.
 - **A trust question.** A session in a folder Claude Code does not trust yet stops at its trust
@@ -159,7 +159,7 @@ increment. See [references/status.md](references/status.md).
 
 > /streams cut docs --scope "#41"
 
-A stream beside the mainline (search); nothing to ask.
+A stream; nothing to ask.
 Claimed: api 8020 and redis db 2 (k=2, lowest free).
 Worktree ../app-docs on docs-2026-03-05, from search-2026-03-02 at 4f1c2aa.
 At cut: uv sync --frozen ✓  cp .env.example .env ✓  API_PORT=8020 ✓

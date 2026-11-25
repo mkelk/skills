@@ -3,7 +3,7 @@ from svgkit import Canvas, T
 
 c = Canvas(1640, 1010, "streams: one seat, many streams",
            "Top: you talk to the seat in the main checkout. The seat cuts streams, each a branch in its own "
-           "worktree run by its own session as a dmtix increment: one mainline and side streams. Streams land "
+           "worktree run by its own session as a dmtix increment. Streams land "
            "on the trunk; for now the seat does the landing by hand and pushes on your word. Below: the "
            "artefacts. The project file .devmeta/streams.md and each stream's brief and records are committed; "
            "coord/ in the git common dir (streams table, log, schedules, asks) is never committed.")
@@ -33,17 +33,17 @@ c.lines(SX + 22, TOP + 130, ["cut: branch, worktree,", "brief, a row in the tabl
                               "stalled, from files", "keep-running: hourly pass", "land: merge, check, push"],
         size=21, lh=32)
 c.box(SX + 16, TOP + 336, SW - 32, 84, stroke=YOU, fill=T["bg"], rx=10, sw=2, dash="8 6")
-c.text(SX + 30, TOP + 366, "First cut? It asks you:", size=20, weight="bold", fill=YOU)
-c.text(SX + 30, TOP + 396, "side stream or mainline?", size=22, fill=YOU)
+c.text(SX + 30, TOP + 366, "A cut makes a stream.", size=20, weight="bold", fill=YOU)
+c.text(SX + 30, TOP + 396, "It asks nothing.", size=22, fill=YOU)
 
 # streams
 XX, XW = 765, 470
 c.box(XX, TOP, XW, H, stroke=AG, fill=T["bg"], rx=16, sw=3)
 c.text(XX + 22, TOP + 48, "Streams", size=36, weight="bold", fill=ST)
 c.text(XX + 22, TOP + 82, "one branch, one worktree, one session each", size=20, fill=MU)
-for k, (nm, sub, br) in enumerate([("mainline", "the main line of work", "inc07-2026-03-02"),
-                                    ("side stream", "beside the mainline", "docs-2026-03-05"),
-                                    ("side stream", "beside the mainline", "billing-2026-03-04")]):
+for k, (nm, sub, br) in enumerate([("search", "a stream", "search-2026-03-02"),
+                                    ("docs", "a stream", "docs-2026-03-05"),
+                                    ("billing", "a stream", "billing-2026-03-04")]):
     yy = TOP + 110 + k * 108
     c.box(XX + 18, yy, XW - 36, 92, stroke=AG, fill=T["panel2"], rx=10)
     c.text(XX + 34, yy + 30, nm, size=22, weight="bold", fill=ST)
