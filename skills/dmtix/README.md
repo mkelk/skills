@@ -43,6 +43,10 @@ review it, smoke-test it and land it yourself; agents never merge to main. Not c
 with `/dmtix discuss-project`. The method lives in `.tick/config.md`, the records in
 `.devmeta/increments/`.
 
+The doors, and the files each one writes:
+
+![dmtix: the doors, one rhythm. The doors run left to right on top; the files each door writes are below.](dmtix.svg)
+
 ## Fuller documentation
 
 ### Dependency: the ticks engine
