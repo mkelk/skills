@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- dmtix: scope, run, checkpoint. Colors are the matte-black theme: accent #e68e0d = what you do, grey = what agents do. -->
+  <rect width="1920" height="1080" fill="#ffffff"/>
+
+  <g font-family="Calibri, 'Liberation Sans', Arial, sans-serif" fill="#222222">
+    <!-- title -->
+    <text x="960" y="100" font-size="64" font-weight="bold" text-anchor="middle" fill="#111111">dmtix: scope, run, checkpoint</text>
+    <text x="960" y="152" font-size="30" text-anchor="middle" fill="#55555a">You decide at the two ends. Agents do the middle, in parallel.</text>
+
+    <!-- legend -->
+    <circle cx="1560" cy="128" r="10" fill="#b45309"/>
+    <text x="1582" y="138" font-size="26" fill="#b45309">you</text>
+    <circle cx="1660" cy="128" r="10" fill="#222222"/>
+    <text x="1682" y="138" font-size="26">agents</text>
+
+    <!-- the track -->
+    <circle cx="70" cy="225" r="18" fill="#222222"/>
+    <line x1="88" y1="225" x2="1852" y2="225" stroke="#555555" stroke-width="8"/>
+    <polygon points="1850,203 1888,225 1850,247" fill="#222222"/>
+    <line x1="220" y1="233" x2="220" y2="285" stroke="#555555" stroke-width="3"/>
+    <line x1="960" y1="233" x2="960" y2="285" stroke="#555555" stroke-width="3"/>
+    <line x1="1700" y1="233" x2="1700" y2="285" stroke="#555555" stroke-width="3"/>
+
+    <!-- 1. SCOPE (you) -->
+    <rect x="40" y="285" width="360" height="615" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+    <text x="70" y="345" font-size="44" font-weight="bold" fill="#b45309">Scope</text>
+    <text x="70" y="388" font-size="26" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix start</text>
+    <text x="70" y="424" font-size="22" fill="#55555a">you decide, the engine drafts</text>
+    <g font-size="24">
+      <text x="70" y="490">goal and deliverables</text>
+      <text x="70" y="526">what is out of scope</text>
+      <text x="70" y="590">epics: the engine drafts,</text>
+      <text x="70" y="626">you ratify</text>
+      <text x="70" y="690">a definition of done</text>
+      <text x="70" y="726">for every epic</text>
+    </g>
+    <text x="70" y="835" font-size="24" font-weight="bold" fill="#b45309">&#8594; a roadmap + records</text>
+
+    <!-- 2. RUN (agents) -->
+    <text x="470" y="340" font-size="44" font-weight="bold" fill="#111111">Run</text>
+    <text x="580" y="340" font-size="26" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix go</text>
+    <text x="470" y="383" font-size="24" fill="#55555a">you start it, then walk away</text>
+
+    <rect x="455" y="405" width="1020" height="490" rx="40" fill="none" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="14 10"/>
+    <text x="485" y="440" font-size="22" fill="#55555a">for each epic, 1 to N</text>
+
+    <!-- plan -->
+    <rect x="465" y="470" width="313" height="360" rx="14" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+    <text x="490" y="525" font-size="36" font-weight="bold" fill="#111111">Plan</text>
+    <g font-size="24">
+      <text x="490" y="578">the epic is split into</text>
+      <text x="490" y="614">ticks; each one gets</text>
+      <text x="490" y="650">acceptance criteria,</text>
+      <text x="490" y="686">planned just in time</text>
+    </g>
+
+    <!-- waves -->
+    <rect x="803" y="470" width="313" height="360" rx="14" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+    <text x="828" y="525" font-size="36" font-weight="bold" fill="#111111">Waves</text>
+    <rect x="1050" y="496" width="46" height="7" rx="3" fill="#555555"/>
+    <rect x="1050" y="510" width="46" height="7" rx="3" fill="#555555"/>
+    <rect x="1050" y="524" width="46" height="7" rx="3" fill="#555555"/>
+    <g font-size="24">
+      <text x="828" y="578">chains of agents run</text>
+      <text x="828" y="614">in parallel, each in</text>
+      <text x="828" y="650">its own git worktree</text>
+      <text x="828" y="686">a tick gate per tick,</text>
+      <text x="828" y="722">merge, then a wave gate</text>
+    </g>
+
+    <!-- close-out -->
+    <rect x="1141" y="470" width="313" height="360" rx="14" fill="#f2f2f2" stroke="#555555" stroke-width="2"/>
+    <text x="1166" y="525" font-size="36" font-weight="bold" fill="#111111">Close-out</text>
+    <g font-size="24">
+      <text x="1166" y="578">final review of the</text>
+      <text x="1166" y="614">epic's whole diff</text>
+      <text x="1166" y="650">retro: what we learned</text>
+      <text x="1166" y="686">records and docs</text>
+    </g>
+
+
+    <g transform="translate(0 22)">
+    <!-- glyph: an epic splits into ticks -->
+    <g fill="none" stroke="#555555" stroke-width="2">
+      <rect x="546" y="716" width="150" height="28" rx="6"/>
+      <path d="M621 744 V756 M571 756 H671 M571 756 V768 M621 756 V768 M671 756 V768"/>
+      <rect x="553" y="768" width="36" height="22" rx="4"/>
+      <rect x="603" y="768" width="36" height="22" rx="4"/>
+      <rect x="653" y="768" width="36" height="22" rx="4"/>
+    </g>
+    <text x="621" y="737" font-size="18" text-anchor="middle" fill="#55555a">epic</text>
+
+    <!-- glyph: three parallel chains meeting at a gate -->
+    <g fill="none" stroke="#555555" stroke-width="2">
+      <rect x="830" y="744" width="30" height="12" rx="3"/><rect x="876" y="744" width="30" height="12" rx="3"/><rect x="922" y="744" width="30" height="12" rx="3"/>
+      <rect x="830" y="764" width="30" height="12" rx="3"/><rect x="876" y="764" width="30" height="12" rx="3"/><rect x="922" y="764" width="30" height="12" rx="3"/>
+      <rect x="830" y="784" width="30" height="12" rx="3"/><rect x="876" y="784" width="30" height="12" rx="3"/><rect x="922" y="784" width="30" height="12" rx="3"/>
+      <path d="M860 750 H876 M906 750 H922 M860 770 H876 M906 770 H922 M860 790 H876 M906 790 H922"/>
+      <path d="M952 750 H1000 M952 770 H1000 M952 790 H1000"/>
+    </g>
+    <rect x="1000" y="740" width="10" height="60" rx="3" fill="#555555"/>
+    <text x="1030" y="776" font-size="18" fill="#55555a">gate</text>
+
+    <!-- glyph: a check -->
+    <circle cx="1297" cy="752" r="32" fill="none" stroke="#555555" stroke-width="3"/>
+    <path d="M1281 752 L1292 764 L1315 738" fill="none" stroke="#555555" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    </g>
+
+    <!-- arrows between steps -->
+    <polygon points="782,590 799,602 782,614" fill="#222222"/>
+    <polygon points="1120,590 1137,602 1120,614" fill="#222222"/>
+
+    <!-- the loop back -->
+    <path d="M1297 830 V856 H621 V838" fill="none" stroke="#555555" stroke-width="3"/>
+    <polygon points="610,844 621,826 632,844" fill="#222222"/>
+    <text x="960" y="882" font-size="22" text-anchor="middle" fill="#55555a">next epic</text>
+
+    <!-- 3. CHECKPOINT (you) -->
+    <rect x="1520" y="285" width="360" height="615" rx="16" fill="#f7f7f7" stroke="#b45309" stroke-width="3"/>
+    <text x="1550" y="345" font-size="44" font-weight="bold" fill="#b45309">Checkpoint</text>
+    <text x="1550" y="388" font-size="26" fill="#222222">the run stops here</text>
+    <g font-size="24">
+      <text x="1550" y="490">a completion report</text>
+      <text x="1550" y="526">is waiting for you</text>
+      <text x="1550" y="590">you review it,</text>
+      <text x="1550" y="626">smoke-test the result</text>
+      <text x="1550" y="662">and land it yourself</text>
+      <text x="1550" y="726" fill="#55555a">agents never merge to main</text>
+    </g>
+    <text x="1550" y="835" font-size="24" font-weight="bold" fill="#b45309">&#8594; next: /dmtix start</text>
+
+    <!-- optional first step -->
+    <rect x="40" y="925" width="360" height="125" rx="14" fill="none" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="10 8"/>
+    <text x="64" y="958" font-size="22" fill="#55555a">not clear yet? start here:</text>
+    <text x="64" y="995" font-size="24" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/dmtix discuss-project</text>
+    <text x="64" y="1031" font-size="19" fill="#222222">ready &#183; research &#183; not ready &#183; dropped</text>
+
+    <!-- where things live -->
+    <rect x="440" y="925" width="1440" height="125" rx="14" fill="none" stroke="#b0b0b0" stroke-width="2"/>
+    <g font-size="26" font-weight="bold" fill="#111111">
+      <text x="470" y="965">Method</text>
+      <text x="1100" y="965">Records</text>
+    </g>
+    <g font-size="22" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">
+      <text x="470" y="1001">.tick/config.md</text>
+      <text x="1100" y="1001">.devmeta/increments/</text>
+    </g>
+    <g font-size="20" fill="#55555a">
+      <text x="470" y="1035">how you work; rarely edited</text>
+      <text x="1100" y="1035">what happened, in prose</text>
+    </g>
+  </g>
+</svg>

@@ -31,15 +31,17 @@ where you review. `explain` any time.
 
 ## The picture
 
-![dmtix: the doors, one rhythm. The doors run left to right on top; the files each door writes are below.](dmtix.svg)
+![dmtix: scope, run, checkpoint. You decide at the two ends; agents do the middle, in parallel.](dmtix-process.svg)
 
-*Read it left to right: the doors and the run are the flow on top; the files they write and read are below.*
+*You decide at the two ends. Agents do the middle, in parallel.*
 
-You set up with `bootstrap`, optionally think with `discuss-project`, and scope with
-`start`. Then you call `go`: the run plans the ticks, works in parallel waves in their own
-worktrees, and closes each epic with a review, a retro and records. It stops at the
-checkpoint with a report. You review it, smoke-test, and land it yourself. Below the flow,
-the files show what each step leaves behind.
+**Scope** (`/dmtix start`): you and Claude agree the goal, what is out, and the epics, each with a
+definition of done. **Run** (`/dmtix go`): you start it and walk away. For each epic the run plans
+the ticks, works in parallel waves in their own worktrees, and closes the epic with a review, a
+retro and records. **Checkpoint**: the run stops, and a completion report waits for you. You
+review it, smoke-test it and land it yourself; agents never merge to main. Not clear yet? Start
+with `/dmtix discuss-project`. The method lives in `.tick/config.md`, the records in
+`.devmeta/increments/`.
 
 ## Fuller documentation
 
