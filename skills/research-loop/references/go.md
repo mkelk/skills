@@ -190,7 +190,8 @@ status box which version stands and why. Never leave it unsaid.
    loop produced goes in `findings/<NNN>-<topic>.md`, linked from the loop file.
 2. `program.md`: **the status box first** (Updated, Stands, Biggest problems, Next, spent),
    then a *Tried* row and, when something is now known, a numbered *Learned* line. Nothing
-   the page says is older than its Updated line.
+   the page says is older than its Updated line. Strike from *Unknowns* what
+   the floor or this loop answered.
 3. Commit `research(<slug>): loop <NNN> <verdict>`.
 4. **Three lines to the holder**, at every loop: *tried / numbers / next*, with the spend so
    far, in minutes read from the clock. With `streams`: `coord.py log --tell seat "<slug> loop <NNN> <verdict>: <tried> /

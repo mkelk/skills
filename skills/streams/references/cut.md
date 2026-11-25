@@ -188,8 +188,8 @@ under the space whose first terminal sits in the main checkout. **When the windo
 another machine** (Windows with herdr-core inside WSL, or over ssh), the window shows the
 session as a new space named after the worktree's folder (`<repo>-<slug>`): tell the human
 that name. A session in a folder
-Claude Code does not trust yet stops at its trust question (`wait` says stopped, `send` is
-refused as blocked): the human answers it in that pane, never the seat. Three steps, each
+Claude Code does not trust yet stops at its trust question (`wait` says stopped, as for a ready one; `send` is
+refused): the human answers it in that pane, never the seat. Three steps, each
 checked before the next:
 
 ```bash
