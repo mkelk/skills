@@ -48,11 +48,13 @@ A relay that fails never fails the log: the line is written, stderr says in one 
 delivered, and the exit code is 0. A delivered relay prints `told <session>`.
 
 Usage:
+    coord.py [-C <dir>] <command> ...    run as if started in <dir> (the repository a seat serves from elsewhere)
     coord.py init
     coord.py log "<text>" [--as <who>] [--for 40m | --until HH:MM] [--tell seat|<stream>|<session> | --no-tell]
     coord.py show [--holds] [--owed] [--log N]
     coord.py seat [--here | --set <session> | --clear]
     coord.py config [--slug <slug>] [--json | --get <fact>] [--file <path>]
+    coord.py repos [--seat <session>]
     coord.py init-file [--trunk B] [--worktree-root DIR] [--at-cut L]... [--at-landing L]...
                        [--resources L]... [--force]
 

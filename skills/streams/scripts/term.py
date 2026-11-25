@@ -14,7 +14,7 @@ to open by hand.
                                                    state, status, session
     term.py read <session> [--lines N] [--json]    what the session shows, with N lines of history
     term.py send <session> <text> [--json]         type the text and press Enter
-    term.py start <cwd> <label> [--json] -- <cmd...>
+    term.py start <cwd> <label> [--workspace <space>] [--json] -- <cmd...>
                                                    start a program (a Claude session) in a new place
     term.py wait <session> [--timeout S] [--json]  until it stops working (exit 1 on timeout,
                                                    exit 2 when the server reports an error)
