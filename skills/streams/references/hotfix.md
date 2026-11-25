@@ -33,7 +33,7 @@ All four, or it is not a hotfix:
 ## Step 1 — Measure, do not read
 
 - `git merge-tree --write-tree "$(coord.py config --get trunk)" <branch>` — refuse a hotfix with
-  conflicts. Resolving a side stream's conflicts on its behalf, mid-increment, is not the seat's
+  conflicts. Resolving a stream's conflicts on its behalf, mid-increment, is not the seat's
   to do.
 - The main checkout clean, `git worktree list` reconciled against the table.
 - The machine: a merge is not heavy, but the verify in step 3 is a real run, permitted alongside
@@ -54,7 +54,7 @@ Merge into the trunk in a **scratch worktree**, `--no-ff`, then **verify the mer
 that reads every file, uncached — a cached pass proves nothing about a merge, and a clean `git
 merge` is not evidence the result builds. Before `update-ref`, **put the trunk's
 `.devmeta/current-increment.md` header back to the mainline's**: `git checkout <trunk before> --
-.devmeta/current-increment.md`, and say so in the message. (2026-09-24) a side stream's header
+.devmeta/current-increment.md`, and say so in the message. (2026-09-24) a stream's header
 replaced the trunk's cleanly, with no conflict.
 
 The merge message carries the evidence, because a chat nobody can find is not a record:

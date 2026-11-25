@@ -9,7 +9,7 @@ under the `research-loop` skill, and this seat holds what the program is measure
 
 ## Step 0
 
-A research stream is a side stream, cut `--from trunk`. It has **no increment**: no id, no
+A research stream is a stream like any other, cut `--from trunk`. It has **no increment**: no id, no
 epics, no tk project.
 
 ## Step 2 — the worktree
@@ -27,7 +27,7 @@ epics, no tk project.
 
 ## Step 3 — records
 
-- **Active line** on the new branch: `**Active:** research <slug> — <title> (side stream; no
+- **Active line** on the new branch: `**Active:** research <slug> — <title> (a stream; no
   increment; charter not written yet)`, the charter's future path
   (`<records>/<slug>/charter.md`), status `NOT STARTED`, branch, worktree, and `**Roadmap
   (tk):** none.` The `charter` door completes it.

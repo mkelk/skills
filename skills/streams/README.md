@@ -159,7 +159,7 @@ increment. See [references/status.md](references/status.md).
 
 > /streams cut docs --scope "#41"
 
-Side stream or mainline? The table has a mainline row (search), so no question: side stream.
+A stream beside the mainline (search); nothing to ask.
 Claimed: api 8020 and redis db 2 (k=2, lowest free).
 Worktree ../app-docs on docs-2026-03-05, from search-2026-03-02 at 4f1c2aa.
 At cut: uv sync --frozen ✓  cp .env.example .env ✓  API_PORT=8020 ✓

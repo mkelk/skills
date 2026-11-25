@@ -233,7 +233,7 @@ human's definition (2026-09-20):** each epic is worth `100 / N`; a closed epic c
 the running one `closed / total` of its share, an unplanned one zero (`●◑○` at 3/6 = 50%). It is
 the only increment-wide number. AT is "E*n* of *N* · closed/total"; WHAT NOW is one clause ("a
 wave running", "idle *n*m, *k* ticks left — watch"). No title column. Order: the mainline first,
-then side streams in the order of their resources, then docs-only branches. STATE from `term.py
+then the other streams in the order of their resources, then docs-only branches. STATE from `term.py
 ls` or `ListAgents`; `—` for a hand-driven stream. IN FLIGHT counts live implementer worktrees
 and their uncommitted lines; "clean" when live with nothing uncommitted; "docs only" for a branch
 with no ticks. LAST is the newest commit on the stream branch or any tick branch. RESOURCES is

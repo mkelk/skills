@@ -1,6 +1,6 @@
 ## Purpose
 
-Set a new side stream up so its session can start from files alone. Everything the seat used
+Set a new stream up so its session can start from files alone. Everything the seat used
 to do by hand, and the brief it used to write from memory.
 
 Arguments: `cut <slug> [--from mainline|trunk] [--scope "<task>"]`. `slug` names the branch and
@@ -24,29 +24,46 @@ streams cut on one day is normal, so the date is the least distinguishing part. 
 three date-first branches were identical for eleven characters in a sidebar that truncated
 there — existing streams were not renamed; the convention changed for the next cut.
 
-Default `--from mainline`: cut from the mainline's branch tip so the stream has the current
-tree; `--from trunk` (the trunk, `coord.py config --get trunk`) when the stream must not carry
+Default `--from mainline` when the table has a mainline row: cut from the mainline's branch tip
+so the stream has the current tree. With no mainline row, and with `--from trunk`: from the trunk.
+`--from trunk` (the trunk, `coord.py config --get trunk`) when the stream must not carry
 the mainline's unfinished work.
 
 **A research stream** (its session leads a program under `research-loop`) has no increment
 and a guard of its own: read `references/cut-research.md` after this file and follow its
 differences.
 
-## Step 0 — Is this a side stream at all?
+## Step 0 — A stream, unless the human asks for the mainline
 
-**When the table has no mainline row, stop and ask the human which this is**, because the
-answer changes four things at once: the resources (the mainline's or a side stream's), whether
-it may touch a deploy host, the increment id's form, and whether the Active line may say
-"beside the mainline". Do not infer it from the argument. (2026-09-21) "a worktree to work
-through the issues" on an empty machine meant the mainline, which the defaults would have made
-a side stream.
+**A cut makes a stream.** That is the normal case: id `<NN>s<k>-<xxx>`, the lowest free share
+of each resource, no deploy host. It needs no question, except in the one case under *The one question*, below.
 
-- **The mainline, in a worktree of its own.** Id `<NN>-<xxx>`; the mainline's resources; it owns
-  any deploy host. The main checkout then stays on the trunk driving nothing. Say that in the
-  table's header — **a session sitting in the main checkout is the thing a seat will mistake for
-  the mainline**, and the mistake is silent.
-- **A side stream.** Id `<NN>s<k>-<xxx>`; the lowest free side-stream share of each resource;
-  no host.
+**The mainline is the exception, and the human asks for it by name** ("cut the mainline", "the
+main line of increments, in a worktree"). A project has one at most: the stream that carries
+its main sequence of increments. Id `<NN>-<xxx>`; the mainline's resources; it owns any deploy
+host. The main checkout then stays on the trunk driving nothing. Say that in the table's
+header — **a session sitting in the main checkout is the thing a seat will mistake for the
+mainline**, and the mistake is silent.
+
+**The one question: ask only where the kind changes something real and nobody has said.** All
+three must hold. (1) The project deploys somewhere: `coord.py config` shows a `## Resources`
+line about a place it deploys to (a host, a server, staging, production), or the project file
+has an `## At hotfix` section at all. (2) `coord/streams.md` has no mainline row: read the
+table now for this; Step 1 reads it again for the claims. (3) The human's words do not name
+the kind. Then ask one question, yes or no: *"Is this the project's mainline? It would own the deploy host."* In every other
+case do not ask, and do not mention the mainline: a project without a deploy host never meets
+the word.
+
+Never infer a mainline from the size or the wording of the task: only from the human naming it.
+
+- (2026-09-21) "a worktree to work through the issues" on an empty machine meant the mainline,
+  which the defaults made a stream — so the rule became *ask whenever the table has no mainline
+  row*.
+- (2026-11-25) that rule asked at every cut in repositories that will never have a mainline,
+  and "side stream or mainline" read as two equal kinds (the human: *"It is a normal stream.
+  that is the whole concept"*). A stream cut by default holds less than a mainline (no host),
+  so the default errs on the safe side: the question is kept only where a deploy host is at
+  stake.
 
 ## Step 1 — Read the table, claim what the project names
 
@@ -86,11 +103,12 @@ Then in the worktree:
 ## Step 3 — Records
 
 - **Active line.** Rewrite the block above `## Streams` in `.devmeta/current-increment.md` on
-  the new branch: `**Active:** <increment id> — <title> (side stream beside the mainline <id>)`,
+  the new branch: `**Active:** <increment id> — <title> (a stream beside the mainline <id>)`, or just
+  `(a stream)` when the project has no mainline,
   overview path, status `NOT STARTED`, branch, worktree and claimed resources, and the sentence
-  "This Active line is this branch's only: at landing keep the mainline's."
-- **Increment id.** `<NN>s<k>-<xxx>`: `NN` the mainline's number, `k` the next side index in the
-  table, `xxx` three random lowercase letters. A mainline's is `<NN>-<xxx>`.
+  "This Active line is this branch's only: at landing keep the trunk's."
+- **Increment id.** `<NN>s<k>-<xxx>`: `NN` the mainline's number (`00` when the project has no mainline), `k` the lowest
+  stream index no live row holds, from 1, `xxx` three random lowercase letters. A mainline's is `<NN>-<xxx>`.
 - **If `--scope` names a task in the project's issue tracker: claim it with the project's own
   claim mechanism** (a label plus a claim comment naming the increment, say), refused when it is
   already claimed; nothing is written on the trunk for it. The overview names the tasks by
@@ -163,7 +181,7 @@ things**: `grep` a host's env file for what somebody set, `docker exec … print
 process has. (2026-09-21) a brief quoted a refusal sentence that is not in the code, for a case
 that does not refuse.
 
-Commit as `side(<slug>): cut from <from-branch> at <sha>; brief`.
+Commit as `stream(<slug>): cut from <from-branch> at <sha>; brief`.
 
 ## Step 5 — Open the stream's session
 
@@ -197,7 +215,7 @@ term.py wait --timeout 60 <session>   # until Claude's prompt is up, before typi
 #    says /research-loop charter <slug> instead, and to bring the draft charter to the human.
 #    A stream cut to discuss something not yet scoped gets /dmtix discuss-project "<the
 #    question>" instead: it must not be told to start or go.
-term.py send <session> 'You are the <slug> side stream (increment <id>) ...'
+term.py send <session> 'You are the <slug> stream (increment <id>) ...'
 ```
 
 **Say "give `/dmtix start` the id by hand" in the start prompt whenever the stream is
@@ -219,7 +237,7 @@ then: /dmtix go          (or /dmtix start with the id <id> given by hand, if not
 The brief is docs/thoughts/<date>-<slug>-brief.md; tell the session to read it first.
 ```
 
-Then check on the machine: `term.py ls --json` shows exactly one session whose `cwd` is the
+Then, when the session was opened, check on the machine: `term.py ls --json` shows exactly one session whose `cwd` is the
 worktree, `working`, and `/proc/<pid>/cwd` agrees. Set the row's session to `<slug>`, and log the
 cut: `coord.py log "CUT <slug> (<id>): …"`, naming the session id.
 

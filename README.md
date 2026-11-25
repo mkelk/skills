@@ -22,7 +22,7 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   coordinates several dmtix increments running side by side: `/streams init` (the project
   file, once), `/streams status` (what is running, what waits on the human, what has stalled —
   from files), `/streams keep-running` (the hourly pass that acts on it), `/streams queue` (what
-  waits on the human), `/streams cut <slug>` (a new side stream: branch, worktree, the resources
+  waits on the human), `/streams cut <slug>` (a new stream: branch, worktree, the resources
   the project names, records, a brief), and `compact`, `restart`, `hotfix`, `land`. Live state lives in git's common directory (`coord/`), shared
   by every worktree and never committed; `scripts/coord.py` writes its log and enforces holds
   with an end. Landing is a checklist until two hand landings confirm it.
