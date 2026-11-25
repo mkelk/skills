@@ -20,7 +20,7 @@ writes only the sections that have content:
 | `## Standing rules`, `## Seams`, `## At hotfix` | prose: rules pasted into a brief, files two branches both edit and how each resolves, a hotfix's verify and hand-off | `cut`, `land`, `hotfix` |
 | `## Scout` | prose: the project's own checks for the hourly scout (a job queue, a report box); seat-only, so never pasted into a brief | `keep-running`, through `references/scout.md` |
 
-Only the first five are written by this door; add the prose sections by hand when the project
+Only the first four are written by this door (`## Project`, `## Resources`, `## At cut`, `## At landing`); add the prose sections by hand when the project
 has something to say in them.
 
 `coord.py` below means `python3 <skill dir>/scripts/coord.py`. `coord.py config --get <fact>`
