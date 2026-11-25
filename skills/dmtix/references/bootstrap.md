@@ -53,7 +53,7 @@ The devmeta adaptation is PRESENT when all four hold:
   engine, not this one. Recommend installing the engine at user level, then removing the
   project copy. **There is no pinning:** a project cannot be held on an older engine while a
   user-level one is installed. To keep a running increment on the engine it started with,
-  update between increments instead (README → Upgrading).
+  update between increments instead.
 - **Neither → stop** and tell the user: install the ticks engine skill once at user level
   (`~/.claude/skills/ticks/`), then re-run this command. The engine has one source:
   `npx skills add mkelk/skills --skill ticks -g -a claude-code` (https://github.com/mkelk/skills,

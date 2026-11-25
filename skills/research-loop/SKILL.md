@@ -17,7 +17,7 @@ and follow it exactly.** With no or an unknown argument, show this table and ask
 | `report <slug>` | once, at the end | `references/report.md` — the findings report: each question's answer and what it rests on, what it changes, what to do next (often `/dmtix start`) |
 | `explain [<slug>]` | whenever asked | `references/explain.md` — what this skill does here, how this repository (and this program) adapted it, and why |
 
-New to it? `README.md`: what a program is, where its files live, five worked examples.
+New to it? `README.md`: what a program is, where its files live, an example.
 Not doors, read when a door points at them: `references/subcall.md` (a model call that
 carries only what the arm gives it) and `scripts/guard-hook.py` (the guard's tripwire for
 shell reads).

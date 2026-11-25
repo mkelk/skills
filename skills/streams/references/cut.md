@@ -181,7 +181,7 @@ block below instead only when the human said not to start it yet, or when no ter
 answers (`term.py` exits 2); say which of the two it was.
 
 Open it through `term.py`: herdr-core (`hc`) when it holds sessions, herdr otherwise
-(`term.py which` says which; links in the README's example 7). First `coord.py seat`: it must
+(`term.py which` says which; links in the header of `scripts/term.py`). First `coord.py seat`: it must
 name this pane (`coord.py seat --here`), or a stream's `OWED` line reaches nobody. With `hc`
 and the herdr-app window, give no `--workspace`: a space opened on a worktree nests by itself
 under the space whose first terminal sits in the main checkout. **When the window runs on
