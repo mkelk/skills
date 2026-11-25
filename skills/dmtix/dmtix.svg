@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1075" width="1640" height="1075" role="img" font-family="Calibri, 'Liberation Sans', Arial, sans-serif" fill="#222222">
 <title>dmtix: the doors and what they write</title>
-<desc>Five doors in order: bootstrap once per project, optional discuss-project, start, go, and a checkpoint where the run stops and you review. Below them, the artefacts: method config, thought notes, live state in tk, narrative records, and the ticks engine.</desc>
+<desc>The doors in order: bootstrap once per project, optional discuss-project, start, go, and a checkpoint where the run stops and you review. Below them, the artefacts: method config, thought notes, live state in tk, narrative records, and the ticks engine.</desc>
 <rect width="1640" height="1075" fill="#ffffff"/>
-<text x="35" y="62" font-size="44" font-weight="bold" fill="#111111">dmtix: five doors, one rhythm</text>
+<text x="35" y="62" font-size="44" font-weight="bold" fill="#111111">dmtix: the doors, one rhythm</text>
 <text x="35" y="104" font-size="24" fill="#55555a">You decide at the doors. Agents do the run. Every door leaves files behind.</text>
 <circle cx="1390" cy="52" r="9" fill="#e68e0d"/>
 <text x="1410" y="60" font-size="22" fill="#b45309">you</text>

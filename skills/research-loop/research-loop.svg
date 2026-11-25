@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1125" width="1640" height="1125" role="img" font-family="Calibri, 'Liberation Sans', Arial, sans-serif" fill="#222222">
 <title>research-loop: the doors and the files</title>
-<desc>Five doors: init once per repository, charter with the human, go (the lead runs the loop: assess, freeze, run, verdict, record), check (the ruler's holder scores and runs the independent check), and report. Below them the files: the research facts, the program's records in git on the lead's branch, the kept folder outside git that holds the ruler, and the report.</desc>
+<desc>The doors: init once per repository, charter with the human, go (the lead runs the loop: assess, freeze, run, verdict, record), check (the ruler's holder scores and runs the independent check), and report (explain says what is set up). Below them the files: the research facts, the program's records in git on the lead's branch, the kept folder outside git that holds the ruler, and the report.</desc>
 <rect width="1640" height="1125" fill="#ffffff"/>
 <text x="35" y="62" font-size="44" font-weight="bold" fill="#111111">research-loop: a lead runs, a holder keeps the ruler</text>
 <text x="35" y="104" font-size="24" fill="#55555a">You set the question and the bar. The lead never grades its own work.</text>

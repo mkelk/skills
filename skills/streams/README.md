@@ -11,8 +11,8 @@ the facts they share in files every worktree can read. One session, the **seat**
 it cuts streams, reads their state, tells you what waits on you, and lands a finished stream.
 
 **When not to use it.** For one piece of work at a time, use [dmtix](https://github.com/mkelk/skills/tree/master/skills/dmtix) alone. The sessions that run a stream do
-not use this skill; they run `/dmtix go`. It is not for a plan above several increments or for a
-research program; other skills cover those.
+not use this skill; they run `/dmtix go`. It is not for a plan above several increments (use the [roadmap](https://github.com/mkelk/skills/tree/master/skills/roadmap) skill) or for a
+research program (use the [research-loop](https://github.com/mkelk/skills/tree/master/skills/research-loop) skill).
 
 ## Commands
 
@@ -22,7 +22,8 @@ research program; other skills cover those.
 | `/streams status` | one screen: running, waiting on you, stalled | [status.md](references/status.md) |
 | `/streams keep-running` | the hourly pass: look, then act | [keep-running.md](references/keep-running.md), [scout.md](references/scout.md) |
 | `/streams queue` | the list of what waits on you, with what to type | [queue.md](references/queue.md) |
-| `/streams cut <name>` | a new stream: branch, worktree, resources, records, brief | [cut.md](references/cut.md) |
+| `/streams explain` | says what is set up here and why; writes nothing | [init.md](references/init.md) (step 6) |
+| `/streams cut <name> [--from mainline\|trunk] [--scope …]` | a new stream: branch, worktree, resources, records, brief | [cut.md](references/cut.md) |
 | `/streams compact` | keeps long sessions' context small | [compact.md](references/compact.md) |
 | `/streams restart` | brings back what ran on a clock after a stop | [restart.md](references/restart.md) |
 | `/streams hotfix <name>` | one stream's fix to the trunk, the stream keeps running | [hotfix.md](references/hotfix.md) |
@@ -30,15 +31,14 @@ research program; other skills cover those.
 
 The usual order: `init` once, then `status` and `queue` as you work, `cut` for each new stream, `land` when one is finished. `keep-running`, `compact` and `restart` run by the clock or after a stop.
 
-Worked recipes for heavy runs: [references/recipes/](references/recipes/). The rules every door
-follows, and why each exists: [SKILL.md](SKILL.md).
+Heavy runs: [references/recipes/](references/recipes/).
 
 
 ## The picture
 
 ![streams: you, the seat, the streams, and the files they share](streams.svg)
 
-*Read it top to bottom: the flow (you, the seat, the streams, the trunk) on top, the files below.*
+*Flow on top (you, the seat, the streams, the trunk); files below.*
 
 You ask and decide; the seat cuts streams and reads them all. Each stream is one branch in one
 worktree with its own session, running its own increment. A finished stream is merged into the
@@ -47,7 +47,9 @@ by every worktree, never committed) and what a cut writes into the new worktree.
 
 ## Fuller documentation
 
-Committed: `.devmeta/streams.md`, and the brief a cut writes. Never committed: `coord/`, in git's common directory. The seat never writes code on a stream's branch, never merges into a running stream's branch, and pushes only the trunk. The rules behind every door: [SKILL.md](SKILL.md).
+Committed: `.devmeta/streams.md` and the brief a cut writes. Never committed: `coord/`. The seat never
+writes code on a stream's branch and never merges into a running stream's branch. It pushes only the
+trunk. The rules behind every door: [SKILL.md](SKILL.md).
 
 ### What the words mean
 
@@ -80,8 +82,6 @@ Committed: `.devmeta/streams.md`, and the brief a cut writes. Never committed: `
    npx skills add mkelk/skills --skill streams --skill dmtix --skill ticks -g -a claude-code
    ```
 
-   `-g` installs for every project; see the repo README's Install section for when not to.
-
 2. **`/streams init`**, once, in the main checkout on the trunk. It detects the trunk, the
    package manager and the test runner, asks you two questions (what may two streams not share,
    and where worktrees should go), writes `.devmeta/streams.md` and creates `coord/`.
@@ -94,18 +94,17 @@ Each stream's own session then runs `/dmtix go`. The seat does not run increment
 
 ### Good to know
 
-- **Where the session opens.** The stream's session opens in the herdr window also when the
-  window runs on another machine (Windows with herdr-core inside WSL, or over ssh). The space is
-  named after the worktree's folder (`<repo>-<slug>`), not after the stream.
+- **Where the session opens.** If the herdr-app window runs on another machine (Windows with
+  herdr-core in WSL, or over ssh), the session still opens there. It gets its own space, named
+  after the worktree's folder (`<repo>-<slug>`).
 - **The first cut.** In a repository with no mainline row yet, the first cut asks: "side stream
   or mainline?" Do not leave it to a default.
-- **Claude Code 2.1.331 or later.** 2.1.325 reported no status to herdr, so the seat's text
-  was typed into a trust question.
+- **Claude Code 2.1.331 or later.** Version 2.1.325 did not report its status to herdr. The seat
+  then typed its text into a trust question.
 - **A trust question.** A session in a folder Claude Code does not trust yet stops at its trust
   question. You answer it in that pane, never the seat.
-- **Adapt it locally.** The skill is generic; each project adapts it. `.devmeta/streams.md` and
-  the project's `coord/` files are the project's own: edit them. Updating the skill never
-  overwrites them.
+- **Adapt it locally.** The skill is generic. `.devmeta/streams.md` and the `coord/` files are
+  the project's own. Updating the skill never overwrites them.
 
 ### Seven examples
 
@@ -167,16 +166,13 @@ At cut: uv sync --frozen ✓  cp .env.example .env ✓  API_PORT=8020 ✓
 Records: the trunk's list of running increments names 07s2-ghi, issue #41 claimed, row added to coord/streams.md (read back).
 Brief: docs/thoughts/2026-03-05-docs-brief.md, committed.
 
-Stream 07s2-ghi cut. Open a terminal:
-  cd ../app-docs
-  claude
-then: /dmtix start with the id 07s2-ghi given by hand
-The brief is docs/thoughts/2026-03-05-docs-brief.md; tell the session to read it first.
+Stream 07s2-ghi cut. Session opened in its own pane (term.py): /dmtix start with the id 07s2-ghi given by hand.
+The brief is docs/thoughts/2026-03-05-docs-brief.md; the session reads it first.
 ```
 
 The brief tells the new session where it is, what it holds and what it does not (no deploy host),
-who its neighbours are and which files they own, and the project's standing rules. Say *"start
-it yourself"* and the seat opens the session through `term.py` (example 7) instead.
+who its neighbours are and which files they own, and the project's standing rules. The seat opens the session itself through `term.py` (example 7). Say "not yet" and it prints the commands instead:
+open a terminal in the worktree, run `claude`, then type the `/dmtix start` line.
 See [references/cut.md](references/cut.md).
 
 #### 3. A hold with an end, and its release
@@ -217,7 +213,7 @@ search: READY at 9be20d1 — last stage closed, its completion report written, k
 5  the stream's own landing step: the one line it asked for, named in the merge message
 6  the checks on the merged tree: uv run pytest ✓  (one run over this and billing's last landing)
 7  is-ancestor 9be20d1 origin/main ✓; the trunk's records say what shipped ✓
-8  pushed main 3d70e55; worktree and branch removed; row moved to .devmeta/streams.md as landed
+8  pushed main 3d70e55; worktree and branch removed; row removed from coord/streams.md
 9  close the "search" session now; billing and docs: the trunk moved, sync when it suits you
 ```
 
@@ -331,13 +327,12 @@ $ term.py send t7 'the trunk moved to 3d70e55; sync when it suits you'
 The `cwd` column maps a worktree to its session without asking anyone. The state is `working`,
 `idle`, `blocked` (waiting on a prompt in its pane) or `unknown`. With `--json`, each session
 carries `server`, `id`, `cwd`, `foreground_cwd`, `label`, `agent`, `state`, the server's own word
-as `status`, and the agent's `session` id. When neither server answers,
-`term.py` exits 2 and the seat falls back to printing what you should open.
+as `status`, and the agent's `session` id. When neither server answers, `term.py` exits 2 and the seat prints what to open.
 
 ### Limits
 
-- `coord/` is per machine. Anything another machine must see goes to your issue tracker.
-- The seat is a session; it may be asleep. Anything that must happen without it needs a guard
-  or a schedule, not the seat's memory.
+- `coord/` is per machine. Anything another machine must see goes to your tracker.
+- The seat is a session and may be asleep. Anything that must happen without it needs a guard
+  or a schedule.
 - Landing is not automatic yet. The seat follows the checklist by hand until two landings
   confirm every step.

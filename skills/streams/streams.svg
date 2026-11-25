@@ -18,7 +18,7 @@
 <text x="57" y="417" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/streams cut</text>
 <text x="57" y="451" font-size="20" font-family="Consolas, 'JetBrainsMono NF', 'Liberation Mono', monospace" fill="#b45309">/streams land</text>
 <text x="57" y="515" font-size="19" fill="#55555a">say "ship it"</text>
-<text x="57" y="541" font-size="19" fill="#55555a">before a push</text>
+<text x="57" y="541" font-size="19" fill="#55555a">before a merge</text>
 <rect x="355" y="175" width="330" height="440" rx="16" fill="#f7f7f7" stroke="#555555" stroke-width="3"/>
 <text x="377" y="223" font-size="36" font-weight="bold" fill="#111111">Seat</text>
 <text x="377" y="257" font-size="20" fill="#55555a">main checkout, on the trunk</text>

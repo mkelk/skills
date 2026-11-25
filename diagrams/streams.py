@@ -22,7 +22,7 @@ c.text(57, TOP + 48, "You", size=36, weight="bold", fill=YOU)
 c.text(57, TOP + 82, "ask, decide, approve", size=20, fill=MU)
 c.lines(57, TOP + 140, ["/streams init", "/streams status", "/streams queue", "/streams cut", "/streams land"],
         size=20, lh=34, fill=YOU, mono=True)
-c.wrapped(57, TOP + 340, "say \"ship it\" before a push", 196, size=19, fill=MU)
+c.wrapped(57, TOP + 340, "say \"ship it\" before a merge", 196, size=19, fill=MU)
 
 # seat
 SX, SW = 355, 330

@@ -52,7 +52,7 @@ curl -fsSL https://raw.githubusercontent.com/pengelbrecht/ticks/main/install.sh 
 tk init
 ```
 
-Copy or install this folder as a skill (see the repository's main README). Do not install upstream's own `ticks` skill next to it, and do not run `tk skills install`: that writes upstream's tracker-only skill into `.claude/skills/ticks/`, and it can run instead of this one.
+Install this folder as a skill, at user level, with `npx skills add mkelk/skills --skill ticks -g -a claude-code`. The dmtix skill needs it there. Do not install upstream's own `ticks` skill next to it, and do not run `tk skills install`: that writes upstream's tracker-only skill into `.claude/skills/ticks/`, and it can run instead of this one.
 
 The skill is generic; each project adapts it locally. The files under `.tick/` are your project's own: you may and should edit them, and updating the skill never overwrites them.
 

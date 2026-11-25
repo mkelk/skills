@@ -7,7 +7,7 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
 
 - **[dmtix](skills/dmtix/)** — devmeta-on-ticks. A delivery method (interactive increment
   scoping → autonomous walk-away run → durable narrative records) on top of the **ticks**
-  engine below. Invoked with an argument: `/dmtix bootstrap | start | go`. Start at
+  engine below. Invoked with an argument: `/dmtix bootstrap | explain | discuss-project | start | go`. Start at
   **[skills/dmtix/README.md](skills/dmtix/README.md)**.
 
 - **[ticks](skills/ticks/README.md)** — the engine dmtix runs on: plans an epic into ticks, runs them
@@ -45,7 +45,7 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   live and five worked examples.
 
 - **[joe](skills/joe/)** — type `/joe` after a long agent answer and get the same thing back
-  short and in plain English: bottom line first, no hedging, no jargon, no tech-legalese.
+  short and in plain English: bottom line first, no hedging, and plain words in place of dense technical wording.
   Rewrite only — it does no new work. See [skills/joe/README.md](skills/joe/README.md).
 
 - **[herdr-reload](skills/herdr-reload/)** — after a Claude Code update, `/herdr-reload` moves
@@ -74,7 +74,7 @@ dmtix increments: `/dmtix discuss-project` can hand over to it, and its report h
 The skills are generic. Each project adapts them locally: the files a skill writes into your
 repository are yours to edit, and updating the skill never overwrites them.
 
-The pictures (one per skill, flow on top, files below):
+The pictures (for the four main skills; flow on top, files below):
 [dmtix](skills/dmtix/dmtix.svg), [streams](skills/streams/streams.svg),
 [research-loop](skills/research-loop/research-loop.svg), [ticks](skills/ticks/ticks.svg).
 Regenerate them with `python3 diagrams/build.py`.

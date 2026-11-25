@@ -2,9 +2,9 @@
 from svgkit import Canvas, T
 
 c = Canvas(1640, 1125, "research-loop: the doors and the files",
-           "Five doors: init once per repository, charter with the human, go (the lead runs the loop: assess, "
+           "The doors: init once per repository, charter with the human, go (the lead runs the loop: assess, "
            "freeze, run, verdict, record), check (the ruler's holder scores and runs the independent check), "
-           "and report. Below them the files: the research facts, the program's records in git on the lead's "
+           "and report (explain says what is set up). Below them the files: the research facts, the program's records in git on the lead's "
            "branch, the kept folder outside git that holds the ruler, and the report.")
 YOU, AG = T["you"], T["agent"]
 c.text(35, 62, "research-loop: a lead runs, a holder keeps the ruler", size=44, weight="bold", fill=T["strong"])

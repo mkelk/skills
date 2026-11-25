@@ -7,7 +7,7 @@ Research in a repository, run as loops by an agent that does not grade its own w
 Use it when the output is **knowledge or a decision**: does this method work, which of these
 ideas is best, is there anything better than what we do, why does this happen. A charter is
 written with you first. Then a lead agent runs loops: it freezes a rule, runs the work,
-reads the verdict off the rule and records it. Another role holds the ruler (keys, hidden
+reads the verdict off the rule and records it. The **ruler** is what the result is measured with: a script, an answer key or a rubric. Another role holds the ruler (keys, hidden
 answers), so the lead never grades itself.
 
 **When not to use it:**
@@ -55,10 +55,14 @@ end condition is met, `report` closes the program.
    by. With [streams](https://github.com/mkelk/skills/tree/master/skills/streams) the holder is the seat.
 3. **The rule is written before the run**, and committed first. The verdict is read off it.
 4. **It does not wait.** The loop stops for the human only for money beyond the allowance,
-   production, a ruler change or a change of purpose.
+   touching production systems, a ruler change or a change of purpose.
 5. **The state is in git**: one program page with a status box first, one file per loop.
 
 ### Set up in a repository
+
+Install: `npx skills add mkelk/skills --skill research-loop -g -a claude-code`. The [streams](https://github.com/mkelk/skills/tree/master/skills/streams) and [dmtix](https://github.com/mkelk/skills/tree/master/skills/dmtix) skills are optional; they are useful when the loop runs as a stream.
+
+`<kept>` below is a folder outside git that holds the ruler's secrets. `init` sets it, by default to `~/<repo>-kept/`.
 
 The skill is generic. Each repository adapts it locally: `init` writes `.devmeta/research.md`
 and the program files under `docs/research/` are the project's own. Edit them. Updating the
@@ -76,7 +80,7 @@ skill never overwrites them.
 | A mechanical ruler (script, test, reference outputs, the control) | in git, every file's hash in `ruler/hashes.txt` and that file's hash in the charter | the lead runs it and cannot quietly change it |
 | The guard that hides the keys | `.claude/settings.local.json` in the lead's worktree only, written by the holder (the seat, at the cut): `Read` denies, and the hook `scripts/guard-hook.py` for shell reads | the holder must still read its own keys, and a lead does not build its own fence |
 | What the lead may read from the holder: inputs, a tuning set, check pages | `<kept>/research/<slug>/data/` | the one place the two roles pass files |
-| What the seat must see while it runs | the status box of `program.md`, read from the lead's worktree; three lines per loop in `coord/log.md`, delivered to the seat's terminal by `coord.py` | the seat reads files, it does not ask; a log line alone wakes nobody |
+| What the seat must see while it runs | the status box of `program.md`, read from the lead's worktree; one line per loop in `coord/log.md`, delivered to the seat's terminal by `coord.py` | the seat reads files, it does not ask; a log line alone wakes nobody |
 
 The lead never reads the kept ruler. The holder never writes on the lead's branch.
 
@@ -143,6 +147,6 @@ by how much, and what the losers taught.
 
 ### References
 
-In this folder: `references/init.md`, `charter.md`, `go.md`, `check.md`, `report.md`,
-`explain.md` (one per door) and `references/subcall.md` (a model call that carries only
+In this folder: [`init.md`](references/init.md), [`charter.md`](references/charter.md), [`go.md`](references/go.md), [`check.md`](references/check.md), [`report.md`](references/report.md),
+[`explain.md`](references/explain.md) (one per door) and [`subcall.md`](references/subcall.md) (a model call that carries only
 what the arm gives it). `scripts/guard-hook.py` is the guard's tripwire for shell reads.

@@ -2,11 +2,11 @@
 from svgkit import Canvas, T
 
 c = Canvas(1640, 1075, "dmtix: the doors and what they write",
-           "Five doors in order: bootstrap once per project, optional discuss-project, start, go, and a "
+           "The doors in order: bootstrap once per project, optional discuss-project, start, go, and a "
            "checkpoint where the run stops and you review. Below them, the artefacts: method config, "
            "thought notes, live state in tk, narrative records, and the ticks engine.")
 YOU, AG = T["you"], T["agent"]
-c.text(35, 62, "dmtix: five doors, one rhythm", size=44, weight="bold", fill=T["strong"])
+c.text(35, 62, "dmtix: the doors, one rhythm", size=44, weight="bold", fill=T["strong"])
 c.text(35, 104, "You decide at the doors. Agents do the run. Every door leaves files behind.", size=24, fill=T["muted"])
 c.legend(1390, 52)
 
