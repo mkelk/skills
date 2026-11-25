@@ -27,7 +27,7 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   by every worktree and never committed; `scripts/coord.py` writes its log and enforces holds
   with an end. Landing is a checklist until two hand landings confirm it.
   New to it? Start at **[skills/streams/README.md](skills/streams/README.md)**: what the seat
-  and a stream are, how to begin, and seven worked examples.
+  and a stream are, how to begin, and an example.
 
 - **[roadmap](skills/roadmap/)** — beside `streams`, for the seat: a plan above the
   increments that several streams build together. Each piece points at one tick in its own
@@ -42,7 +42,7 @@ Agent skills by [@mkelk](https://github.com/mkelk), installable with the
   never grades its own work: with `streams` the seat holds the ruler. `/dmtix discuss-project`
   hands over to it, and its report hands back to `/dmtix start`.
   Start at **[skills/research-loop/README.md](skills/research-loop/README.md)**: where the files
-  live and five worked examples.
+  live and an example.
 
 - **[joe](skills/joe/)** — type `/joe` after a long agent answer and get the same thing back
   short and in plain English: bottom line first, no hedging, and plain words in place of dense technical wording.

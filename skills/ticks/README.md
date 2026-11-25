@@ -38,65 +38,33 @@ The usual order:
 
 *Read it left to right: who acts is named under each box (you, the orchestrator, implementers, agents); the next epic starts the loop again.*
 
-You set the roadmap: the epics, their order, and a definition of done for each. The orchestrator (the agent that owns the state) plans the epic into ticks and groups them into waves, with a final-review tick and a close-out tick at the end. In each wave, implementers work in parallel, one worktree each, and each passes the tick gate. The orchestrator then merges the branches, runs the wave gate on the merged tree, and only then closes the wave's ticks. Agents review the whole epic diff, and the close-out checks the epic against its done, runs the retro, and plans the next epic. At the end of a project the run stops for you at a checkpoint.
+You set the roadmap: the epics, their order, and a definition of done for each. Agents plan each
+epic into ticks, run them in parallel waves (one worktree each, with a check after every tick and
+every wave), review the whole diff, and write down what they learned. At the end of a project the
+run stops for you at a checkpoint.
 
-## Fuller documentation
-
-### Set-up
+## Set up
 
 ```bash
-# the tk binary, from upstream
-curl -fsSL https://raw.githubusercontent.com/pengelbrecht/ticks/main/install.sh | sh
-
-# in your repository
-tk init
+curl -fsSL https://raw.githubusercontent.com/pengelbrecht/ticks/main/install.sh | sh   # the tk binary
+npx skills add mkelk/skills --skill ticks -g -a claude-code                            # this skill
+tk init                                                                                # in your repository
 ```
 
-Install this folder as a skill, at user level, with `npx skills add mkelk/skills --skill ticks -g -a claude-code`. The dmtix skill needs it there. Do not install upstream's own `ticks` skill next to it, and do not run `tk skills install`: that writes upstream's tracker-only skill into `.claude/skills/ticks/`, and it can run instead of this one.
+## Good to know
 
-The skill is generic; each project adapts it locally. The files under `.tick/` are your project's own: you may and should edit them, and updating the skill never overwrites them.
+- **Keep `.tick/` in git.** It holds the ticks, so a run can stop and resume, and it syncs by normal git.
+- **Do not install upstream's own `ticks` skill**, and do not run `tk skills install`: it writes a
+  tracker-only skill into `.claude/skills/ticks/` that can run instead of this one.
+- **Roadmap changes are yours.** The agent may propose adding, removing or reordering epics. It does not do it.
+- **`.tick/config.md` is optional.** It is your project's guidance for runs: test commands, rules,
+  steps at the end of a wave or an epic. The skill is generic; this file is yours, and updating the skill never overwrites it.
 
-### The files in `.tick/`
+## How it works inside
 
-Keep `.tick/` tracked by git, not in `.gitignore`: it syncs across machines and people by normal git. `tk init` writes `.tick/.gitignore`, which ignores only `.index.json` and `logs/`.
+This page is for people. The run protocol, the `config.md` sections and every `tk` flag are written for Claude in the skill's own files:
+[`SKILL.md`](SKILL.md) and [`references/`](references/).
 
-| File | What it is | Who writes it |
-|---|---|---|
-| ticks (one file each) | Every tick and epic, with notes and history | `tk` |
-| `config.md` | Your project's guidance for runs (below) | you |
-| `learnings.md` | Short always-read head: hard rules and an index (at most 4096 bytes) | the runner, at retro |
-| `learnings-ref.md` | The longer body of learnings, by category | the runner, at retro |
-| `profile.md` | How a fresh worktree is made runnable and where each test tier runs | the runner; never by hand |
-| `.index.json`, `logs/` | Local caches and logs; not committed | `tk` |
+## Credit and license
 
-### `.tick/config.md`
-
-Optional. Each `##` section is wired to one consumer at one moment, so write only the sections you need and keep them short. An unknown heading is ignored, so a typo is silent. The runner reads the file fresh each time it needs it. Without the file, implementers find the test commands themselves.
-
-| Section | Used by | When |
-|---|---|---|
-| `## Testing` | implementers, and the orchestrator | tick gate per tick; wave gate once per wave |
-| `## Environment` | orchestrator | before wave 1: commands that check tools and services are ready |
-| `## Rules` | every implementer | pasted into each implementer prompt; keep it short |
-| `## At wave end` | orchestrator | after each wave gate passes |
-| `## Closeout Evidence Commands` | orchestrator | at close-out only; fails closed |
-| `## Acceptance Evidence` | orchestrator | at close-out; allows acceptance checks; fails closed |
-| `## At epic close-out` | orchestrator | in the epic retro |
-| `## At project checkpoint` | orchestrator | when a run stops at a project end |
-
-### What it never does
-
-Implementers only write code in their worktrees; they never change tick state. The orchestrator owns all tick state. Adding, removing or reordering epics in the roadmap is a human decision: the agent may propose it, not do it. Dates never block execution.
-
-### References
-
-- [references/tk-commands.md](references/tk-commands.md): every `tk` command and flag
-- [references/tick-patterns.md](references/tick-patterns.md): how to write good ticks, and the Definition of Ready
-- [references/big-picture.md](references/big-picture.md): projects, buckets, dates, and other opt-in structure
-- [references/agent-runner.md](references/agent-runner.md): the shared run protocol (waves, gates, review, retro, learnings)
-- [references/claude-runner.md](references/claude-runner.md) and [references/codex-runner.md](references/codex-runner.md): the adapters for Claude Code and Codex
-- [references/code-smells.md](references/code-smells.md): the maintainability baseline for reviews
-
-### Credit and license
-
-This skill began as the skill in [pengelbrecht/ticks](https://github.com/pengelbrecht/ticks) (MIT, Peter Engelbrecht) and moved here with its history. Upstream's own skill is now tracker-only. The `tk` binary comes from upstream. License: [LICENSE](LICENSE) (MIT; it keeps Peter Engelbrecht's copyright).
+This skill began as the skill in [pengelbrecht/ticks](https://github.com/pengelbrecht/ticks) (MIT, Peter Engelbrecht) and moved here with its history. The `tk` binary comes from upstream. License: [LICENSE](LICENSE) (MIT; it keeps Peter Engelbrecht's copyright).
